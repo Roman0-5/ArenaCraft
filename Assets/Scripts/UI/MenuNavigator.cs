@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.InputSystem;
 using UnityEngine.UI;
 
 namespace ArenaCraft
@@ -33,21 +34,23 @@ namespace ArenaCraft
         private void Update()
         {
             if (!_active || _buttons.Count == 0) return;
+            var kb = Keyboard.current;
+            if (kb == null) return;
 
-            if (Input.GetKeyDown(KeyCode.W) || Input.GetKeyDown(KeyCode.UpArrow))
+            if (kb[Key.W].wasPressedThisFrame || kb[Key.UpArrow].wasPressedThisFrame)
             {
                 _index = (_index - 1 + _buttons.Count) % _buttons.Count;
                 Highlight();
             }
-            if (Input.GetKeyDown(KeyCode.S) || Input.GetKeyDown(KeyCode.DownArrow))
+            if (kb[Key.S].wasPressedThisFrame || kb[Key.DownArrow].wasPressedThisFrame)
             {
                 _index = (_index + 1) % _buttons.Count;
                 Highlight();
             }
 
-            if (Input.GetKeyDown(KeyCode.Space) || Input.GetKeyDown(KeyCode.Return) ||
-                Input.GetKeyDown(KeyCode.KeypadEnter) || Input.GetKeyDown(KeyCode.F) ||
-                Input.GetKeyDown(KeyCode.RightShift))
+            if (kb[Key.Space].wasPressedThisFrame || kb[Key.Enter].wasPressedThisFrame ||
+                kb[Key.NumpadEnter].wasPressedThisFrame || kb[Key.F].wasPressedThisFrame ||
+                kb[Key.RightShift].wasPressedThisFrame)
             {
                 if (_index >= 0 && _index < _buttons.Count && _buttons[_index] != null)
                     _buttons[_index].onClick.Invoke();

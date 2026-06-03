@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
+using UnityEngine.InputSystem.UI;
 using UnityEngine.UI;
 
 namespace ArenaCraft
@@ -52,10 +53,15 @@ namespace ArenaCraft
             scaler.matchWidthOrHeight = 0.5f;
 
             // --- EventSystem (for mouse clicks on buttons) ---
+            // Uses the new Input System UI module since that is the project's
+            // active input handler; AssignDefaultActions wires up pointer/click
+            // without needing a serialized input-actions asset.
             if (FindFirstObjectByType<EventSystem>() == null)
             {
-                var es = new GameObject("EventSystem", typeof(EventSystem), typeof(StandaloneInputModule));
+                var es = new GameObject("EventSystem", typeof(EventSystem));
                 es.transform.SetParent(transform, false);
+                var module = es.AddComponent<InputSystemUIInputModule>();
+                module.AssignDefaultActions();
             }
 
             BuildHud(configs, stats);
