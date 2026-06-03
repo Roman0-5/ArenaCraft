@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.InputSystem;
 using UnityEngine.UI;
 
 namespace ArenaCraft
@@ -79,8 +80,8 @@ namespace ArenaCraft
 
             if (!Ready)
             {
-                if (Input.GetKeyDown(_config.up)) { _selection = (_selection - 1 + _items.Count) % _items.Count; Refresh(); }
-                if (Input.GetKeyDown(_config.down)) { _selection = (_selection + 1) % _items.Count; Refresh(); }
+                if (_config.UpPressed()) { _selection = (_selection - 1 + _items.Count) % _items.Count; Refresh(); }
+                if (_config.DownPressed()) { _selection = (_selection + 1) % _items.Count; Refresh(); }
                 if (_config.AttackPressed()) TryBuy();
             }
 
@@ -136,17 +137,17 @@ namespace ArenaCraft
             }
         }
 
-        private static string KeyName(KeyCode k)
+        private static string KeyName(Key k)
         {
             switch (k)
             {
-                case KeyCode.UpArrow: return "Up";
-                case KeyCode.DownArrow: return "Down";
-                case KeyCode.LeftArrow: return "Left";
-                case KeyCode.RightArrow: return "Right";
-                case KeyCode.Return: return "Enter";
-                case KeyCode.RightShift: return "RShift";
-                case KeyCode.Space: return "Space";
+                case Key.UpArrow: return "Up";
+                case Key.DownArrow: return "Down";
+                case Key.LeftArrow: return "Left";
+                case Key.RightArrow: return "Right";
+                case Key.Enter: return "Enter";
+                case Key.RightShift: return "RShift";
+                case Key.Space: return "Space";
                 default: return k.ToString();
             }
         }

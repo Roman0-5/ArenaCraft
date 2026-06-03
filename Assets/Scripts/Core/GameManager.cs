@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 namespace ArenaCraft
 {
@@ -84,7 +85,8 @@ namespace ArenaCraft
             }
 
             // Esc backs out to the main menu from gameplay / victory.
-            if (Input.GetKeyDown(KeyCode.Escape) && Phase != GamePhase.MainMenu)
+            var kb = Keyboard.current;
+            if (kb != null && kb[Key.Escape].wasPressedThisFrame && Phase != GamePhase.MainMenu)
                 ReturnToMenu();
         }
 
