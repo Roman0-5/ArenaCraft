@@ -28,6 +28,7 @@ namespace ArenaCraft
         private int maxHP;
         private int currentHP;
         private bool isDead;
+        private ShieldBlock shieldBlock;
         #endregion
 
         public int MaxHP => this.maxHP;
@@ -43,6 +44,7 @@ namespace ArenaCraft
 
         private void Awake()
         {
+            this.shieldBlock = GetComponent<ShieldBlock>();
             this.RecalculateMaxHP(true);
         }
 
@@ -70,6 +72,13 @@ namespace ArenaCraft
         public void TakeDamage(float amount)
         {
             if (this.isDead || amount <= 0f) return;
+
+            // Active shield block negates the hit (and consumes a shield charge).
+            if (this.shieldBlock != null && this.shieldBlock.TryBlock())
+            {
+                Debug.Log($"{name}: BLOCKED  ({this.shieldBlock.BlocksRemaining} blocks left)", this);
+                return;
+            }
 
             this.currentHP = Mathf.Max(0, this.currentHP - Mathf.RoundToInt(amount));
             this.OnHealthChanged?.Invoke(this.currentHP, this.maxHP);

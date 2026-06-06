@@ -138,6 +138,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::ArenaCraft.ArenaPlayerController
   moveSpeed: 6
   turnSpeed: 15
+  dashSpeed: 16
+  dashDuration: 0.18
+  dashCooldown: 1
   animator: {fileID: 0}
   speedParameter: Speed
 --- !u!114 &17423182
@@ -274,6 +277,10 @@ MonoBehaviour:
   fallbackCooldown: 0.5
   fallbackDamage: 10
   attackTrigger: Attack
+  attackTrigger2: Attack2
+  secondHitMultiplier: 1.5
+  comboResetTime: 1.2
+  comboFinisherCooldown: 0.9
 --- !u!114 &17423185
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -287,7 +294,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ArenaCraft.Health
   baseMaxHP: 100
-  armor: 0
+  armor: 2
   disableControlsOnDeath: 1
   deathTrigger: Die
 --- !u!114 &17423186
@@ -359,6 +366,36 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 4086279202973348, guid: c20397bf1592dc040b827e8716b0bd41, type: 3}
   m_PrefabInstance: {fileID: 1754492762}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &17423191
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 17423180}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 90cacf14853cb7f41a4900c2a60210fb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ArenaCraft.Equipment
+  weaponObject: {fileID: 139992278}
+  shieldObject: {fileID: 1307433162}
+  hideOnStart: 1
+--- !u!114 &17423192
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 17423180}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 044799098b3cd8e4ea7662522d9e33f8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ArenaCraft.ShieldBlock
+  hasShield: 0
+  maxBlocks: 10
+  blockingParameter: Blocking
 --- !u!1 &59152008
 GameObject:
   m_ObjectHideFlags: 0
@@ -517,6 +554,11 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: -0.306, y: -0.717, z: 0.822}
+--- !u!1 &139992278 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 1076420036850812, guid: c20397bf1592dc040b827e8716b0bd41, type: 3}
+  m_PrefabInstance: {fileID: 1754492762}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &154958862
 GameObject:
   m_ObjectHideFlags: 0
@@ -675,6 +717,12 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 1556040939566342, guid: c20397bf1592dc040b827e8716b0bd41, type: 3}
       insertIndex: -1
       addedObject: {fileID: 376035547}
+    - targetCorrespondingSourceObject: {fileID: 1556040939566342, guid: c20397bf1592dc040b827e8716b0bd41, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 376035549}
+    - targetCorrespondingSourceObject: {fileID: 1556040939566342, guid: c20397bf1592dc040b827e8716b0bd41, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 376035550}
   m_SourcePrefab: {fileID: 100100000, guid: c20397bf1592dc040b827e8716b0bd41, type: 3}
 --- !u!1 &315136619
 GameObject:
@@ -938,7 +986,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ArenaCraft.MeleeAttack
   hitbox: {fileID: 154958863}
-  weapon: {fileID: 0}
+  weapon: {fileID: 11400000, guid: a7ea1000ab0000000000000000000f01, type: 2}
   animator: {fileID: 0}
   combatAudio: {fileID: 0}
   owner: {fileID: 0}
@@ -947,6 +995,10 @@ MonoBehaviour:
   fallbackCooldown: 0.5
   fallbackDamage: 10
   attackTrigger: Attack
+  attackTrigger2: Attack2
+  secondHitMultiplier: 1.5
+  comboResetTime: 1.2
+  comboFinisherCooldown: 0.9
 --- !u!114 &376035543
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -960,7 +1012,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ArenaCraft.Health
   baseMaxHP: 100
-  armor: 2
+  armor: 0
   disableControlsOnDeath: 1
   deathTrigger: Die
 --- !u!114 &376035544
@@ -1041,8 +1093,92 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::ArenaCraft.ArenaPlayerController
   moveSpeed: 6
   turnSpeed: 15
+  dashSpeed: 16
+  dashDuration: 0.18
+  dashCooldown: 1
   animator: {fileID: 0}
   speedParameter: Speed
+--- !u!114 &376035549
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 376035537}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 90cacf14853cb7f41a4900c2a60210fb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ArenaCraft.Equipment
+  weaponObject: {fileID: 1353849187}
+  shieldObject: {fileID: 933743802}
+  hideOnStart: 1
+--- !u!114 &376035550
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 376035537}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 044799098b3cd8e4ea7662522d9e33f8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ArenaCraft.ShieldBlock
+  hasShield: 0
+  maxBlocks: 10
+  blockingParameter: Blocking
+--- !u!1 &549192657
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 549192659}
+  - component: {fileID: 549192658}
+  m_Layer: 0
+  m_Name: KeybindMenu
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &549192658
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 549192657}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b502b961c307c1848ba0b4124a973724, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ArenaCraft.RebindMenuBuilder
+  controls: {fileID: -944628639613478452, guid: 89d6446b0fbf0ed469515221b0a23708, type: 3}
+  buildOnStart: 1
+--- !u!4 &549192659
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 549192657}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 2.31286, y: 0.05891, z: 4.68545}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &933743802 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 1099462880826052, guid: c20397bf1592dc040b827e8716b0bd41, type: 3}
+  m_PrefabInstance: {fileID: 262750029}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &959896108
 GameObject:
   m_ObjectHideFlags: 0
@@ -1360,6 +1496,16 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 26.653, y: -135, z: 0}
+--- !u!1 &1307433162 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 1099462880826052, guid: c20397bf1592dc040b827e8716b0bd41, type: 3}
+  m_PrefabInstance: {fileID: 1754492762}
+  m_PrefabAsset: {fileID: 0}
+--- !u!1 &1353849187 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 1076420036850812, guid: c20397bf1592dc040b827e8716b0bd41, type: 3}
+  m_PrefabInstance: {fileID: 262750029}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &1754492762
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -1451,6 +1597,12 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 1556040939566342, guid: c20397bf1592dc040b827e8716b0bd41, type: 3}
       insertIndex: -1
       addedObject: {fileID: 17423181}
+    - targetCorrespondingSourceObject: {fileID: 1556040939566342, guid: c20397bf1592dc040b827e8716b0bd41, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 17423191}
+    - targetCorrespondingSourceObject: {fileID: 1556040939566342, guid: c20397bf1592dc040b827e8716b0bd41, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 17423192}
   m_SourcePrefab: {fileID: 100100000, guid: c20397bf1592dc040b827e8716b0bd41, type: 3}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
@@ -1463,3 +1615,4 @@ SceneRoots:
   - {fileID: 1299971005}
   - {fileID: 1160487910}
   - {fileID: 59152010}
+  - {fileID: 549192659}

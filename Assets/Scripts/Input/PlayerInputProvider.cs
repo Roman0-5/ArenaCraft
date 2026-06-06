@@ -31,6 +31,8 @@ namespace ArenaCraft
         public InputAction Move { get; private set; }
         public InputAction Attack { get; private set; }
         public InputAction Interact { get; private set; }
+        public InputAction Dash { get; private set; }
+        public InputAction Block { get; private set; }
 
         private void Awake()
         {
@@ -45,6 +47,8 @@ namespace ArenaCraft
             this.Move = this.map.FindAction("Move", throwIfNotFound: true);
             this.Attack = this.map.FindAction("Attack", throwIfNotFound: true);
             this.Interact = this.map.FindAction("Interact", throwIfNotFound: true);
+            this.Dash = this.map.FindAction("Dash", throwIfNotFound: true);
+            this.Block = this.map.FindAction("Block", throwIfNotFound: true);
         }
 
         private void OnEnable()

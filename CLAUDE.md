@@ -38,23 +38,36 @@ Paket 2 deliverables:
 
 All gameplay code lives under `Assets/Scripts/`:
 
-- `Input/ArenaControls.inputactions` — **one** asset, **two** action maps `PlayerOne` / `PlayerTwo`,
-  each with `Move` (Vector2), `Attack` (Button), `Interact` (Button).
-  P1 = WASD / Space / F, P2 = Arrows / Enter / Right Shift (GDD 5.2).
-- `Input/ControlsBootstrap.cs` — enables both maps at startup, loads rebind overrides from PlayerPrefs.
-- `Player/PlayerController.cs` — `Rigidbody`-based X/Z movement, constant speed, facing via
-  `Quaternion.LookRotation`/`Slerp`, drives Animator (`Speed` float).
-- `Combat/Health.cs` — base 100 HP, armor raises max HP, `TakeDamage`, death/elimination, events.
-- `Combat/MeleeAttack.cs` — on Attack: swing cooldown, brief hitbox window, `Attack` anim trigger, SFX.
-- `Combat/AttackHitbox.cs` — child trigger collider; damages opposing `Health`; per-swing hit dedup.
-- `Combat/Weapon.cs` — ScriptableObject (`damage`, `swingCooldown`); default "Fists"; stub for Paket 3 shop.
+- `Input/ArenaControls.inputactions` — **one** asset, **two** maps `PlayerOne` / `PlayerTwo`,
+  each with `Move` (Vector2), `Attack`, `Interact`, `Dash`, `Block` (Buttons).
+- `Input/PlayerInputProvider.cs` — resolves a player's map (asset + `PlayerSlot` enum) and exposes
+  Move/Attack/Interact/Dash/Block. Movement **and** combat read input through this (one wiring point).
+- `Input/ControlsBootstrap.cs` — loads rebind overrides from PlayerPrefs at startup.
+- `Player/ArenaPlayerController.cs` — `Rigidbody` X/Z movement, facing via `LookRotation`/`Slerp`,
+  drives Animator `Speed`; **Dash** (forward burst + cooldown). Y position + X/Z tilt locked, spin
+  zeroed (clean collisions). *(Renamed from `PlayerController` to avoid a clash with the Input
+  System sample's `PlayerController`, which hid it from Add Component.)*
+- `Combat/Health.cs` — 100 base HP, armor raises max HP (set by Paket 3), `TakeDamage`/`Die` + events;
+  consults `ShieldBlock` to negate blocked hits. *(Temporary `Debug.Log` for HP/death until HUD.)*
+- `Combat/MeleeAttack.cs` — Attack input (polled live), swing cooldown, hitbox window, anim trigger,
+  SFX; **2-hit combo** (alternates `Attack`/`Attack2`, 2nd hit ×1.5 dmg + longer finisher cooldown);
+  `EquipWeapon()` shop hook; drives weapon-model visibility via `Equipment`.
+- `Combat/AttackHitbox.cs` — child trigger collider; damages opposing `Health`; per-swing dedup.
+- `Combat/Weapon.cs` — ScriptableObject: `damage`, `swingCooldown`, `displayName`, `showsWeaponModel`.
 - `Combat/ArmorType.cs` — enum None/Light/Heavy (+0/+25/+50 max HP).
-- `UI/RebindActionUI.cs` + `UI/KeybindingMenuController.cs` — full runtime rebind menu (PlayerPrefs).
-- `Audio/CombatAudio.cs` — swing/hit SFX, triggered by combat scripts.
+- `Combat/Equipment.cs` — shows/hides the weapon (`Sword`) & shield (`Shield`) models; hidden at start
+  (begins unarmed). Controlled by `MeleeAttack` (weapon) and `ShieldBlock` (shield).
+- `Combat/ShieldBlock.cs` — hold **Block** to negate incoming hits; durability (`maxBlocks`=10), shield
+  **breaks** at zero; `EquipShield()` shop hook; drives Animator `Blocking` bool + shield visibility.
+- `UI/RebindActionUI.cs` + `UI/KeybindingMenuController.cs` — rebind-row logic + save/load/reset.
+- `UI/RebindMenuBuilder.cs` — builds the whole rebind-menu UI at runtime; **gear button (top-left)**
+  toggles it (also Esc). Add to one empty GameObject + assign `ArenaControls`.
+- `Audio/CombatAudio.cs` — swing/hit SFX (needs clips).
+- `Assets/Weapons/` — `Fists` (10 dmg), `BasicSword` (20), `AdvancedSword` (35) Weapon assets.
 
 ### Input architecture (2 players, one keyboard)
 Two action maps in one asset, both enabled simultaneously (different keys → no conflict). This is
-more robust than `PlayerInput`/control schemes for a single keyboard device. Each `PlayerController`
+more robust than `PlayerInput`/control schemes for a single keyboard device. Each `PlayerInputProvider`
 gets the asset + a `PlayerSlot` enum in the Inspector and resolves its map via `FindActionMap`.
 This deliberately deviates from the inherited `InputSystem.actions.FindAction(...)` convention,
 which is single-player only. Rebinding uses `SaveBindingOverridesAsJson` /
@@ -75,3 +88,64 @@ which is single-player only. Rebinding uses `SaveBindingOverridesAsJson` /
 - The default `Assets/InputSystem_Actions.inputactions` is the Unity template — left as reference,
   not used for gameplay. ArenaCraft uses `Assets/Scripts/Input/ArenaControls.inputactions`.
 - Scenes are edited in the Editor. Tests via Window > General > Test Runner.
+- Claude CAN hand-author `.inputactions`, `.controller` and `.mat`/`.asset` files (self-contained,
+  GUID-referenced). Scenes/prefabs stay Editor-only.
+
+---
+
+# Session-Stand (zuletzt bearbeitet) — wo wir aufgehört haben
+
+## Charakter
+- Asset **RPGHero** (`Assets/RPGHero/`), Charakter-Prefab **`RPGHeroHP`** (Sword in `hand_r`,
+  Shield in `hand_l`). Animator-Controller: **`Assets/RPGHero/Animator/ArenaGladiatorAC.controller`**
+  (von Claude gebaut), **nicht** `SwordAndShield`.
+- Materialien sind URP-konvertiert (Farbe kommt aus **Emission**). `HandPainted 1` = **rot** (P1),
+  `HandPainted_Blue` = **blau** (P2). `HandPainted` (Original) unverändert.
+
+## Animator `ArenaGladiatorAC` — States & Parameter
+- Parameter: `Speed` (Float), `Attack` (Trigger), `Attack2` (Trigger), `Die` (Trigger),
+  `Blocking` (Bool).
+- States: `Idle` (Default), `Walk`, `Attack` (NormalAttack01), `Attack2` (NormalAttack02),
+  `Die` (Die_SwordShield), **`Block`** (Motion noch LEER — siehe „Offen").
+- Clips loopen: Idle/Walk an, Attack/Die aus.
+
+## Steuerung (beide im Rebind-Menü änderbar)
+| Aktion | Player 1 | Player 2 |
+|---|---|---|
+| Bewegen | WASD | Pfeiltasten |
+| Angriff | Space | Enter |
+| Interact | F | Rechte Umschalt |
+| **Dash** | Linke Umschalt | Rechte Strg |
+| **Block** | Linke Strg | Punkt `.` |
+
+## Was heute fertig wurde ✅
+- Bewegung + Facing (Rigidbody, X/Z), saubere Kollision (Y-Pos gesperrt, kein Drehen/Schleudern).
+- Animationen: Idle/Walk/Attack laufen; **Death-Animation** (Die-State, `Health.deathTrigger="Die"`).
+- **2-Hit-Combo**: abwechselnd Attack/Attack2, 2. Hit ×1.5 Schaden + längere Erholung (`comboFinisherCooldown`).
+- **Dash** nach vorn (Speed/Duration/Cooldown im `ArenaPlayerController`).
+- **HP/Armor**: 100 Basis; Armor-HP-Logik vorhanden (Werte setzt Paket 3 per `ApplyArmor`).
+- **Aktiver Schild-Block**: halten = Treffer negiert; 10 Blocks → Schild zerbricht; `EquipShield()`-Hook.
+  Schild ist EIGENES Item (kein HP) — Rüstung gibt HP (Paket 3).
+- **Equipment**: Schwert/Schild am Start unsichtbar (Fäuste); erscheinen bei Ausrüstung/Kauf.
+- **Waffen-System**: `Weapon`-Assets (Fists/Basic/Advanced), `EquipWeapon()`-Hook; Schaden skaliert.
+- **Rebind-Menü**: baut sich per `RebindMenuBuilder` selbst; Zahnrad oben links toggelt (auch Esc);
+  live-Speichern in PlayerPrefs; „Reset all".
+- Git: zwei zu große SRP-Zips aus History entfernt + `Assets/RPGHero/SRP/` in `.gitignore`; gepusht.
+
+## OFFEN / als Nächstes ⬜
+1. **Block-Animation zuweisen** (NOCH NICHT GEMACHT): FBX `Assets/RPGHero/Animations/Sword And
+   Shield Block Idle.fbx` → Rig **Humanoid**, Avatar **Copy From Other Avatar → NewFreeRPGHeroAvatar**,
+   Apply; Animation-Tab **Loop Time an**. Dann im Project die FBX aufklappen (►), den Clip auf den
+   **`Block`-State** in `ArenaGladiatorAC` ziehen (Feld `Motion`). Block funktioniert schon, nur die
+   Pose fehlt bis dahin.
+2. **Editor-Wiring sicherstellen** (beide Spieler): Komponenten `ShieldBlock`, `Equipment`
+   (Sword→Weapon Object, Shield→Shield Object), `Health.deathTrigger = Die`, Material rot/blau,
+   `KeybindMenu`-GameObject mit `RebindMenuBuilder` + ArenaControls.
+3. **Kampf-SFX**: Clips importieren (z. B. kenney.nl RPG Audio, CC0) → `AudioSource` + `CombatAudio`
+   pro Spieler, `MeleeAttack.combatAudio` zuweisen.
+
+## Dev-Hinweise
+- Temporäre `Debug.Log` in `Health` (Schaden/Tod/Block) bis HUD da ist (Paket 3) — können später raus.
+- `OnValidate`-Hooks in `MeleeAttack`/`ShieldBlock`: erlauben Live-Test von Waffe/Schild im Inspector.
+- Aktuelle Arbeitsszene war zwischenzeitlich `Assets/_Recovery/0.unity` (nach Crash) — als echte
+  Szene speichern (`Assets/Scenes/SampleScene.unity`).

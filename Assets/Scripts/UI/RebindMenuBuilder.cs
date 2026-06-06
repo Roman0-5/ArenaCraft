@@ -25,6 +25,7 @@ namespace ArenaCraft
 
         #region Private Fields
         private Font font;
+        private GameObject menuRoot;
         #endregion
 
         private void Start()
@@ -54,9 +55,9 @@ namespace ArenaCraft
 
             var canvas = canvasGO.GetComponent<Canvas>();
             canvas.renderMode = RenderMode.ScreenSpaceOverlay;
+            canvas.pixelPerfect = true; // crisp text (avoids upscaling blur)
             var scaler = canvasGO.GetComponent<CanvasScaler>();
-            scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
-            scaler.referenceResolution = new Vector2(1920, 1080);
+            scaler.uiScaleMode = CanvasScaler.ScaleMode.ConstantPixelSize;
 
             var panel = this.CreatePanel(canvasGO.transform);
 
@@ -73,7 +74,49 @@ namespace ArenaCraft
             controller.rows = rows.ToArray();
             controller.resetAllButton = resetAll;
 
-            canvasGO.SetActive(true);
+            var closeBtn = this.CreateButton(panel.transform, "Save & Close  (Esc)", 44);
+            closeBtn.onClick.AddListener(this.CloseMenu);
+
+            // Always-visible gear button (top-left) that opens the menu.
+            var gear = this.CreateButton(canvasGO.transform, "⚙");
+            var grt = gear.GetComponent<RectTransform>();
+            grt.anchorMin = new Vector2(0f, 1f);
+            grt.anchorMax = new Vector2(0f, 1f);
+            grt.pivot = new Vector2(0f, 1f);
+            grt.sizeDelta = new Vector2(50f, 50f);
+            grt.anchoredPosition = new Vector2(12f, -12f);
+            var gearText = gear.GetComponentInChildren<Text>();
+            if (gearText != null) gearText.fontSize = 28;
+            gear.onClick.AddListener(this.ToggleMenu);
+
+            // The panel (not the whole canvas) is what gets shown/hidden, so the gear stays visible.
+            this.menuRoot = panel.gameObject;
+            canvasGO.SetActive(true);        // initialize children with fields populated
+            this.menuRoot.SetActive(false);  // menu starts hidden; open via gear or Esc
+        }
+
+        /// <summary>Show the menu.</summary>
+        public void OpenMenu()
+        {
+            if (this.menuRoot != null) this.menuRoot.SetActive(true);
+        }
+
+        /// <summary>Hide the menu. Rebinds are already saved live, so nothing else is needed.</summary>
+        public void CloseMenu()
+        {
+            if (this.menuRoot != null) this.menuRoot.SetActive(false);
+        }
+
+        /// <summary>Show/hide the menu (bound to Esc).</summary>
+        public void ToggleMenu()
+        {
+            if (this.menuRoot != null) this.menuRoot.SetActive(!this.menuRoot.activeSelf);
+        }
+
+        private void Update()
+        {
+            var kb = Keyboard.current;
+            if (kb != null && kb.escapeKey.wasPressedThisFrame) this.ToggleMenu();
         }
 
         private void AddPlayerRows(Transform parent, string map, string prefix, List<RebindActionUI> rows)
@@ -86,6 +129,8 @@ namespace ArenaCraft
                 ("Right", "Move", 4),
                 ("Attack", "Attack", 0),
                 ("Interact", "Interact", 0),
+                ("Dash", "Dash", 0),
+                ("Block", "Block", 0),
             };
 
             foreach (var e in entries)
@@ -132,7 +177,7 @@ namespace ArenaCraft
             rt.anchorMin = new Vector2(0.5f, 0.5f);
             rt.anchorMax = new Vector2(0.5f, 0.5f);
             rt.pivot = new Vector2(0.5f, 0.5f);
-            rt.sizeDelta = new Vector2(780, 780);
+            rt.sizeDelta = new Vector2(780, 980);
             rt.anchoredPosition = Vector2.zero;
 
             go.GetComponent<Image>().color = new Color(0f, 0f, 0f, 0.85f);
@@ -204,12 +249,22 @@ namespace ArenaCraft
 
         private void EnsureEventSystem()
         {
-            if (EventSystem.current != null) return;
+            var existing = EventSystem.current;
+            if (existing == null)
+            {
+                var es = new GameObject("EventSystem", typeof(EventSystem), typeof(InputSystemUIInputModule));
+                es.GetComponent<InputSystemUIInputModule>().AssignDefaultActions();
+                return;
+            }
 
-            var es = new GameObject("EventSystem", typeof(EventSystem), typeof(InputSystemUIInputModule));
-            var module = es.GetComponent<InputSystemUIInputModule>();
-            // Give the module a default set of UI actions so mouse clicks work with the new Input System.
-            module.AssignDefaultActions();
+            // Project is New-Input-System only: make sure the EventSystem uses the new UI module,
+            // otherwise clicks won't register (and the old StandaloneInputModule errors out).
+            if (existing.GetComponent<InputSystemUIInputModule>() == null)
+            {
+                var legacy = existing.GetComponent<StandaloneInputModule>();
+                if (legacy != null) Destroy(legacy);
+                existing.gameObject.AddComponent<InputSystemUIInputModule>().AssignDefaultActions();
+            }
         }
     }
 }

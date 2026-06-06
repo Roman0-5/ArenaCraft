@@ -44,12 +44,29 @@ namespace ArenaCraft
 
         [Header("Animation")]
         public string attackTrigger = "Attack";
+
+        [Header("Combo")]
+        [Tooltip("Animator trigger for the second combo hit.")]
+        public string attackTrigger2 = "Attack2";
+
+        [Tooltip("Damage multiplier for the second (heavy) combo hit.")]
+        public float secondHitMultiplier = 1.5f;
+
+        [Tooltip("Wait longer than this between swings and the combo resets to the first hit (seconds).")]
+        public float comboResetTime = 1.2f;
+
+        [Tooltip("Longer recovery after the 2nd (finisher) hit, so the combo isn't strictly better (seconds).")]
+        public float comboFinisherCooldown = 0.9f;
         #endregion
 
         #region Private Fields
         private PlayerInputProvider input;
+        private Equipment equipment;
         private float lastAttackTime = -999f;
         private int attackHash;
+        private int attack2Hash;
+        private int comboIndex;
+        private float activeCooldown;
         #endregion
 
         private float Cooldown => this.weapon != null ? this.weapon.swingCooldown : this.fallbackCooldown;
@@ -68,6 +85,21 @@ namespace ArenaCraft
         public void EquipWeapon(Weapon newWeapon)
         {
             this.weapon = newWeapon;
+            this.RefreshWeaponVisual();
+        }
+
+        private void RefreshWeaponVisual()
+        {
+            if (this.equipment != null)
+            {
+                this.equipment.SetWeaponVisible(this.weapon != null && this.weapon.showsWeaponModel);
+            }
+        }
+
+        // Lets you test weapon swaps live by changing the Weapon field in the Inspector during Play.
+        private void OnValidate()
+        {
+            if (Application.isPlaying) this.RefreshWeaponVisual();
         }
 
         private void Awake()
@@ -76,7 +108,15 @@ namespace ArenaCraft
             if (this.animator == null) this.animator = GetComponentInChildren<Animator>();
             if (this.owner == null) this.owner = GetComponent<Health>();
             if (this.hitbox != null && this.hitbox.owner == null) this.hitbox.owner = this.owner;
+            this.equipment = GetComponent<Equipment>();
             this.attackHash = Animator.StringToHash(this.attackTrigger);
+            this.attack2Hash = Animator.StringToHash(this.attackTrigger2);
+        }
+
+        private void Start()
+        {
+            // Apply the initial weapon's visibility (e.g. start unarmed with Fists).
+            this.RefreshWeaponVisual();
         }
 
         private void OnEnable()
@@ -96,20 +136,32 @@ namespace ArenaCraft
             if (this.input.Attack == null) return;
             if (!this.input.Attack.WasPerformedThisFrame()) return;
             if (this.owner != null && this.owner.IsDead) return;
-            if (Time.time - this.lastAttackTime < this.Cooldown) return;
+            if (Time.time - this.lastAttackTime < this.activeCooldown) return;
 
+            // Advance the combo if the last swing was recent, otherwise restart at the first hit.
+            this.comboIndex = (Time.time - this.lastAttackTime <= this.comboResetTime)
+                ? (this.comboIndex + 1) % 2
+                : 0;
             this.lastAttackTime = Time.time;
-            StartCoroutine(this.SwingRoutine());
+
+            // The finisher (2nd hit) has a longer recovery so the combo isn't strictly better.
+            this.activeCooldown = this.comboIndex == 1 ? this.comboFinisherCooldown : this.Cooldown;
+
+            StartCoroutine(this.SwingRoutine(this.comboIndex));
         }
 
-        private IEnumerator SwingRoutine()
+        private IEnumerator SwingRoutine(int combo)
         {
-            if (this.animator != null) this.animator.SetTrigger(this.attackHash);
+            // Second hit uses the alternate animation and deals more damage.
+            int triggerHash = combo == 1 ? this.attack2Hash : this.attackHash;
+            float damage = combo == 1 ? this.Damage * this.secondHitMultiplier : this.Damage;
+
+            if (this.animator != null) this.animator.SetTrigger(triggerHash);
             if (this.combatAudio != null) this.combatAudio.PlaySwing();
 
             if (this.windup > 0f) yield return new WaitForSeconds(this.windup);
 
-            if (this.hitbox != null) this.hitbox.BeginSwing(this.Damage);
+            if (this.hitbox != null) this.hitbox.BeginSwing(damage);
             yield return new WaitForSeconds(this.hitboxActiveTime);
             if (this.hitbox != null) this.hitbox.EndSwing();
         }

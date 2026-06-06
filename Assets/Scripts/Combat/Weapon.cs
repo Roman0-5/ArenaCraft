@@ -19,5 +19,9 @@ namespace ArenaCraft
 
         [Tooltip("Display name, e.g. 'Fists', 'Basic Sword'.")]
         public string displayName = "Fists";
+
+        [Tooltip("If true, equipping this weapon shows the character's weapon model (via Equipment). " +
+                 "Fists = false; swords = true.")]
+        public bool showsWeaponModel = false;
     }
 }

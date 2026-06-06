@@ -115,3 +115,6 @@ Icon[]
 
 # Large packaged SRP/HDRP asset variants not needed for this URP project
 Assets/RPGHero/SRP/
+
+# orphan meta of the ignored SRP folder
+Assets/RPGHero/SRP.meta
