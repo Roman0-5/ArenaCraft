@@ -112,3 +112,6 @@ __MACOSX/
 .AppleDouble
 .LSOverride
 Icon[]
+
+# Large packaged SRP/HDRP asset variants not needed for this URP project
+Assets/RPGHero/SRP/
