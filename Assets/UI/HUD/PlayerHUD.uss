@@ -1,0 +1,146 @@
+/*
+2026-06-07 AI-Tag
+This was created with the help of Assistant, a Unity Artificial Intelligence product.
+*/
+:root {
+    --color-hp: #c0392b;
+    --color-hp-low: #7f8c8d;
+    --color-resource: #e67e22;
+    --color-gold: #f1c40f;
+    --panel-bg: rgba(35, 25, 20, 0.95);
+    --border-color: #d35400;
+    --accent-p1: #c0392b;
+    --accent-p2: #2980b9;
+}
+
+.hud-container {
+    width: 100%;
+    height: 100%;
+    padding: 30px;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: flex-end;
+}
+
+.player-panel {
+    background-color: var(--panel-bg);
+    padding: 15px;
+    border-width: 4px;
+    width: 380px;
+    flex-direction: row;
+    align-items: center;
+    border-radius: 4px;
+}
+
+#p1-panel {
+    border-color: var(--accent-p1);
+}
+
+#p2-panel {
+    border-color: var(--accent-p2);
+}
+
+.panel-content-main {
+    flex-grow: 1;
+    margin: 0 15px;
+}
+
+.resource-bar-container {
+    width: 22px;
+    height: 130px;
+    background-color: #1a1005;
+    border-width: 2px;
+    border-color: rgba(255, 255, 255, 0.1);
+    overflow: hidden;
+    flex-direction: column-reverse;
+    border-radius: 2px;
+}
+
+.resource-fill {
+    width: 100%;
+    background-color: var(--color-resource);
+}
+
+.player-header {
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: flex-end;
+    margin-bottom: 12px;
+}
+
+.player-label {
+    -unity-font-style: bold;
+    font-size: 24px;
+    color: white;
+}
+
+.gold-label {
+    color: var(--color-gold);
+    font-size: 22px;
+    -unity-font-style: bold;
+}
+
+.hp-bar-container {
+    height: 28px;
+    background-color: #1a1005;
+    border-width: 2px;
+    border-color: rgba(255, 255, 255, 0.1);
+    margin-bottom: 15px;
+    overflow: hidden;
+    border-radius: 2px;
+}
+
+.hp-fill {
+    height: 100%;
+    background-color: var(--color-hp);
+}
+
+.hp-fill.low {
+    background-color: #e74c3c;
+}
+
+.items-row {
+    flex-direction: row;
+    justify-content: flex-start;
+}
+
+.p2-items {
+    flex-direction: row-reverse;
+}
+
+.item-slot {
+    width: 55px;
+    height: 55px;
+    background-color: rgba(0, 0, 0, 0.6);
+    margin: 0 6px;
+    border-width: 2px;
+    border-color: rgba(255, 255, 255, 0.15);
+    align-items: center;
+    justify-content: center;
+    border-radius: 4px;
+}
+
+.item-icon {
+    width: 45px;
+    height: 45px;
+    -unity-background-scale-mode: scale-to-fit;
+}
+
+.timer-container {
+    position: absolute;
+    top: 30px;
+    left: 50%;
+    translate: -50% 0;
+    background-color: var(--panel-bg);
+    padding: 10px 40px;
+    border-width: 4px;
+    border-color: var(--color-gold);
+    border-radius: 2px;
+}
+
+.timer-label {
+    color: white;
+    font-size: 48px;
+    -unity-font-style: bold;
+    -unity-text-align: middle-center;
+}

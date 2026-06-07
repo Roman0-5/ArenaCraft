@@ -1,0 +1,46 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements">
+    <ui:Style src="Shop.uss" />
+    <ui:VisualElement name="shop-root" class="shop-root">
+        <ui:VisualElement class="shop-panel">
+            <ui:Label text="THE ARENA SHOP" class="shop-header" />
+            
+            <ui:VisualElement name="items-grid" class="items-grid">
+                <!-- Weapon 1 -->
+                <ui:VisualElement class="shop-item">
+                    <ui:Label text="Basic Sword" class="item-name" />
+                    <ui:Label text="+5 Damage" class="item-desc" />
+                    <ui:Label text="50 Gold" class="item-price" />
+                    <ui:Button name="buy-basic-sword" text="BUY" class="buy-button" />
+                </ui:VisualElement>
+
+                <!-- Weapon 2 -->
+                <ui:VisualElement class="shop-item">
+                    <ui:Label text="Advanced Sword" class="item-name" />
+                    <ui:Label text="+15 Damage" class="item-desc" />
+                    <ui:Label text="100 Gold" class="item-price" />
+                    <ui:Button name="buy-advanced-sword" text="BUY" class="buy-button" />
+                </ui:VisualElement>
+
+                <!-- Armor 1 -->
+                <ui:VisualElement class="shop-item">
+                    <ui:Label text="Light Armor" class="item-name" />
+                    <ui:Label text="+25 Max HP" class="item-desc" />
+                    <ui:Label text="50 Gold" class="item-price" />
+                    <ui:Button name="buy-light-armor" text="BUY" class="buy-button" />
+                </ui:VisualElement>
+
+                <!-- Armor 2 -->
+                <ui:VisualElement class="shop-item">
+                    <ui:Label text="Heavy Armor" class="item-name" />
+                    <ui:Label text="+50 Max HP" class="item-desc" />
+                    <ui:Label text="100 Gold" class="item-price" />
+                    <ui:Button name="buy-heavy-armor" text="BUY" class="buy-button" />
+                </ui:VisualElement>
+            </ui:VisualElement>
+
+            <ui:Label name="warning-label" text="YOU DIDN'T BUY ANYTHING!" class="warning-label" />
+            
+            <ui:Button name="close-button" text="READY TO BATTLE" class="close-button" />
+        </ui:VisualElement>
+    </ui:VisualElement>
+</ui:UXML>

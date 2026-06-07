@@ -1,0 +1,15 @@
+{
+    "asset": "e40eeb26e21064a7195d2c969e0fab70",
+    "fileName": "019ea166-5096-7ebf-b4eb-123773bddd57.wav",
+    "prompt": "A heroic gladiatorial horn blast, deep and powerful, short duration",
+    "negativePrompt": "",
+    "model": "elevenlabs-sound-effects-v2",
+    "modelName": "ElevenLabs Sound Effects V2",
+    "customSeed": -1,
+    "w3CTraceId": "",
+    "feedback": 0,
+    "duration": 10.0,
+    "autoTrim": false,
+    "hasReference": false,
+    "voice": ""
+}

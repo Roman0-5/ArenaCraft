@@ -1,0 +1,15 @@
+{
+    "asset": "f76e8070df9794eff82f8c814fef4365",
+    "fileName": "019ea1d3-844e-769c-aaff-42de0ce70cbe.wav",
+    "prompt": "A cinematic deep-echoing gladiatorial war horn blast followed by a roar of an arena crowd cheering. Powerful and epic.",
+    "negativePrompt": "",
+    "model": "elevenlabs-sound-effects-v2",
+    "modelName": "ElevenLabs Sound Effects V2",
+    "customSeed": -1,
+    "w3CTraceId": "",
+    "feedback": 0,
+    "duration": 5.0,
+    "autoTrim": false,
+    "hasReference": false,
+    "voice": ""
+}

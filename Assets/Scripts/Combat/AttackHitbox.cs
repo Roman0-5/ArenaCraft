@@ -23,10 +23,12 @@ namespace ArenaCraft
         private float currentDamage;
         private bool active;
         private readonly HashSet<Health> hitThisSwing = new HashSet<Health>();
+        private readonly HashSet<ResourceNode> nodesHitThisSwing = new HashSet<ResourceNode>();
         #endregion
 
         /// <summary>Raised when this hitbox damages a target: (victim, damage).</summary>
         public event Action<Health, float> OnHit;
+        public event Action<ResourceNode> OnResourceHit;
 
         private void Awake()
         {
@@ -40,6 +42,7 @@ namespace ArenaCraft
         {
             this.currentDamage = damage;
             this.hitThisSwing.Clear();
+            this.nodesHitThisSwing.Clear();
             this.active = true;
             this.col.enabled = true;
         }
@@ -55,12 +58,29 @@ namespace ArenaCraft
         {
             if (!this.active) return;
 
+            // Handle Health (Players)
             Health target = other.GetComponentInParent<Health>();
-            if (target == null || target == this.owner) return;
-            if (!this.hitThisSwing.Add(target)) return; // already hit this swing
+            if (target != null && target != this.owner)
+            {
+                if (this.hitThisSwing.Add(target))
+                {
+                    target.TakeDamage(this.currentDamage);
+                    this.OnHit?.Invoke(target, this.currentDamage);
+                }
+                return;
+            }
 
-            target.TakeDamage(this.currentDamage);
-            this.OnHit?.Invoke(target, this.currentDamage);
+            // Handle Resource Nodes
+            ResourceNode node = other.GetComponentInParent<ResourceNode>();
+            if (node != null)
+            {
+                if (this.nodesHitThisSwing.Add(node))
+                {
+                    PlayerInventory inv = this.owner != null ? this.owner.GetComponent<PlayerInventory>() : null;
+                    node.TakeDamage(1, inv);
+                    this.OnResourceHit?.Invoke(node);
+                }
+            }
         }
     }
 }

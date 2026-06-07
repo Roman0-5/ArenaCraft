@@ -1,4 +1,5 @@
 {
+    "version": 1,
     "name": "ArenaControls",
     "maps": [
         {
@@ -300,6 +301,45 @@
                     "processors": "",
                     "groups": "",
                     "action": "Block",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                }
+            ]
+        },
+        {
+            "name": "UI",
+            "id": "8d8d6ab7-5913-4273-8d6b-70fbbb549ce8",
+            "actions": [
+                {
+                    "name": "Menu",
+                    "type": "Button",
+                    "id": "d3593b2c-8704-4383-a674-8b38de3e43de",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                }
+            ],
+            "bindings": [
+                {
+                    "name": "",
+                    "id": "c6cf10aa-e88f-4ed0-9146-00d2cd87fbbb",
+                    "path": "<Keyboard>/escape",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Menu",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "d546802d-a8d6-4e7a-b863-6bd969d1d9a9",
+                    "path": "<Gamepad>/start",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Menu",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }

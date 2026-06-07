@@ -1,0 +1,69 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements">
+    <ui:Style src="SettingsMenu.uss" />
+    <ui:VisualElement name="settings-root" class="settings-root">
+        <ui:VisualElement class="settings-panel">
+            <ui:Label text="ARENA SETTINGS" class="settings-header" />
+            
+            <ui:VisualElement class="tabs-container">
+                <ui:Button name="tab-button-general" text="GENERAL" class="tab-button tab-button--active" />
+                <ui:Button name="tab-button-audio" text="AUDIO" class="tab-button" />
+                <ui:Button name="tab-button-controls" text="CONTROLS" class="tab-button" />
+            </ui:VisualElement>
+
+            <ui:VisualElement class="content-area">
+                <!-- General Tab -->
+                <ui:VisualElement name="tab-content-general" class="tab-content tab-content--active">
+                    <ui:VisualElement class="setting-row">
+                        <ui:Label text="Resolution" class="setting-label" />
+                        <ui:DropdownField name="resolution-dropdown" class="setting-input" />
+                    </ui:VisualElement>
+                    <ui:VisualElement class="setting-row">
+                        <ui:Label text="Fullscreen" class="setting-label" />
+                        <ui:Toggle name="fullscreen-toggle" class="setting-input" />
+                    </ui:VisualElement>
+                    <ui:VisualElement class="setting-row">
+                        <ui:Label text="Quality Preset" class="setting-label" />
+                        <ui:DropdownField name="quality-dropdown" class="setting-input" />
+                    </ui:VisualElement>
+                </ui:VisualElement>
+
+                <!-- Audio Tab -->
+                <ui:VisualElement name="tab-content-audio" class="tab-content">
+                    <ui:VisualElement class="setting-row">
+                        <ui:Label text="Master Volume" class="setting-label" />
+                        <ui:Slider name="master-slider" low-value="0" high-value="1" class="setting-input" />
+                    </ui:VisualElement>
+                    <ui:VisualElement class="setting-row">
+                        <ui:Label text="Music Volume" class="setting-label" />
+                        <ui:Slider name="music-slider" low-value="0" high-value="1" class="setting-input" />
+                    </ui:VisualElement>
+                    <ui:VisualElement class="setting-row">
+                        <ui:Label text="SFX Volume" class="setting-label" />
+                        <ui:Slider name="sfx-slider" low-value="0" high-value="1" class="setting-input" />
+                    </ui:VisualElement>
+                </ui:VisualElement>
+
+                <!-- Controls Tab -->
+                <ui:VisualElement name="tab-content-controls" class="tab-content">
+                    <ui:ScrollView class="scroll-view">
+                        <ui:Label text="PLAYER 1 (RED)" class="player-section-header" />
+                        <ui:VisualElement name="p1-rows-container" />
+                        
+                        <ui:Label text="PLAYER 2 (BLUE)" class="player-section-header" />
+                        <ui:VisualElement name="p2-rows-container" />
+                    </ui:ScrollView>
+                </ui:VisualElement>
+            </ui:VisualElement>
+
+            <ui:VisualElement class="footer-buttons">
+                <ui:Button name="reset-all-button" text="RESET ALL" class="footer-button reset-all-button" />
+                <ui:Button name="close-button" text="SAVE & CLOSE" class="footer-button close-button" />
+            </ui:VisualElement>
+        </ui:VisualElement>
+
+        <!-- Waiting Overlay for Rebinding -->
+        <ui:VisualElement name="waiting-overlay" class="overlay-container">
+            <ui:Label text="PRESS ANY KEY..." class="overlay-text" />
+        </ui:VisualElement>
+    </ui:VisualElement>
+</ui:UXML>

@@ -1,0 +1,10 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements">
+    <ui:Style src="VictoryScreen.uss" />
+    <ui:VisualElement name="root" class="victory-root">
+        <ui:VisualElement class="victory-panel">
+            <ui:Label text="VICTORY" class="victory-title" />
+            <ui:Label name="winner-label" text="PLAYER 1 WINS!" class="winner-label" />
+            <ui:Button name="rematch-button" text="REMATCH" class="rematch-button" />
+        </ui:VisualElement>
+    </ui:VisualElement>
+</ui:UXML>

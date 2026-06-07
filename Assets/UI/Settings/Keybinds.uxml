@@ -1,0 +1,26 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements">
+    <ui:Style src="Keybinds.uss" />
+    <ui:VisualElement name="settings-root" class="settings-root">
+        <ui:VisualElement class="settings-panel">
+            <ui:Label text="ARENA SETTINGS" class="settings-header" />
+            
+            <ui:ScrollView class="scroll-view">
+                <ui:Label text="PLAYER 1 (RED)" class="player-section-header" />
+                <ui:VisualElement name="p1-rows-container" />
+                
+                <ui:Label text="PLAYER 2 (BLUE)" class="player-section-header" />
+                <ui:VisualElement name="p2-rows-container" />
+            </ui:ScrollView>
+
+            <ui:VisualElement class="footer-buttons">
+                <ui:Button name="reset-all-button" text="RESET ALL" class="footer-button reset-all-button" />
+                <ui:Button name="close-button" text="SAVE & CLOSE" class="footer-button close-button" />
+            </ui:VisualElement>
+        </ui:VisualElement>
+
+        <!-- Waiting Overlay -->
+        <ui:VisualElement name="waiting-overlay" class="overlay-container">
+            <ui:Label text="PRESS ANY KEY..." class="overlay-text" />
+        </ui:VisualElement>
+    </ui:VisualElement>
+</ui:UXML>

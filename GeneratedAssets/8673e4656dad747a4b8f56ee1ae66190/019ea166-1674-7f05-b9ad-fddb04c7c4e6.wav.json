@@ -1,0 +1,15 @@
+{
+    "asset": "8673e4656dad747a4b8f56ee1ae66190",
+    "fileName": "019ea166-1674-7f05-b9ad-fddb04c7c4e6.wav",
+    "prompt": "A satisfying low-poly woody thud and crackle sound when hitting a tree, short and punchy",
+    "negativePrompt": "",
+    "model": "elevenlabs-sound-effects-v2",
+    "modelName": "ElevenLabs Sound Effects V2",
+    "customSeed": -1,
+    "w3CTraceId": "",
+    "feedback": 0,
+    "duration": 10.0,
+    "autoTrim": false,
+    "hasReference": false,
+    "voice": ""
+}

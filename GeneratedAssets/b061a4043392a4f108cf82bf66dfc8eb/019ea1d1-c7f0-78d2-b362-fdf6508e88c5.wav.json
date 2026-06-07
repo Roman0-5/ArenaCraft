@@ -1,0 +1,15 @@
+{
+    "asset": "b061a4043392a4f108cf82bf66dfc8eb",
+    "fileName": "019ea1d1-c7f0-78d2-b362-fdf6508e88c5.wav",
+    "prompt": "A powerful ancient gladiatorial battle horn sound to signal the start of a match, deep and resonant.",
+    "negativePrompt": "",
+    "model": "elevenlabs-sound-effects-v2",
+    "modelName": "ElevenLabs Sound Effects V2",
+    "customSeed": -1,
+    "w3CTraceId": "",
+    "feedback": 0,
+    "duration": 3.0,
+    "autoTrim": false,
+    "hasReference": false,
+    "voice": ""
+}

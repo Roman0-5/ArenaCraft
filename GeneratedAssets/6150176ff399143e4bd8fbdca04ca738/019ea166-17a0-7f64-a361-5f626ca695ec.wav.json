@@ -1,0 +1,15 @@
+{
+    "asset": "6150176ff399143e4bd8fbdca04ca738",
+    "fileName": "019ea166-17a0-7f64-a361-5f626ca695ec.wav",
+    "prompt": "A satisfying low-poly rocky clink and debris sound when hitting a stone, short and punchy",
+    "negativePrompt": "",
+    "model": "elevenlabs-sound-effects-v2",
+    "modelName": "ElevenLabs Sound Effects V2",
+    "customSeed": -1,
+    "w3CTraceId": "",
+    "feedback": 0,
+    "duration": 10.0,
+    "autoTrim": false,
+    "hasReference": false,
+    "voice": ""
+}

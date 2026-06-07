@@ -1,0 +1,15 @@
+{
+    "asset": "446a98dd0bfef4d9290ebbb5fc955a97",
+    "fileName": "019ea166-163e-7174-b1b2-7b598eefae4e.wav",
+    "prompt": "A satisfying cash register kaching and coin jingle sound, positive and short",
+    "negativePrompt": "",
+    "model": "elevenlabs-sound-effects-v2",
+    "modelName": "ElevenLabs Sound Effects V2",
+    "customSeed": -1,
+    "w3CTraceId": "",
+    "feedback": 0,
+    "duration": 10.0,
+    "autoTrim": false,
+    "hasReference": false,
+    "voice": ""
+}

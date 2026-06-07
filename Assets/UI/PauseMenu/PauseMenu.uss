@@ -1,0 +1,62 @@
+/*
+2026-06-07 AI-Tag
+This was created with the help of Assistant, a Unity Artificial Intelligence product.
+*/
+:root {
+    --color-gold: #f1c40f;
+    --color-rust: #d35400;
+    --color-hover: #e67e22;
+    --panel-bg: rgba(30, 25, 20, 0.95);
+    --font-size-header: 80px;
+    --font-size-button: 32px;
+}
+
+.pause-root {
+    flex-grow: 1;
+    background-color: rgba(0, 0, 0, 0.8);
+    justify-content: center;
+    align-items: center;
+    display: none;
+}
+
+.pause-panel {
+    background-color: var(--panel-bg);
+    border-width: 8px;
+    border-color: var(--color-rust);
+    padding: 60px 80px;
+    min-width: 500px;
+    align-items: center;
+    border-radius: 2px;
+}
+
+.pause-header {
+    font-size: var(--font-size-header);
+    color: var(--color-gold);
+    -unity-font-style: bold;
+    margin-bottom: 50px;
+    letter-spacing: 8px;
+    -unity-text-outline-width: 3px;
+    -unity-text-outline-color: black;
+}
+
+.pause-button {
+    width: 450px;
+    height: 70px;
+    margin-bottom: 15px;
+    background-color: var(--color-rust);
+    color: white;
+    font-size: var(--font-size-button);
+    -unity-font-style: bold;
+    border-width: 0;
+    transition-duration: 0.1s;
+    border-radius: 2px;
+    letter-spacing: 1px;
+}
+
+.pause-button:hover {
+    background-color: var(--color-hover);
+}
+
+.pause-button:active {
+    background-color: #ba4a00;
+}

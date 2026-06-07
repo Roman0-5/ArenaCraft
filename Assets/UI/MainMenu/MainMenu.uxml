@@ -1,0 +1,11 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements">
+    <ui:Style src="MainMenu.uss" />
+    <ui:VisualElement class="menu-root">
+        <ui:VisualElement class="menu-panel">
+            <ui:Label text="ARENACRAFT" class="title" />
+            <ui:Label text="Two Gladiators. One Arena. No Mercy." class="subtitle" />
+            <ui:Button name="start-button" text="ENTER THE ARENA" class="menu-button" />
+            <ui:Button name="settings-button" text="SETTINGS" class="menu-button settings-btn" />
+        </ui:VisualElement>
+    </ui:VisualElement>
+</ui:UXML>
