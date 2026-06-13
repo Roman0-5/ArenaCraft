@@ -53,6 +53,15 @@
     -unity-text-align: middle-center;
 }
 
+.result-label {
+    color: #b9aa98;
+    font-size: 12px;
+    -unity-font-style: bold;
+    letter-spacing: 2px;
+    margin-top: 7px;
+    -unity-text-align: middle-center;
+}
+
 .victory-divider {
     width: 70%;
     height: 1px;
@@ -61,12 +70,18 @@
     background-color: rgba(243, 198, 91, 0.42);
 }
 
-.rematch-button {
-    width: 72%;
-    max-width: 300px;
+.victory-actions {
+    width: 100%;
+    flex-direction: row;
+    justify-content: center;
+}
+
+.victory-button {
+    width: 42%;
+    max-width: 240px;
     height: 54px;
+    margin: 0 6px;
     color: #fff8e8;
-    background-color: var(--terracotta);
     font-size: 20px;
     -unity-font-style: bold;
     letter-spacing: 2px;
@@ -75,7 +90,21 @@
     border-radius: 5px;
 }
 
+.rematch-button {
+    background-color: var(--terracotta);
+}
+
+.menu-button {
+    background-color: #433931;
+    border-color: #716151;
+}
+
 .rematch-button:hover {
     background-color: var(--terracotta-hover);
+    border-color: var(--gold);
+}
+
+.menu-button:hover {
+    background-color: #594a3e;
     border-color: var(--gold);
 }

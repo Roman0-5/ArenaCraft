@@ -14,7 +14,9 @@
                 </ui:VisualElement>
                 <ui:VisualElement class="hp-bar-container">
                     <ui:VisualElement name="p1-hp-fill" class="hp-fill" />
+                    <ui:Label name="p1-hp-text" text="100 / 100" class="hp-text" />
                 </ui:VisualElement>
+                <ui:Label name="p1-resource-text" text="RESOURCES 0 / 100" class="resource-text" />
                 <ui:VisualElement class="items-row">
                     <ui:VisualElement class="item-slot">
                         <ui:VisualElement name="p1-weapon-icon" class="item-icon" />
@@ -23,6 +25,7 @@
                         <ui:VisualElement name="p1-armor-icon" class="item-icon" />
                     </ui:VisualElement>
                 </ui:VisualElement>
+                <ui:Label name="p1-hit-feedback" text="" class="hit-feedback" />
             </ui:VisualElement>
         </ui:VisualElement>
 
@@ -43,8 +46,9 @@
                 
                 <ui:VisualElement class="hp-bar-container">
                     <ui:VisualElement name="p2-hp-fill" class="hp-fill" />
+                    <ui:Label name="p2-hp-text" text="100 / 100" class="hp-text" />
                 </ui:VisualElement>
-                
+                <ui:Label name="p2-resource-text" text="RESOURCES 0 / 100" class="resource-text" />
                 <ui:VisualElement class="items-row">
                     <ui:VisualElement class="item-slot">
                         <ui:VisualElement name="p2-weapon-icon" class="item-icon" />
@@ -53,6 +57,7 @@
                         <ui:VisualElement name="p2-armor-icon" class="item-icon" />
                     </ui:VisualElement>
                 </ui:VisualElement>
+                <ui:Label name="p2-hit-feedback" text="" class="hit-feedback" />
             </ui:VisualElement>
 
             <!-- Vertical Resource Bar -->
@@ -61,5 +66,6 @@
             </ui:VisualElement>
         </ui:VisualElement>
 
+        <ui:Label name="phase-banner" text="" class="phase-banner" />
     </ui:VisualElement>
 </ui:UXML>

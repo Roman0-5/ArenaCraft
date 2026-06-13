@@ -5,8 +5,12 @@
             <ui:Label text="THE CROWD HAS SPOKEN" class="victory-kicker" />
             <ui:Label text="VICTORY" class="victory-title" />
             <ui:Label name="winner-label" text="PLAYER 1 WINS!" class="winner-label" />
+            <ui:Label name="result-label" text="THE ARENA HAS A NEW CHAMPION" class="result-label" />
             <ui:VisualElement class="victory-divider" />
-            <ui:Button name="rematch-button" text="REMATCH" class="rematch-button" />
+            <ui:VisualElement class="victory-actions">
+                <ui:Button name="rematch-button" text="REMATCH" class="victory-button rematch-button" />
+                <ui:Button name="main-menu-button" text="MAIN MENU" class="victory-button menu-button" />
+            </ui:VisualElement>
         </ui:VisualElement>
     </ui:VisualElement>
 </ui:UXML>

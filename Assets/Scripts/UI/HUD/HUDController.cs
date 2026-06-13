@@ -20,6 +20,9 @@ namespace ArenaCraft
         private Label m_P1Gold;
         private VisualElement m_P1WeaponIcon;
         private VisualElement m_P1ArmorIcon;
+        private Label m_P1HPText;
+        private Label m_P1ResourceText;
+        private Label m_P1HitFeedback;
         
         // P2 Elements
         private VisualElement m_P2HPFill;
@@ -27,9 +30,13 @@ namespace ArenaCraft
         private Label m_P2Gold;
         private VisualElement m_P2WeaponIcon;
         private VisualElement m_P2ArmorIcon;
+        private Label m_P2HPText;
+        private Label m_P2ResourceText;
+        private Label m_P2HitFeedback;
 
         private Label m_TimerLabel;
         private Label m_PhaseLabel;
+        private Label m_PhaseBanner;
 
         private Health m_P1Health;
         private Health m_P2Health;
@@ -50,17 +57,25 @@ namespace ArenaCraft
             this.m_P1Gold = this.m_Root.Q<Label>("p1-gold");
             this.m_P1WeaponIcon = this.m_Root.Q<VisualElement>("p1-weapon-icon");
             this.m_P1ArmorIcon = this.m_Root.Q<VisualElement>("p1-armor-icon");
+            this.m_P1HPText = this.m_Root.Q<Label>("p1-hp-text");
+            this.m_P1ResourceText = this.m_Root.Q<Label>("p1-resource-text");
+            this.m_P1HitFeedback = this.m_Root.Q<Label>("p1-hit-feedback");
 
             this.m_P2HPFill = this.m_Root.Q<VisualElement>("p2-hp-fill");
             this.m_P2ResourceFill = this.m_Root.Q<VisualElement>("p2-resource-fill");
             this.m_P2Gold = this.m_Root.Q<Label>("p2-gold");
             this.m_P2WeaponIcon = this.m_Root.Q<VisualElement>("p2-weapon-icon");
             this.m_P2ArmorIcon = this.m_Root.Q<VisualElement>("p2-armor-icon");
+            this.m_P2HPText = this.m_Root.Q<Label>("p2-hp-text");
+            this.m_P2ResourceText = this.m_Root.Q<Label>("p2-resource-text");
+            this.m_P2HitFeedback = this.m_Root.Q<Label>("p2-hit-feedback");
 
             this.m_TimerLabel = this.m_Root.Q<Label>("timer-label");
             this.m_PhaseLabel = this.m_Root.Q<Label>("phase-label");
+            this.m_PhaseBanner = this.m_Root.Q<Label>("phase-banner");
 
             FindPlayers();
+            if (GamePhaseManager.Instance != null) GamePhaseManager.Instance.OnPhaseChanged += this.HandlePhaseChanged;
         }
 
         private static void DisablePicking(VisualElement element)
@@ -80,24 +95,33 @@ namespace ArenaCraft
                     this.m_P1Health = p.GetComponent<Health>();
                     this.m_P1Inventory = p.GetComponent<PlayerInventory>();
                     this.m_P1Melee = p.GetComponent<MeleeAttack>();
+                    this.BindHealthFeedback(this.m_P1Health, this.m_P1HitFeedback);
                 }
                 else
                 {
                     this.m_P2Health = p.GetComponent<Health>();
                     this.m_P2Inventory = p.GetComponent<PlayerInventory>();
                     this.m_P2Melee = p.GetComponent<MeleeAttack>();
+                    this.BindHealthFeedback(this.m_P2Health, this.m_P2HitFeedback);
                 }
             }
         }
 
+        private void BindHealthFeedback(Health health, Label feedback)
+        {
+            if (health == null || feedback == null) return;
+            health.OnDamaged += (_, damage) => this.ShowFeedback(feedback, $"-{damage}", false);
+            health.OnBlocked += _ => this.ShowFeedback(feedback, "BLOCKED", true);
+        }
+
         private void Update()
         {
-            UpdatePlayer(this.m_P1Health, this.m_P1Inventory, this.m_P1Melee, this.m_P1HPFill, this.m_P1ResourceFill, this.m_P1Gold, this.m_P1WeaponIcon, this.m_P1ArmorIcon);
-            UpdatePlayer(this.m_P2Health, this.m_P2Inventory, this.m_P2Melee, this.m_P2HPFill, this.m_P2ResourceFill, this.m_P2Gold, this.m_P2WeaponIcon, this.m_P2ArmorIcon);
+            UpdatePlayer(this.m_P1Health, this.m_P1Inventory, this.m_P1Melee, this.m_P1HPFill, this.m_P1ResourceFill, this.m_P1Gold, this.m_P1WeaponIcon, this.m_P1ArmorIcon, this.m_P1HPText, this.m_P1ResourceText);
+            UpdatePlayer(this.m_P2Health, this.m_P2Inventory, this.m_P2Melee, this.m_P2HPFill, this.m_P2ResourceFill, this.m_P2Gold, this.m_P2WeaponIcon, this.m_P2ArmorIcon, this.m_P2HPText, this.m_P2ResourceText);
             UpdateTimer();
         }
 
-        private void UpdatePlayer(Health health, PlayerInventory inventory, MeleeAttack melee, VisualElement hpFill, VisualElement resFill, Label goldLabel, VisualElement weaponIcon, VisualElement armorIcon)
+        private void UpdatePlayer(Health health, PlayerInventory inventory, MeleeAttack melee, VisualElement hpFill, VisualElement resFill, Label goldLabel, VisualElement weaponIcon, VisualElement armorIcon, Label hpText, Label resourceText)
         {
             if (health != null)
             {
@@ -109,6 +133,8 @@ namespace ArenaCraft
                     if (health.Normalized < 0.3f) hpFill.AddToClassList("low");
                     else hpFill.RemoveFromClassList("low");
                 }
+
+                if (hpText != null) hpText.text = $"{health.CurrentHP} / {health.MaxHP}";
 
                 if (armorIcon != null)
                 {
@@ -134,6 +160,9 @@ namespace ArenaCraft
                 {
                     goldLabel.text = $"{inventory.Gold} GOLD";
                 }
+
+                if (resourceText != null)
+                    resourceText.text = $"RESOURCES {inventory.CurrentResources} / {inventory.MaxResources}";
             }
 
             if (melee != null && weaponIcon != null)
@@ -141,6 +170,58 @@ namespace ArenaCraft
                 weaponIcon.style.backgroundImage = (melee.weapon != null && melee.weapon.icon != null) ? new StyleBackground(melee.weapon.icon) : null;
                 weaponIcon.style.display = (melee.weapon != null && melee.weapon.icon != null) ? DisplayStyle.Flex : DisplayStyle.None;
             }
+        }
+
+        private void HandlePhaseChanged(GamePhase phase)
+        {
+            if (this.m_PhaseBanner == null) return;
+            string text = phase switch
+            {
+                GamePhase.Resource => "GATHER. BUILD. PREPARE.",
+                GamePhase.Shopping => "THE ARMORY IS OPEN",
+                GamePhase.BattleRoyale => "FIGHT!",
+                _ => ""
+            };
+            this.StartCoroutine(this.ShowBanner(text));
+        }
+
+        private IEnumerator ShowBanner(string text)
+        {
+            this.m_PhaseBanner.text = text;
+            this.m_PhaseBanner.style.opacity = 1f;
+            yield return new WaitForSecondsRealtime(1.6f);
+            this.m_PhaseBanner.style.opacity = 0f;
+        }
+
+        private void ShowFeedback(Label label, string text, bool blocked)
+        {
+            this.StartCoroutine(this.FeedbackRoutine(label, text, blocked));
+        }
+
+        private IEnumerator FeedbackRoutine(Label label, string text, bool blocked)
+        {
+            label.text = text;
+            label.EnableInClassList("blocked", blocked);
+            label.style.opacity = 1f;
+            label.style.translate = new Translate(0f, 0f);
+
+            float elapsed = 0f;
+            const float duration = 0.7f;
+            while (elapsed < duration)
+            {
+                float t = elapsed / duration;
+                label.style.opacity = 1f - t;
+                label.style.translate = new Translate(0f, -18f * t);
+                elapsed += Time.unscaledDeltaTime;
+                yield return null;
+            }
+
+            label.style.opacity = 0f;
+        }
+
+        private void OnDisable()
+        {
+            if (GamePhaseManager.Instance != null) GamePhaseManager.Instance.OnPhaseChanged -= this.HandlePhaseChanged;
         }
 
         private void UpdateTimer()

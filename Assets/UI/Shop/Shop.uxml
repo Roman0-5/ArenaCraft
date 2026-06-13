@@ -5,6 +5,10 @@
             <ui:Label text="GEAR UP FOR BATTLE" class="shop-kicker" />
             <ui:Label text="ARENA ARMORY" class="shop-header" />
             <ui:Label text="Spend your gold before the gates open." class="shop-subtitle" />
+            <ui:VisualElement class="shop-status-bar">
+                <ui:Label name="shop-player-label" text="PLAYER" class="shop-player-label" />
+                <ui:Label name="shop-gold-label" text="0 GOLD" class="shop-gold-label" />
+            </ui:VisualElement>
             <ui:VisualElement name="items-grid" class="items-grid">
                 <ui:VisualElement class="shop-item">
                     <ui:VisualElement class="item-icon-container">
@@ -51,7 +55,7 @@
                     <ui:Button name="buy-heavy-armor" text="BUY" class="buy-button" />
                 </ui:VisualElement>
             </ui:VisualElement>
-            <ui:Label name="warning-label" text="YOU DIDN'T BUY ANYTHING!" class="warning-label" />
+            <ui:Label name="warning-label" text="" class="warning-label" />
             <ui:Button name="close-button" text="READY FOR BATTLE" class="close-button" />
         </ui:VisualElement>
     </ui:VisualElement>

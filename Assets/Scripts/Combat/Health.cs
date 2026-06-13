@@ -42,6 +42,12 @@ namespace ArenaCraft
         /// <summary>Raised once when this player reaches 0 HP.</summary>
         public event Action<Health> OnDied;
 
+        /// <summary>Raised after damage is applied: (target, damage dealt).</summary>
+        public event Action<Health, int> OnDamaged;
+
+        /// <summary>Raised when an incoming hit is blocked.</summary>
+        public event Action<Health> OnBlocked;
+
         private void Awake()
         {
             this.shieldBlock = GetComponent<ShieldBlock>();
@@ -76,15 +82,19 @@ namespace ArenaCraft
             // Active shield block negates the hit (and consumes a shield charge).
             if (this.shieldBlock != null && this.shieldBlock.TryBlock())
             {
+                this.OnBlocked?.Invoke(this);
+                ArenaCameraImpact.Shake(0.08f, 0.08f);
                 Debug.Log($"{name}: BLOCKED  ({this.shieldBlock.BlocksRemaining} blocks left)", this);
                 return;
             }
 
-            this.currentHP = Mathf.Max(0, this.currentHP - Mathf.RoundToInt(amount));
+            int damage = Mathf.RoundToInt(amount);
+            this.currentHP = Mathf.Max(0, this.currentHP - damage);
             this.OnHealthChanged?.Invoke(this.currentHP, this.maxHP);
+            this.OnDamaged?.Invoke(this, damage);
+            ArenaCameraImpact.Shake(this.currentHP <= 0 ? 0.22f : 0.13f, this.currentHP <= 0 ? 0.24f : 0.12f);
 
-            // Temporary dev feedback until the HUD exists (Paket 3).
-            Debug.Log($"{name}: -{Mathf.RoundToInt(amount)} HP  ->  {this.currentHP}/{this.maxHP}", this);
+            Debug.Log($"{name}: -{damage} HP  ->  {this.currentHP}/{this.maxHP}", this);
 
             if (this.currentHP <= 0) this.Die();
         }

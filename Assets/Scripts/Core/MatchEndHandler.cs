@@ -11,7 +11,7 @@ namespace ArenaCraft
         public PanelSettings panelSettings;
 
         private bool m_GameEnded;
-private UIDocument m_VictoryDoc;
+        private UIDocument m_VictoryDoc;
 
         private void Update()
         {
@@ -33,7 +33,7 @@ private UIDocument m_VictoryDoc;
             if (alivePlayers.Count <= 1)
             {
                 this.m_GameEnded = true;
-                string winnerName = alivePlayers.Count == 1 ? alivePlayers[0].name : "DRAW";
+                string winnerName = alivePlayers.Count == 1 ? GetPlayerName(alivePlayers[0]) : "DRAW";
                 Debug.Log($"Game Over! Winner: {winnerName}");
                 ShowVictoryScreen(winnerName);
             }
@@ -49,10 +49,27 @@ private UIDocument m_VictoryDoc;
             this.m_VictoryDoc = victoryObj.AddComponent<UIDocument>();
             this.m_VictoryDoc.panelSettings = this.panelSettings;
             this.m_VictoryDoc.visualTreeAsset = this.victoryUxml;
+            this.m_VictoryDoc.sortingOrder = 300;
 
             var root = this.m_VictoryDoc.rootVisualElement;
+            root.style.position = Position.Absolute;
+            root.style.left = 0;
+            root.style.top = 0;
+            root.style.right = 0;
+            root.style.bottom = 0;
             root.Q<Label>("winner-label").text = winner == "DRAW" ? "IT'S A DRAW!" : winner.ToUpper() + " WINS!";
             root.Q<Button>("rematch-button").clicked += () => SceneManager.LoadScene("SampleScene");
+            root.Q<Button>("main-menu-button").clicked += () => SceneManager.LoadScene("MainMenu");
+
+            foreach (var provider in Object.FindObjectsByType<PlayerInputProvider>(FindObjectsSortMode.None))
+                provider.enabled = false;
         }
-}
+
+        private static string GetPlayerName(Health health)
+        {
+            var provider = health.GetComponent<PlayerInputProvider>();
+            if (provider == null) return health.name;
+            return provider.Slot == PlayerSlot.One ? "PLAYER 1" : "PLAYER 2";
+        }
+    }
 }

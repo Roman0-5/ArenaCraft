@@ -563,8 +563,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d2c72d67a20b1254aadfb8f9a87c6514, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ArenaCraft.CombatAudio
-  swingClip: {fileID: 0}
-  hitClip: {fileID: 0}
+  swingClip: {fileID: 8300000, guid: 09a288a2a6394f241a6f8cb0afa2a2bf, type: 3}
+  hitClip: {fileID: 8300000, guid: f8ac93e1a8086c3489e6e613210e612d, type: 3}
   volume: 1
 --- !u!82 &17423183
 AudioSource:
@@ -702,7 +702,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ArenaCraft.Health
   baseMaxHP: 100
-  armor: 2
+  armor: 0
   disableControlsOnDeath: 1
   deathTrigger: Die
 --- !u!114 &17423186
@@ -5304,8 +5304,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d2c72d67a20b1254aadfb8f9a87c6514, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ArenaCraft.CombatAudio
-  swingClip: {fileID: 0}
-  hitClip: {fileID: 0}
+  swingClip: {fileID: 8300000, guid: 09a288a2a6394f241a6f8cb0afa2a2bf, type: 3}
+  hitClip: {fileID: 8300000, guid: f8ac93e1a8086c3489e6e613210e612d, type: 3}
   volume: 1
 --- !u!82 &376035541
 AudioSource:
@@ -17053,9 +17053,11 @@ GameObject:
   - component: {fileID: 1299971004}
   - component: {fileID: 1299971003}
   - component: {fileID: 1299971002}
+  - component: {fileID: 1299971006}
+  - component: {fileID: 1299971007}
   m_Layer: 0
   m_Name: Camera
-  m_TagString: Untagged
+  m_TagString: MainCamera
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -17102,8 +17104,38 @@ MonoBehaviour:
     m_JitterScale: 1
     m_MipBias: 0
     m_VarianceClampScale: 0.9
-    m_ContrastAdaptiveSharpening: 0
+  m_ContrastAdaptiveSharpening: 0
   m_Version: 2
+--- !u!114 &1299971006
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1299971001}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: db7c1850c75d746fa98496c4cbb19b50, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Assembly-CSharp::ArenaCraft.ArenaCameraController
+  m_ViewOffset: {x: 0, y: 18, z: -17}
+  m_MinDistanceScale: 1
+  m_MaxDistanceScale: 1.3
+  m_SmoothTime: 0.35
+  m_OcclusionRadius: 2.5
+  m_FieldOfView: 50
+--- !u!114 &1299971007
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1299971001}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 07a61fcc31f564589a104f9f9471ab12, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Assembly-CSharp::ArenaCraft.ArenaCameraImpact
 --- !u!81 &1299971003
 AudioListener:
   m_ObjectHideFlags: 0
@@ -21540,8 +21572,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3f74be02e84494849a08826076ec9f0c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ArenaCraft.HUDController
-  lightArmorIcon: {fileID: 0}
-  heavyArmorIcon: {fileID: 0}
+  lightArmorIcon: {fileID: 21300000, guid: 4cac83129d70544ed886e505f36e9a16, type: 3}
+  heavyArmorIcon: {fileID: 21300000, guid: 2225e2962388c47cfbb5dc06509fe5f8, type: 3}
 --- !u!114 &1695655215
 MonoBehaviour:
   m_ObjectHideFlags: 0

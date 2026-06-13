@@ -279,3 +279,11 @@
     -unity-font-style: bold;
     letter-spacing: 3px;
 }
+
+.overlay-hint {
+    color: #a99b8d;
+    font-size: 11px;
+    -unity-font-style: bold;
+    letter-spacing: 2px;
+    margin-top: 10px;
+}

@@ -75,6 +75,7 @@
         <!-- Waiting Overlay for Rebinding -->
         <ui:VisualElement name="waiting-overlay" class="overlay-container">
             <ui:Label text="PRESS ANY KEY..." class="overlay-text" />
+            <ui:Label text="ESC TO CANCEL" class="overlay-hint" />
         </ui:VisualElement>
     </ui:VisualElement>
 </ui:UXML>

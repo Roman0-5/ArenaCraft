@@ -17,12 +17,20 @@ namespace ArenaCraft
         private UIDocument m_UIDocument;
         private VisualElement m_Root;
         private Label m_WarningLabel;
+        private Label m_PlayerLabel;
+        private Label m_GoldLabel;
         private AudioSource m_AudioSource;
+        private Button m_BasicSwordButton;
+        private Button m_AdvancedSwordButton;
+        private Button m_LightArmorButton;
+        private Button m_HeavyArmorButton;
         
         private PlayerInventory m_ActiveInventory;
         private Health m_ActiveHealth;
         private MeleeAttack m_ActiveMelee;
-        private bool m_BoughtAnything;
+        private PlayerInventory m_PendingInventory;
+        private Health m_PendingHealth;
+        private MeleeAttack m_PendingMelee;
 
         private void Awake()
         {
@@ -36,6 +44,8 @@ namespace ArenaCraft
                 return;
             }
             this.m_WarningLabel = this.m_Root.Q<Label>("warning-label");
+            this.m_PlayerLabel = this.m_Root.Q<Label>("shop-player-label");
+            this.m_GoldLabel = this.m_Root.Q<Label>("shop-gold-label");
 
             this.m_AudioSource = gameObject.AddComponent<AudioSource>();
             this.m_AudioSource.playOnAwake = false;
@@ -47,32 +57,45 @@ namespace ArenaCraft
         public void OpenShop(PlayerInventory inventory, Health health, MeleeAttack melee)
         {
             if (this.m_Root == null) return;
+            if (inventory == this.m_ActiveInventory || inventory == this.m_PendingInventory) return;
+            if (this.m_Root.style.display == DisplayStyle.Flex && inventory != this.m_ActiveInventory)
+            {
+                this.m_PendingInventory = inventory;
+                this.m_PendingHealth = health;
+                this.m_PendingMelee = melee;
+                return;
+            }
 
             this.m_ActiveInventory = inventory;
             this.m_ActiveHealth = health;
             this.m_ActiveMelee = melee;
-            this.m_BoughtAnything = false;
 
-            if (this.m_WarningLabel != null)
-                this.m_WarningLabel.style.visibility = Visibility.Hidden;
+            if (this.m_ActiveInventory != null)
+                this.m_ActiveInventory.OnGoldChanged += this.HandleGoldChanged;
+
+            var provider = inventory != null ? inventory.GetComponent<PlayerInputProvider>() : null;
+            if (this.m_PlayerLabel != null)
+                this.m_PlayerLabel.text = provider != null && provider.Slot == PlayerSlot.Two ? "PLAYER 2 LOADOUT" : "PLAYER 1 LOADOUT";
 
             this.m_Root.style.display = DisplayStyle.Flex;
             this.m_Root.BringToFront();
+            this.SetStatus("Choose your equipment.", false);
+            this.RefreshShopState();
         }
 
         private void BindButtons()
         {
-            var basicSwordButton = this.m_Root.Q<Button>("buy-basic-sword");
-            if (basicSwordButton != null) basicSwordButton.clicked += BuyBasicSword;
+            this.m_BasicSwordButton = this.m_Root.Q<Button>("buy-basic-sword");
+            if (this.m_BasicSwordButton != null) this.m_BasicSwordButton.clicked += BuyBasicSword;
 
-            var advancedSwordButton = this.m_Root.Q<Button>("buy-advanced-sword");
-            if (advancedSwordButton != null) advancedSwordButton.clicked += BuyAdvancedSword;
+            this.m_AdvancedSwordButton = this.m_Root.Q<Button>("buy-advanced-sword");
+            if (this.m_AdvancedSwordButton != null) this.m_AdvancedSwordButton.clicked += BuyAdvancedSword;
 
-            var lightArmorButton = this.m_Root.Q<Button>("buy-light-armor");
-            if (lightArmorButton != null) lightArmorButton.clicked += BuyLightArmor;
+            this.m_LightArmorButton = this.m_Root.Q<Button>("buy-light-armor");
+            if (this.m_LightArmorButton != null) this.m_LightArmorButton.clicked += BuyLightArmor;
 
-            var heavyArmorButton = this.m_Root.Q<Button>("buy-heavy-armor");
-            if (heavyArmorButton != null) heavyArmorButton.clicked += BuyHeavyArmor;
+            this.m_HeavyArmorButton = this.m_Root.Q<Button>("buy-heavy-armor");
+            if (this.m_HeavyArmorButton != null) this.m_HeavyArmorButton.clicked += BuyHeavyArmor;
 
             var closeButton = this.m_Root.Q<Button>("close-button");
             if (closeButton != null) closeButton.clicked += CloseShop;
@@ -88,10 +111,12 @@ namespace ArenaCraft
             if (weapon != null && this.m_ActiveInventory != null && this.m_ActiveMelee != null && this.m_ActiveInventory.SpendGold(price))
             {
                 this.m_ActiveMelee.EquipWeapon(weapon);
-                this.m_BoughtAnything = true;
                 if (this.buySound != null) this.m_AudioSource.PlayOneShot(this.buySound);
+                this.SetStatus($"{weapon.displayName.ToUpper()} EQUIPPED", false);
+                this.RefreshShopState();
                 Debug.Log($"Bought {weapon.displayName}");
             }
+            else this.ShowPurchaseError(price);
         }
 
         private void BuyArmor(ArmorType armor, int price)
@@ -99,24 +124,77 @@ namespace ArenaCraft
             if (this.m_ActiveInventory != null && this.m_ActiveHealth != null && this.m_ActiveInventory.SpendGold(price))
             {
                 this.m_ActiveHealth.ApplyArmor(armor);
-                this.m_BoughtAnything = true;
                 if (this.buySound != null) this.m_AudioSource.PlayOneShot(this.buySound);
+                this.SetStatus($"{armor.ToString().ToUpper()} ARMOR EQUIPPED", false);
+                this.RefreshShopState();
                 Debug.Log($"Bought {armor}");
             }
+            else this.ShowPurchaseError(price);
         }
 
         private void CloseShop()
         {
-            if (!this.m_BoughtAnything)
-            {
-                if (this.m_WarningLabel == null) return;
-                this.m_WarningLabel.style.visibility = Visibility.Visible;
-                StopAllCoroutines(); // Stop any previous shake
-                StartCoroutine(ShakeWarningLabel());
-                return;
-            }
-
+            if (this.m_ActiveInventory != null)
+                this.m_ActiveInventory.OnGoldChanged -= this.HandleGoldChanged;
             this.m_Root.style.display = DisplayStyle.None;
+
+            this.m_ActiveInventory = null;
+            this.m_ActiveHealth = null;
+            this.m_ActiveMelee = null;
+
+            if (this.m_PendingInventory != null)
+            {
+                PlayerInventory inventory = this.m_PendingInventory;
+                Health health = this.m_PendingHealth;
+                MeleeAttack melee = this.m_PendingMelee;
+                this.m_PendingInventory = null;
+                this.m_PendingHealth = null;
+                this.m_PendingMelee = null;
+                this.OpenShop(inventory, health, melee);
+            }
+        }
+
+        public void ForceCloseAll()
+        {
+            if (this.m_ActiveInventory != null)
+                this.m_ActiveInventory.OnGoldChanged -= this.HandleGoldChanged;
+            this.m_ActiveInventory = null;
+            this.m_ActiveHealth = null;
+            this.m_ActiveMelee = null;
+            this.m_PendingInventory = null;
+            this.m_PendingHealth = null;
+            this.m_PendingMelee = null;
+            if (this.m_Root != null) this.m_Root.style.display = DisplayStyle.None;
+        }
+
+        private void HandleGoldChanged(int _) => this.RefreshShopState();
+
+        private void RefreshShopState()
+        {
+            int gold = this.m_ActiveInventory != null ? this.m_ActiveInventory.Gold : 0;
+            if (this.m_GoldLabel != null) this.m_GoldLabel.text = $"{gold} GOLD";
+
+            this.m_BasicSwordButton?.SetEnabled(gold >= 50 && this.m_ActiveMelee != null && this.m_ActiveMelee.weapon != this.basicSword);
+            this.m_AdvancedSwordButton?.SetEnabled(gold >= 100 && this.m_ActiveMelee != null && this.m_ActiveMelee.weapon != this.advancedSword);
+            this.m_LightArmorButton?.SetEnabled(gold >= 50 && this.m_ActiveHealth != null && this.m_ActiveHealth.armor == ArmorType.None);
+            this.m_HeavyArmorButton?.SetEnabled(gold >= 100 && this.m_ActiveHealth != null && this.m_ActiveHealth.armor != ArmorType.Heavy);
+        }
+
+        private void ShowPurchaseError(int price)
+        {
+            int gold = this.m_ActiveInventory != null ? this.m_ActiveInventory.Gold : 0;
+            this.SetStatus(gold < price ? $"NEED {price - gold} MORE GOLD" : "ITEM ALREADY EQUIPPED", true);
+            if (this.m_WarningLabel == null) return;
+            this.StopAllCoroutines();
+            this.StartCoroutine(this.ShakeWarningLabel());
+        }
+
+        private void SetStatus(string message, bool error)
+        {
+            if (this.m_WarningLabel == null) return;
+            this.m_WarningLabel.text = message;
+            this.m_WarningLabel.style.color = error ? new Color(1f, 0.39f, 0.33f) : new Color(0.95f, 0.78f, 0.36f);
+            this.m_WarningLabel.style.visibility = Visibility.Visible;
         }
 
         private IEnumerator ShakeWarningLabel()
@@ -124,17 +202,16 @@ namespace ArenaCraft
             float elapsed = 0f;
             float duration = 0.5f;
             float magnitude = 10f;
-            Vector3 originalPos = this.m_WarningLabel.transform.position;
 
             while (elapsed < duration)
             {
                 float x = UnityEngine.Random.Range(-1f, 1f) * magnitude;
-                this.m_WarningLabel.transform.position = originalPos + new Vector3(x, 0, 0);
+                this.m_WarningLabel.style.translate = new Translate(x, 0f);
                 elapsed += Time.deltaTime;
                 yield return null;
             }
 
-            this.m_WarningLabel.transform.position = originalPos;
+            this.m_WarningLabel.style.translate = new Translate(0f, 0f);
         }
 
         private void OnDestroy()

@@ -264,6 +264,7 @@ namespace ArenaCraft
             action.Disable();
             this.m_RebindOperation = action.PerformInteractiveRebinding(index)
                 .WithControlsExcluding("<Mouse>").WithControlsExcluding("<Pointer>")
+                .WithCancelingThrough("<Keyboard>/escape")
                 .OnComplete(op => this.FinishRebind(action)).OnCancel(op => this.FinishRebind(action)).Start();
         }
 

@@ -2,6 +2,9 @@ using UnityEngine;
 using System;
 using System.Collections;
 using Unity.Properties;
+#if UNITY_EDITOR
+using UnityEngine.InputSystem;
+#endif
 
 namespace ArenaCraft
 {
@@ -38,12 +41,24 @@ namespace ArenaCraft
 
             this.m_AudioSource = gameObject.AddComponent<AudioSource>();
             this.m_AudioSource.playOnAwake = false;
+
+            Camera arenaCamera = UnityEngine.Object.FindAnyObjectByType<Camera>();
+            if (arenaCamera != null && arenaCamera.GetComponent<ArenaCameraController>() == null)
+                arenaCamera.gameObject.AddComponent<ArenaCameraController>();
         }
 
         private void Start()
         {
             StartCoroutine(GameLoop());
         }
+
+#if UNITY_EDITOR
+        private void Update()
+        {
+            if (Keyboard.current != null && Keyboard.current.f9Key.wasPressedThisFrame)
+                this.SkipToNextPhase();
+        }
+#endif
 
         private IEnumerator GameLoop()
         {
@@ -84,6 +99,7 @@ namespace ArenaCraft
             {
                 if (phase == GamePhase.BattleRoyale)
                 {
+                    if (ShopController.Instance != null) ShopController.Instance.ForceCloseAll();
                     TeleportPlayersToBattlePit();
                 }
 
@@ -98,9 +114,19 @@ namespace ArenaCraft
             if (shopZone == null) return;
 
             var players = UnityEngine.Object.FindObjectsByType<PlayerInputProvider>(FindObjectsSortMode.None);
+            System.Array.Sort(players, (a, b) => ((int)a.Slot).CompareTo((int)b.Slot));
             foreach (var p in players)
             {
-                p.transform.position = shopZone.transform.position + Vector3.up * 0.5f;
+                float side = p.Slot == PlayerSlot.One ? -1.5f : 1.5f;
+                p.transform.position = shopZone.transform.position + Vector3.right * side + Vector3.up * 0.5f;
+
+                if (ShopController.Instance != null)
+                {
+                    ShopController.Instance.OpenShop(
+                        p.GetComponent<PlayerInventory>(),
+                        p.GetComponent<Health>(),
+                        p.GetComponent<MeleeAttack>());
+                }
             }
         }
 

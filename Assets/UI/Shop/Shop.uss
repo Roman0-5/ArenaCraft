@@ -56,6 +56,34 @@
     margin-bottom: 7px;
 }
 
+.shop-status-bar {
+    width: 94%;
+    max-width: 1090px;
+    height: 28px;
+    padding: 4px 10px;
+    margin-bottom: 3px;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    background-color: rgba(10, 8, 6, 0.58);
+    border-width: 1px;
+    border-color: rgba(243, 198, 91, 0.22);
+    border-radius: 4px;
+}
+
+.shop-player-label {
+    color: #fff7e7;
+    font-size: 11px;
+    -unity-font-style: bold;
+    letter-spacing: 2px;
+}
+
+.shop-gold-label {
+    color: var(--gold);
+    font-size: 13px;
+    -unity-font-style: bold;
+}
+
 .items-grid {
     width: 100%;
     flex-direction: row;
@@ -149,9 +177,15 @@
     border-color: var(--gold);
 }
 
+.buy-button:disabled {
+    color: #81766a;
+    background-color: #302a25;
+    border-color: #443a32;
+}
+
 .warning-label {
     height: 16px;
-    color: var(--danger);
+    color: var(--gold);
     font-size: 11px;
     -unity-font-style: bold;
     -unity-text-align: middle-center;
