@@ -1,9 +1,16 @@
 <ui:UXML xmlns:ui="UnityEngine.UIElements">
     <ui:Style src="MainMenu.uss" />
     <ui:VisualElement class="menu-root">
+        <ui:VisualElement class="vignette" />
         <ui:VisualElement class="menu-panel">
+            <ui:Label text="LOCAL ARENA COMBAT" class="eyebrow" />
             <ui:Label text="ARENACRAFT" class="title" />
             <ui:Label text="Two Gladiators. One Arena. No Mercy." class="subtitle" />
+            <ui:VisualElement class="title-divider">
+                <ui:VisualElement class="divider-line" />
+                <ui:Label text="◆" class="divider-mark" />
+                <ui:VisualElement class="divider-line" />
+            </ui:VisualElement>
             <ui:Button name="start-button" text="ENTER THE ARENA" class="menu-button" />
             <ui:Button name="settings-button" text="SETTINGS" class="menu-button settings-btn" />
         </ui:VisualElement>

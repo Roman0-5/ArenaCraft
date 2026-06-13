@@ -1,75 +1,87 @@
-/*
-2026-06-07 AI-Tag
-This was created with the help of Assistant, a Unity Artificial Intelligence product.
-*/
 :root {
-    --color-gold: #f1c40f;
-    --color-rust: #d35400;
-    --color-hover: #e67e22;
-    --panel-bg: rgba(30, 25, 20, 0.95);
+    --gold: #f3c65b;
+    --terracotta: #b94e2d;
+    --terracotta-hover: #d8673e;
+    --panel: rgba(22, 17, 14, 0.98);
+    --surface: rgba(55, 44, 36, 0.82);
+    --muted: #b9aa98;
 }
 
 .settings-root {
     flex-grow: 1;
-    background-color: rgba(0, 0, 0, 0.85);
     justify-content: center;
     align-items: center;
+    background-color: rgba(7, 5, 4, 0.98);
 }
 
 .settings-panel {
-    background-color: var(--panel-bg);
-    border-width: 8px;
-    border-color: var(--color-rust);
-    padding: 40px;
-    width: 1000px;
-    height: 800px;
-    border-radius: 2px;
+    width: 94%;
+    max-width: 1000px;
+    height: 92%;
+    padding: 8px 14px;
+    background-color: var(--panel);
+    border-width: 2px;
+    border-color: rgba(243, 198, 91, 0.58);
+    border-top-width: 6px;
+    border-top-color: var(--terracotta);
+    border-radius: 10px;
+}
+
+.settings-kicker {
+    color: var(--terracotta-hover);
+    font-size: 10px;
+    -unity-font-style: bold;
+    letter-spacing: 4px;
+    -unity-text-align: middle-center;
 }
 
 .settings-header {
-    font-size: 60px;
-    color: var(--color-gold);
+    color: var(--gold);
+    font-size: 22px;
     -unity-font-style: bold;
-    margin-bottom: 30px;
+    letter-spacing: 5px;
     -unity-text-align: middle-center;
-    letter-spacing: 6px;
-    -unity-text-outline-width: 2px;
-    -unity-text-outline-color: black;
+    margin-bottom: 4px;
 }
 
-/* Tabs */
 .tabs-container {
     flex-direction: row;
-    margin-bottom: 20px;
-    border-bottom-width: 2px;
-    border-bottom-color: #555;
+    margin-bottom: 5px;
 }
 
 .tab-button {
     flex-grow: 1;
-    height: 50px;
-    background-color: #333;
-    color: #999;
-    border-width: 0;
-    font-size: 20px;
+    height: 30px;
+    margin-right: 6px;
+    color: var(--muted);
+    background-color: #302720;
+    font-size: 13px;
     -unity-font-style: bold;
-    margin-right: 5px;
+    letter-spacing: 1px;
+    border-width: 1px;
+    border-color: #514238;
+    border-radius: 4px;
 }
 
 .tab-button:hover {
-    background-color: #444;
+    color: white;
+    background-color: #44372d;
 }
 
 .tab-button--active {
-    background-color: var(--color-rust);
     color: white;
+    background-color: var(--terracotta);
+    border-color: #d9825d;
 }
 
-/* Content Area */
 .content-area {
     flex-grow: 1;
-    padding: 20px;
-    background-color: rgba(0,0,0,0.2);
+    min-height: 0;
+    padding: 6px;
+    background-color: rgba(0, 0, 0, 0.22);
+    border-width: 1px;
+    border-color: rgba(255, 255, 255, 0.08);
+    border-radius: 6px;
 }
 
 .tab-content {
@@ -78,120 +90,192 @@ This was created with the help of Assistant, a Unity Artificial Intelligence pro
 
 .tab-content--active {
     display: flex;
+    flex-grow: 1;
 }
 
-/* Row Styling */
 .setting-row {
+    min-height: 36px;
     flex-direction: row;
     align-items: center;
     justify-content: space-between;
-    margin-bottom: 15px;
-    padding: 10px;
-    background-color: rgba(255,255,255,0.05);
+    margin-bottom: 4px;
+    padding: 4px 9px;
+    background-color: var(--surface);
+    border-left-width: 3px;
+    border-left-color: rgba(243, 198, 91, 0.45);
+    border-radius: 4px;
 }
 
 .setting-label {
-    font-size: 22px;
-    color: white;
-    width: 300px;
+    width: 32%;
+    color: #fff7e7;
+    font-size: 14px;
+    -unity-font-style: bold;
 }
 
 .setting-input {
     flex-grow: 1;
+    color: white;
 }
 
-/* Keybind Specific */
-.scroll-view {
+.controls-grid {
     flex-grow: 1;
+    flex-direction: row;
+    justify-content: space-between;
+}
+
+.player-bindings-card {
+    width: 49%;
+    padding: 6px;
+    background-color: rgba(28, 22, 18, 0.92);
+    border-width: 1px;
+    border-color: #59483c;
+    border-top-width: 4px;
+    border-radius: 6px;
+}
+
+.player-one-card {
+    border-top-color: #d65a43;
+}
+
+.player-two-card {
+    border-top-color: #4387c7;
+}
+
+.player-card-header {
+    height: 24px;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 3px;
 }
 
 .player-section-header {
-    font-size: 24px;
-    color: var(--color-gold);
-    margin-top: 20px;
-    margin-bottom: 10px;
+    color: var(--gold);
+    font-size: 14px;
     -unity-font-style: bold;
+    letter-spacing: 2px;
+}
+
+.player-device-label {
+    color: #8f8174;
+    font-size: 8px;
+    -unity-font-style: bold;
+    letter-spacing: 1px;
+}
+
+.bindings-list {
+    flex-grow: 1;
+    justify-content: space-between;
 }
 
 .keybind-row {
+    height: 26px;
     flex-direction: row;
     align-items: center;
-    margin-bottom: 5px;
-    background-color: rgba(0,0,0,0.3);
-    padding: 5px 10px;
+    padding: 2px 4px;
+    margin-bottom: 2px;
+    background-color: rgba(55, 44, 36, 0.72);
+    border-left-width: 2px;
+    border-left-color: rgba(243, 198, 91, 0.3);
+    border-radius: 4px;
 }
 
 .action-label {
-    flex-grow: 1;
-    color: #ccc;
-    font-size: 16px;
+    width: 25%;
+    color: #ddd1c2;
+    font-size: 9px;
+    -unity-font-style: bold;
 }
 
 .binding-label {
-    width: 200px;
-    color: var(--color-gold);
+    flex-grow: 1;
+    color: var(--gold);
+    font-size: 10px;
+    -unity-font-style: bold;
     -unity-text-align: middle-center;
-    background-color: #222;
-    margin-right: 10px;
-    padding: 5px;
 }
 
 .rebind-button {
-    width: 100px;
-    background-color: var(--color-rust);
+    width: 54px;
+    height: 21px;
     color: white;
+    background-color: var(--terracotta);
     border-width: 0;
+    border-radius: 3px;
+    font-size: 8px;
+    -unity-font-style: bold;
+}
+
+.rebind-button:hover {
+    background-color: var(--terracotta-hover);
+    border-color: var(--gold);
 }
 
 .reset-button {
-    width: 40px;
-    background-color: #555;
-    color: white;
-    border-width: 0;
-    margin-left: 5px;
+    width: 21px;
+    height: 21px;
+    margin-left: 3px;
+    color: #c9bbae;
+    background-color: #453a33;
+    border-width: 1px;
+    border-color: #66564a;
+    border-radius: 3px;
+    font-size: 9px;
 }
 
-/* Footer */
+.reset-button:hover {
+    color: white;
+    background-color: #625248;
+    border-color: var(--gold);
+}
+
 .footer-buttons {
     flex-direction: row;
     justify-content: flex-end;
-    margin-top: 20px;
+    margin-top: 5px;
 }
 
 .footer-button {
-    padding: 10px 30px;
-    font-size: 20px;
+    width: 36%;
+    max-width: 220px;
+    height: 32px;
+    margin-left: 9px;
+    color: white;
+    font-size: 13px;
     -unity-font-style: bold;
-    border-width: 0;
-    margin-left: 10px;
+    border-width: 1px;
+    border-radius: 4px;
 }
 
 .reset-all-button {
-    background-color: #555;
-    color: white;
+    background-color: #4a4039;
+    border-color: #68594d;
 }
 
 .close-button {
-    background-color: var(--color-rust);
-    color: white;
+    background-color: var(--terracotta);
+    border-color: #d9825d;
 }
 
 .close-button:hover {
-    background-color: var(--color-hover);
+    background-color: var(--terracotta-hover);
+    border-color: var(--gold);
 }
 
-/* Overlay */
 .overlay-container {
     position: absolute;
     width: 100%;
     height: 100%;
-    background-color: rgba(0,0,0,0.9);
     justify-content: center;
     align-items: center;
     display: none;
+    background-color: rgba(8, 6, 5, 0.94);
 }
 
 .overlay-text {
-    font-size: 40px;
-    color: var(--color-gold);
+    color: var(--gold);
+    font-size: 32px;
+    -unity-font-style: bold;
+    letter-spacing: 3px;
 }

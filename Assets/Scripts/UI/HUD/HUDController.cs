@@ -29,6 +29,7 @@ namespace ArenaCraft
         private VisualElement m_P2ArmorIcon;
 
         private Label m_TimerLabel;
+        private Label m_PhaseLabel;
 
         private Health m_P1Health;
         private Health m_P2Health;
@@ -40,7 +41,9 @@ namespace ArenaCraft
         private void OnEnable()
         {
             this.m_UIDocument = GetComponent<UIDocument>();
+            this.m_UIDocument.sortingOrder = 0;
             this.m_Root = this.m_UIDocument.rootVisualElement;
+            DisablePicking(this.m_Root);
 
             this.m_P1HPFill = this.m_Root.Q<VisualElement>("p1-hp-fill");
             this.m_P1ResourceFill = this.m_Root.Q<VisualElement>("p1-resource-fill");
@@ -55,8 +58,16 @@ namespace ArenaCraft
             this.m_P2ArmorIcon = this.m_Root.Q<VisualElement>("p2-armor-icon");
 
             this.m_TimerLabel = this.m_Root.Q<Label>("timer-label");
+            this.m_PhaseLabel = this.m_Root.Q<Label>("phase-label");
 
             FindPlayers();
+        }
+
+        private static void DisablePicking(VisualElement element)
+        {
+            element.pickingMode = PickingMode.Ignore;
+            foreach (var child in element.Children())
+                DisablePicking(child);
         }
 
         private void FindPlayers()
@@ -118,9 +129,10 @@ namespace ArenaCraft
                 {
                     resFill.style.height = Length.Percent(inventory.ResourceFillAmount * 100f);
                 }
-if (goldLabel != null)
+
+                if (goldLabel != null)
                 {
-                    goldLabel.text = $"Gold: {inventory.Gold}";
+                    goldLabel.text = $"{inventory.Gold} GOLD";
                 }
             }
 
@@ -139,6 +151,16 @@ if (goldLabel != null)
                 int minutes = Mathf.FloorToInt(time / 60);
                 int seconds = Mathf.FloorToInt(time % 60);
                 this.m_TimerLabel.text = string.Format("{0:00}:{1:00}", minutes, seconds);
+                if (this.m_PhaseLabel != null)
+                {
+                    this.m_PhaseLabel.text = GamePhaseManager.Instance.CurrentPhase switch
+                    {
+                        GamePhase.Resource => "RESOURCE PHASE",
+                        GamePhase.Shopping => "SHOP PHASE",
+                        GamePhase.BattleRoyale => "BATTLE ROYALE",
+                        _ => "GET READY"
+                    };
+                }
             }
         }
     }

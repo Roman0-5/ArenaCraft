@@ -1,102 +1,103 @@
-/*
-2026-06-07 AI-Tag
-This was created with the help of Assistant, a Unity Artificial Intelligence product.
-*/
 :root {
-    --color-hp: #c0392b;
-    --color-hp-low: #7f8c8d;
-    --color-resource: #e67e22;
-    --color-gold: #f1c40f;
-    --panel-bg: rgba(35, 25, 20, 0.95);
-    --border-color: #d35400;
-    --accent-p1: #c0392b;
-    --accent-p2: #2980b9;
+    --hp: #d95a43;
+    --resource: #d98235;
+    --gold: #f3c65b;
+    --panel: rgba(21, 17, 15, 0.88);
+    --p1: #d65a43;
+    --p2: #4387c7;
 }
 
 .hud-container {
+    position: absolute;
+    left: 0;
+    top: 0;
     width: 100%;
     height: 100%;
-    padding: 30px;
+    padding: 24px 28px;
     flex-direction: row;
     justify-content: space-between;
     align-items: flex-end;
 }
 
 .player-panel {
-    background-color: var(--panel-bg);
-    padding: 15px;
-    border-width: 4px;
-    width: 380px;
+    background-color: var(--panel);
+    padding: 11px 13px;
+    border-width: 2px;
+    width: 31%;
+    max-width: 330px;
+    min-height: 124px;
     flex-direction: row;
     align-items: center;
-    border-radius: 4px;
+    border-radius: 8px;
 }
 
 #p1-panel {
-    border-color: var(--accent-p1);
+    border-color: var(--p1);
+    border-left-width: 6px;
 }
 
 #p2-panel {
-    border-color: var(--accent-p2);
+    border-color: var(--p2);
+    border-right-width: 6px;
 }
 
 .panel-content-main {
     flex-grow: 1;
-    margin: 0 15px;
+    margin: 0 11px;
 }
 
 .resource-bar-container {
-    width: 22px;
-    height: 130px;
-    background-color: #1a1005;
-    border-width: 2px;
-    border-color: rgba(255, 255, 255, 0.1);
+    width: 14px;
+    height: 98px;
+    background-color: #18120d;
+    border-width: 1px;
+    border-color: rgba(255, 255, 255, 0.16);
     overflow: hidden;
     flex-direction: column-reverse;
-    border-radius: 2px;
+    border-radius: 4px;
 }
 
 .resource-fill {
     width: 100%;
-    background-color: var(--color-resource);
+    background-color: var(--resource);
 }
 
 .player-header {
     flex-direction: row;
     justify-content: space-between;
     align-items: flex-end;
-    margin-bottom: 12px;
+    margin-bottom: 7px;
 }
 
 .player-label {
     -unity-font-style: bold;
-    font-size: 24px;
+    font-size: 17px;
     color: white;
 }
 
 .gold-label {
-    color: var(--color-gold);
-    font-size: 22px;
+    color: var(--gold);
+    font-size: 16px;
     -unity-font-style: bold;
 }
 
 .hp-bar-container {
-    height: 28px;
-    background-color: #1a1005;
-    border-width: 2px;
-    border-color: rgba(255, 255, 255, 0.1);
-    margin-bottom: 15px;
+    height: 16px;
+    background-color: #17110f;
+    border-width: 1px;
+    border-color: rgba(255, 255, 255, 0.14);
+    margin-bottom: 9px;
     overflow: hidden;
     border-radius: 2px;
 }
 
 .hp-fill {
     height: 100%;
-    background-color: var(--color-hp);
+    background-color: var(--hp);
 }
 
 .hp-fill.low {
-    background-color: #e74c3c;
+    background-color: #ff2f24;
 }
 
 .items-row {
@@ -109,38 +110,47 @@ This was created with the help of Assistant, a Unity Artificial Intelligence pro
 }
 
 .item-slot {
-    width: 55px;
-    height: 55px;
+    width: 38px;
+    height: 38px;
     background-color: rgba(0, 0, 0, 0.6);
-    margin: 0 6px;
-    border-width: 2px;
-    border-color: rgba(255, 255, 255, 0.15);
+    margin-right: 7px;
+    border-width: 1px;
+    border-color: rgba(243, 198, 91, 0.28);
     align-items: center;
     justify-content: center;
     border-radius: 4px;
 }
 
 .item-icon {
-    width: 45px;
-    height: 45px;
+    width: 32px;
+    height: 32px;
     -unity-background-scale-mode: scale-to-fit;
 }
 
 .timer-container {
     position: absolute;
-    top: 30px;
+    top: 22px;
     left: 50%;
     translate: -50% 0;
-    background-color: var(--panel-bg);
-    padding: 10px 40px;
-    border-width: 4px;
-    border-color: var(--color-gold);
-    border-radius: 2px;
+    background-color: var(--panel);
+    padding: 7px 28px 9px 28px;
+    border-width: 2px;
+    border-color: rgba(243, 198, 91, 0.78);
+    border-radius: 7px;
+    align-items: center;
+}
+
+.phase-label {
+    color: var(--gold);
+    font-size: 12px;
+    -unity-font-style: bold;
+    letter-spacing: 2px;
+    margin-bottom: -2px;
 }
 
 .timer-label {
     color: white;
-    font-size: 48px;
+    font-size: 32px;
     -unity-font-style: bold;
     -unity-text-align: middle-center;
 }

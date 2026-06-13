@@ -1,72 +1,145 @@
-/*
-2026-06-07 AI-Tag
-This was created with the help of Assistant, a Unity Artificial Intelligence product.
-*/
 :root {
-    --color-gold: #f1c40f;
-    --color-rust: #d35400;
-    --panel-bg: rgba(30, 25, 20, 0.95);
+    --gold: #f3c65b;
+    --gold-bright: #ffe49a;
+    --terracotta: #b94e2d;
+    --terracotta-hover: #d8673e;
+    --ink: #171311;
+    --panel: rgba(24, 18, 15, 0.94);
+    --text-muted: #c8b9a7;
 }
 
 .menu-root {
+    position: absolute;
+    left: 0;
+    top: 0;
     width: 100%;
     height: 100%;
-    background-color: #1a1a1a;
+    background-color: var(--ink);
     justify-content: center;
     align-items: center;
     background-image: url("project://database/Assets/FantasyMedievalTown_LITE/Textures/CartoonTownLite_Texture_01.png");
-    -unity-background-image-tint-color: rgba(60, 40, 30, 0.4);
+    -unity-background-image-tint-color: rgba(87, 48, 29, 0.34);
+}
+
+.vignette {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(10, 7, 5, 0.58);
 }
 
 .menu-panel {
-    background-color: var(--panel-bg);
-    padding: 60px 100px;
-    border-width: 8px;
-    border-color: var(--color-rust);
+    width: 88%;
+    max-width: 900px;
+    max-height: 90%;
+    background-color: var(--panel);
+    padding: 22px 4% 20px 4%;
+    border-width: 2px;
+    border-color: rgba(243, 198, 91, 0.72);
+    border-left-width: 7px;
+    border-left-color: var(--terracotta);
     align-items: center;
-    border-radius: 2px;
+    border-radius: 10px;
+}
+
+.eyebrow {
+    color: var(--terracotta-hover);
+    font-size: 14px;
+    -unity-font-style: bold;
+    letter-spacing: 5px;
+    margin-bottom: 3px;
 }
 
 .title {
-    font-size: 130px;
-    color: var(--color-gold);
+    font-size: 64px;
+    color: var(--gold);
     -unity-font-style: bold;
-    margin-bottom: 20px;
-    -unity-text-outline-width: 4px;
-    -unity-text-outline-color: black;
-    letter-spacing: 12px;
+    margin-bottom: 4px;
+    -unity-text-outline-width: 2px;
+    -unity-text-outline-color: #4a2418;
+    letter-spacing: 6px;
+    -unity-text-align: middle-center;
 }
 
 .subtitle {
-    color: #ecf0f1;
-    font-size: 32px;
-    margin-bottom: 60px;
-    -unity-font-style: bold;
-    opacity: 0.9;
-    letter-spacing: 2px;
+    color: var(--text-muted);
+    font-size: 17px;
+    margin-bottom: 10px;
+    letter-spacing: 1px;
+    -unity-text-align: middle-center;
+}
+
+.title-divider {
+    width: 72%;
+    flex-direction: row;
+    align-items: center;
+    margin-bottom: 16px;
+}
+
+.divider-line {
+    height: 1px;
+    flex-grow: 1;
+    background-color: rgba(243, 198, 91, 0.44);
+}
+
+.divider-mark {
+    color: var(--gold);
+    font-size: 13px;
+    margin: 0 14px;
 }
 
 .menu-button {
-    background-color: var(--color-rust);
-    color: white;
-    font-size: 42px;
+    width: 82%;
+    max-width: 620px;
+    height: 50px;
+    background-color: var(--terracotta);
+    color: #fff8e8;
+    font-size: 21px;
     -unity-font-style: bold;
-    padding: 20px 80px;
-    border-width: 0;
-    width: 600px;
-    margin-bottom: 20px;
+    letter-spacing: 2px;
+    border-width: 1px;
+    border-color: #df8054;
+    border-radius: 6px;
+    margin-bottom: 9px;
 }
 
 .menu-button:hover {
-    background-color: #e67e22;
+    background-color: var(--terracotta-hover);
+    border-color: var(--gold-bright);
 }
 
 .settings-btn {
-    background-color: #2c3e50;
-    font-size: 30px;
-    padding: 15px 40px;
+    height: 44px;
+    background-color: rgba(55, 47, 42, 0.96);
+    border-color: #756454;
+    font-size: 17px;
 }
 
 .settings-btn:hover {
-    background-color: #34495e;
+    background-color: #51443b;
+}
+
+.controls-strip {
+    width: 82%;
+    max-width: 620px;
+    flex-direction: row;
+    justify-content: space-between;
+    margin-top: 8px;
+    padding-top: 8px;
+    border-top-width: 1px;
+    border-top-color: rgba(255, 255, 255, 0.12);
+}
+
+.control-hint {
+    font-size: 11px;
+    -unity-font-style: bold;
+    letter-spacing: 1px;
+}
+
+.p1-hint {
+    color: #e1775f;
+}
+
+.p2-hint {
+    color: #6fa8df;
 }

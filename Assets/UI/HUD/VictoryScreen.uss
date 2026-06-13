@@ -1,54 +1,81 @@
-/*
-2026-06-07 AI-Tag
-This was created with the help of Assistant, a Unity Artificial Intelligence product.
-*/
 :root {
-    --color-gold: #f1c40f;
-    --color-terracotta: #d35400;
+    --gold: #f3c65b;
+    --terracotta: #b94e2d;
+    --terracotta-hover: #d8673e;
 }
 
 .victory-root {
+    position: absolute;
+    left: 0;
+    top: 0;
     width: 100%;
     height: 100%;
-    background-color: rgba(0, 0, 0, 0.85);
     justify-content: center;
     align-items: center;
+    background-color: rgba(7, 5, 4, 0.9);
 }
 
 .victory-panel {
+    width: 88%;
+    max-width: 620px;
+    padding: 38px 60px 44px 60px;
     align-items: center;
-    padding: 60px;
-    background-color: rgba(30, 25, 20, 0.95);
-    border-width: 8px;
-    border-color: var(--color-terracotta);
+    background-color: rgba(22, 17, 14, 0.98);
+    border-width: 2px;
+    border-color: rgba(243, 198, 91, 0.68);
+    border-top-width: 7px;
+    border-top-color: var(--terracotta);
+    border-radius: 10px;
+}
+
+.victory-kicker {
+    color: var(--terracotta-hover);
+    font-size: 13px;
+    -unity-font-style: bold;
+    letter-spacing: 4px;
 }
 
 .victory-title {
-    font-size: 110px;
-    color: var(--color-gold);
+    color: var(--gold);
+    font-size: 72px;
     -unity-font-style: bold;
-    -unity-text-outline-width: 3px;
-    -unity-text-outline-color: black;
-    margin-bottom: 20px;
-    letter-spacing: 10px;
+    letter-spacing: 8px;
+    -unity-text-outline-width: 2px;
+    -unity-text-outline-color: #4a2418;
+    margin-top: 4px;
 }
 
 .winner-label {
-    font-size: 44px;
-    color: white;
-    margin-bottom: 60px;
+    color: #fff7e7;
+    font-size: 31px;
     -unity-font-style: bold;
+    margin-top: 8px;
+    -unity-text-align: middle-center;
+}
+
+.victory-divider {
+    width: 70%;
+    height: 1px;
+    margin-top: 24px;
+    margin-bottom: 26px;
+    background-color: rgba(243, 198, 91, 0.42);
 }
 
 .rematch-button {
-    background-color: var(--color-terracotta);
-    color: white;
-    font-size: 28px;
-    padding: 18px 60px;
+    width: 72%;
+    max-width: 300px;
+    height: 54px;
+    color: #fff8e8;
+    background-color: var(--terracotta);
+    font-size: 20px;
     -unity-font-style: bold;
-    border-width: 0;
+    letter-spacing: 2px;
+    border-width: 1px;
+    border-color: #d9825d;
+    border-radius: 5px;
 }
 
 .rematch-button:hover {
-    background-color: #e67e22;
+    background-color: var(--terracotta-hover);
+    border-color: var(--gold);
 }

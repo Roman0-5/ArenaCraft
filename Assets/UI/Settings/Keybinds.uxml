@@ -14,7 +14,7 @@
 
             <ui:VisualElement class="footer-buttons">
                 <ui:Button name="reset-all-button" text="RESET ALL" class="footer-button reset-all-button" />
-                <ui:Button name="close-button" text="SAVE & CLOSE" class="footer-button close-button" />
+                <ui:Button name="close-button" text="SAVE &amp; CLOSE" class="footer-button close-button" />
             </ui:VisualElement>
         </ui:VisualElement>
 

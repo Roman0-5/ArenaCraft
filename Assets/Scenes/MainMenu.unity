@@ -290,9 +290,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.dll::UnityEngine.UIElements.UIDocument
   m_PanelSettings: {fileID: 11400000, guid: d59a1a92bec664537a662c438195a7fe, type: 2}
-  m_ParentUI: {fileID: 1516505713}
+  m_ParentUI: {fileID: 0}
   sourceAsset: {fileID: 9197481963319205126, guid: 0828b795601264efc8e165929bd149ed, type: 3}
-  m_SortingOrder: 0
+  m_SortingOrder: 30
   m_Position: 0
   m_WorldSpaceSizeMode: 1
   m_WorldSpaceWidth: 1920
@@ -313,7 +313,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 1516505714}
+  m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1445678031
 GameObject:
@@ -474,8 +474,7 @@ Transform:
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
-  m_Children:
-  - {fileID: 206329067}
+  m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1758898395
@@ -609,5 +608,6 @@ SceneRoots:
   - {fileID: 1445678034}
   - {fileID: 127184013}
   - {fileID: 1516505714}
+  - {fileID: 206329067}
   - {fileID: 1758898398}
   - {fileID: 2127713437}

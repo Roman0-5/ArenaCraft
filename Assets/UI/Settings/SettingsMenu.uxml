@@ -1,7 +1,8 @@
 <ui:UXML xmlns:ui="UnityEngine.UIElements">
     <ui:Style src="SettingsMenu.uss" />
-    <ui:VisualElement name="settings-root" class="settings-root">
+    <ui:VisualElement name="settings-root" class="settings-root" style="display: none;">
         <ui:VisualElement class="settings-panel">
+            <ui:Label text="OPTIONS" class="settings-kicker" />
             <ui:Label text="ARENA SETTINGS" class="settings-header" />
             
             <ui:VisualElement class="tabs-container">
@@ -45,19 +46,29 @@
 
                 <!-- Controls Tab -->
                 <ui:VisualElement name="tab-content-controls" class="tab-content">
-                    <ui:ScrollView class="scroll-view">
-                        <ui:Label text="PLAYER 1 (RED)" class="player-section-header" />
-                        <ui:VisualElement name="p1-rows-container" />
-                        
-                        <ui:Label text="PLAYER 2 (BLUE)" class="player-section-header" />
-                        <ui:VisualElement name="p2-rows-container" />
-                    </ui:ScrollView>
+                    <ui:VisualElement class="controls-grid">
+                        <ui:VisualElement class="player-bindings-card player-one-card">
+                            <ui:VisualElement class="player-card-header">
+                                <ui:Label text="PLAYER 1" class="player-section-header" />
+                                <ui:Label text="KEYBOARD LEFT" class="player-device-label" />
+                            </ui:VisualElement>
+                            <ui:VisualElement name="p1-rows-container" class="bindings-list" />
+                        </ui:VisualElement>
+
+                        <ui:VisualElement class="player-bindings-card player-two-card">
+                            <ui:VisualElement class="player-card-header">
+                                <ui:Label text="PLAYER 2" class="player-section-header" />
+                                <ui:Label text="KEYBOARD RIGHT" class="player-device-label" />
+                            </ui:VisualElement>
+                            <ui:VisualElement name="p2-rows-container" class="bindings-list" />
+                        </ui:VisualElement>
+                    </ui:VisualElement>
                 </ui:VisualElement>
             </ui:VisualElement>
 
             <ui:VisualElement class="footer-buttons">
                 <ui:Button name="reset-all-button" text="RESET ALL" class="footer-button reset-all-button" />
-                <ui:Button name="close-button" text="SAVE & CLOSE" class="footer-button close-button" />
+                <ui:Button name="close-button" text="SAVE &amp; CLOSE" class="footer-button close-button" />
             </ui:VisualElement>
         </ui:VisualElement>
 

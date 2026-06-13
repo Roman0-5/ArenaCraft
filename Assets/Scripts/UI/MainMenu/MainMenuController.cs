@@ -9,21 +9,35 @@ namespace ArenaCraft
         [SerializeField] private string m_GameSceneName = "SampleScene";
         [SerializeField] private SettingsUIController m_SettingsMenu;
 
+        private Button m_StartButton;
+        private Button m_SettingsButton;
+
         private void OnEnable()
         {
             var root = GetComponent<UIDocument>().rootVisualElement;
-            
-            var startButton = root.Q<Button>("start-button");
-            if (startButton != null)
+            var vignette = root.Q<VisualElement>(className: "vignette");
+            if (vignette != null) vignette.pickingMode = PickingMode.Ignore;
+
+            this.m_StartButton = root.Q<Button>("start-button");
+            if (this.m_StartButton != null)
             {
-                startButton.clicked += this.OnStartClicked;
+                this.m_StartButton.clicked += this.OnStartClicked;
             }
 
-            var settingsButton = root.Q<Button>("settings-button");
-            if (settingsButton != null)
+            this.m_SettingsButton = root.Q<Button>("settings-button");
+            if (this.m_SettingsButton != null)
             {
-                settingsButton.clicked += this.OnSettingsClicked;
+                this.m_SettingsButton.clicked += this.OnSettingsClicked;
             }
+        }
+
+        private void OnDisable()
+        {
+            if (this.m_StartButton != null)
+                this.m_StartButton.clicked -= this.OnStartClicked;
+
+            if (this.m_SettingsButton != null)
+                this.m_SettingsButton.clicked -= this.OnSettingsClicked;
         }
 
         private void OnStartClicked()

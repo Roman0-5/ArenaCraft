@@ -8028,7 +8028,7 @@ MonoBehaviour:
   m_PanelSettings: {fileID: 11400000, guid: d59a1a92bec664537a662c438195a7fe, type: 2}
   m_ParentUI: {fileID: 0}
   sourceAsset: {fileID: 9197481963319205126, guid: 0828b795601264efc8e165929bd149ed, type: 3}
-  m_SortingOrder: 0
+  m_SortingOrder: 40
   m_Position: 0
   m_WorldSpaceSizeMode: 1
   m_WorldSpaceWidth: 1920
@@ -8680,7 +8680,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 1695655217}
+  m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &595221070
 MonoBehaviour:
@@ -8710,9 +8710,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.dll::UnityEngine.UIElements.UIDocument
   m_PanelSettings: {fileID: 11400000, guid: d59a1a92bec664537a662c438195a7fe, type: 2}
-  m_ParentUI: {fileID: 1695655215}
+  m_ParentUI: {fileID: 0}
   sourceAsset: {fileID: 9197481963319205126, guid: 9565c7fe5c6d1444dae884dac451433e, type: 3}
-  m_SortingOrder: 0
+  m_SortingOrder: 20
   m_Position: 0
   m_WorldSpaceSizeMode: 1
   m_WorldSpaceWidth: 1920
@@ -14852,7 +14852,7 @@ MonoBehaviour:
   m_PanelSettings: {fileID: 11400000, guid: d59a1a92bec664537a662c438195a7fe, type: 2}
   m_ParentUI: {fileID: 0}
   sourceAsset: {fileID: 9197481963319205126, guid: 41b8ae7e2e886467bb525912e9a336ee, type: 3}
-  m_SortingOrder: 0
+  m_SortingOrder: 30
   m_Position: 0
   m_WorldSpaceSizeMode: 1
   m_WorldSpaceWidth: 1920
@@ -21592,8 +21592,7 @@ Transform:
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
-  m_Children:
-  - {fileID: 595221069}
+  m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &1695655218
@@ -28035,3 +28034,4 @@ SceneRoots:
   - {fileID: 2135169386}
   - {fileID: 1117528669}
   - {fileID: 2127713437}
+  - {fileID: 595221069}

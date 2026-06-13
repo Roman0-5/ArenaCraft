@@ -1,8 +1,10 @@
-<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements">
+<ui:UXML xmlns:ui="UnityEngine.UIElements">
     <ui:Style src="PauseMenu.uss" />
     <ui:VisualElement name="pause-root" class="pause-root">
         <ui:VisualElement class="pause-panel">
+            <ui:Label text="MATCH INTERRUPTED" class="pause-kicker" />
             <ui:Label text="PAUSED" class="pause-header" />
+            <ui:VisualElement class="pause-divider" />
             <ui:Button name="resume-button" text="RESUME" class="pause-button" />
             <ui:Button name="settings-button" text="SETTINGS" class="pause-button" />
             <ui:Button name="main-menu-button" text="MAIN MENU" class="pause-button" />

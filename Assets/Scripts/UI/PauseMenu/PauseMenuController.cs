@@ -21,6 +21,7 @@ namespace ArenaCraft
             this.m_UIDocument = GetComponent<UIDocument>();
             if (this.m_UIDocument == null) return;
 
+            this.m_UIDocument.sortingOrder = 100;
             this.m_PauseRoot = this.m_UIDocument.rootVisualElement.Q<VisualElement>("pause-root");
             if (this.m_PauseRoot != null)
             {

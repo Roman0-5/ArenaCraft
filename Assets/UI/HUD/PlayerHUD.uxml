@@ -1,25 +1,20 @@
-<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements">
+<ui:UXML xmlns:ui="UnityEngine.UIElements">
     <ui:Style src="PlayerHUD.uss" />
     <ui:VisualElement name="root" class="hud-container">
         
         <!-- Player 1 Panel -->
         <ui:VisualElement name="p1-panel" class="player-panel">
-            <!-- Vertical Resource Bar -->
             <ui:VisualElement class="resource-bar-container">
                 <ui:VisualElement name="p1-resource-fill" class="resource-fill" />
             </ui:VisualElement>
-            
-            <!-- Main Content -->
             <ui:VisualElement class="panel-content-main">
                 <ui:VisualElement class="player-header">
-                    <ui:Label name="p1-label" text="P1 - RED" class="player-label" />
-                    <ui:Label name="p1-gold" text="Gold: 0" class="gold-label" />
+                    <ui:Label name="p1-label" text="PLAYER 1" class="player-label" />
+                    <ui:Label name="p1-gold" text="0 GOLD" class="gold-label" />
                 </ui:VisualElement>
-                
                 <ui:VisualElement class="hp-bar-container">
                     <ui:VisualElement name="p1-hp-fill" class="hp-fill" />
                 </ui:VisualElement>
-                
                 <ui:VisualElement class="items-row">
                     <ui:VisualElement class="item-slot">
                         <ui:VisualElement name="p1-weapon-icon" class="item-icon" />
@@ -33,6 +28,7 @@
 
         <!-- Timer -->
         <ui:VisualElement class="timer-container">
+            <ui:Label name="phase-label" text="RESOURCE PHASE" class="phase-label" />
             <ui:Label name="timer-label" text="00:00" class="timer-label" />
         </ui:VisualElement>
 
@@ -41,8 +37,8 @@
             <!-- Main Content -->
             <ui:VisualElement class="panel-content-main">
                 <ui:VisualElement class="player-header">
-                    <ui:Label name="p2-label" text="P2 - BLUE" class="player-label" />
-                    <ui:Label name="p2-gold" text="Gold: 0" class="gold-label" />
+                    <ui:Label name="p2-label" text="PLAYER 2" class="player-label" />
+                    <ui:Label name="p2-gold" text="0 GOLD" class="gold-label" />
                 </ui:VisualElement>
                 
                 <ui:VisualElement class="hp-bar-container">

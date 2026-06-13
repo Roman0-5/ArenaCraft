@@ -36,8 +36,17 @@ namespace ArenaCraft
         {
             this.m_UIDocument = GetComponent<UIDocument>();
             if (this.m_UIDocument == null) return;
-            
-            this.m_Root = this.m_UIDocument.rootVisualElement;
+
+            this.m_UIDocument.sortingOrder = 200;
+
+            var documentRoot = this.m_UIDocument.rootVisualElement;
+            documentRoot.style.position = Position.Absolute;
+            documentRoot.style.left = 0;
+            documentRoot.style.top = 0;
+            documentRoot.style.right = 0;
+            documentRoot.style.bottom = 0;
+
+            this.m_Root = documentRoot.Q<VisualElement>("settings-root");
             if (this.m_Root == null) return;
 
             // Find Elements
