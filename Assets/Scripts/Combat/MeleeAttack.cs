@@ -133,8 +133,7 @@ namespace ArenaCraft
         {
             // Polled live each frame (not an OnEnable event subscription) so it does not depend on
             // whether PlayerInputProvider has resolved its actions yet at OnEnable time.
-            if (this.input.Attack == null) return;
-            if (!this.input.Attack.WasPerformedThisFrame()) return;
+            if (!this.input.WasAttackPressedThisFrame()) return;
             if (this.owner != null && this.owner.IsDead) return;
             if (Time.time - this.lastAttackTime < this.activeCooldown) return;
 

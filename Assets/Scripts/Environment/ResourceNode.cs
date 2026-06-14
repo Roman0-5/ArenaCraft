@@ -36,15 +36,21 @@ namespace ArenaCraft
         private Coroutine m_RespawnRoutine;
         private Vector3 m_VisualStartPosition;
         private Vector3 m_VisualStartScale;
+        private Vector3 m_IndicatorLocalPosition = new Vector3(0f, 2.5f, 0f);
         private bool m_Initialized;
 
         public int CurrentHealth => this.m_CurrentHealth;
         public bool IsDestroyed => this.m_IsDestroyed;
         public float HealthNormalized => this.maxHealth > 0 ? (float)this.m_CurrentHealth / this.maxHealth : 0f;
         public float RespawnRemaining { get; private set; }
+        public float RespawnDuration { get; private set; }
+        public float RespawnNormalized => this.RespawnDuration > 0f
+            ? 1f - Mathf.Clamp01(this.RespawnRemaining / this.RespawnDuration)
+            : 1f;
         public NodeState State { get; private set; } = NodeState.Available;
         public int TotalYield => this.maxHealth * this.resourcesPerHit + this.depletionBonus;
         public bool CanHarvest => this.State == NodeState.Available && !this.m_IsDestroyed;
+        public Vector3 IndicatorWorldPosition => transform.TransformPoint(this.m_IndicatorLocalPosition);
 
         public event Action<ResourceNode, PlayerInventory, int> OnHarvested;
         public event Action<ResourceNode> OnDepleted;
@@ -57,7 +63,13 @@ namespace ArenaCraft
 
         private void EnsureInitialized()
         {
-            if (this.m_Initialized) return;
+            if (this.m_Initialized)
+            {
+                FitBlockingColliderToVisuals();
+                if (Application.isPlaying)
+                    ResourceNodeIndicator.Attach(this);
+                return;
+            }
 
             this.maxHealth = Mathf.Max(1, this.maxHealth);
             this.resourcesPerHit = Mathf.Max(1, this.resourcesPerHit);
@@ -66,6 +78,7 @@ namespace ArenaCraft
             this.respawnVariance = Mathf.Max(0f, this.respawnVariance);
             this.respawnWarningTime = Mathf.Max(0f, this.respawnWarningTime);
             this.m_CurrentHealth = this.maxHealth;
+            FitBlockingColliderToVisuals();
             this.m_Colliders = GetComponentsInChildren<Collider>(true);
             this.m_ColliderDefaults = new bool[this.m_Colliders.Length];
             for (int i = 0; i < this.m_Colliders.Length; i++)
@@ -79,9 +92,114 @@ namespace ArenaCraft
             {
                 this.m_VisualStartPosition = this.visuals.transform.localPosition;
                 this.m_VisualStartScale = this.visuals.transform.localScale;
+                ApplyResourceTint();
             }
 
             this.m_Initialized = true;
+            if (Application.isPlaying)
+                ResourceNodeIndicator.Attach(this);
+        }
+
+        private void ApplyResourceTint()
+        {
+            if (this.visuals == null || this.resourceType != ResourceType.Metal) return;
+
+            Color oreColor = new Color(0.16f, 0.48f, 0.72f, 1f);
+            foreach (Renderer renderer in this.visuals.GetComponentsInChildren<Renderer>(true))
+            {
+                MaterialPropertyBlock properties = new MaterialPropertyBlock();
+                renderer.GetPropertyBlock(properties);
+                properties.SetColor("_BaseColor", oreColor);
+                properties.SetColor("_Color", oreColor);
+                renderer.SetPropertyBlock(properties);
+            }
+        }
+
+        public void FitBlockingColliderToVisuals()
+        {
+            if (this.visuals == null || !TryGetVisualLocalBounds(out Bounds bounds)) return;
+
+            Collider blockingCollider = GetComponent<Collider>();
+            if (blockingCollider == null)
+            {
+                blockingCollider = this.resourceType == ResourceType.Wood
+                    ? gameObject.AddComponent<CapsuleCollider>()
+                    : gameObject.AddComponent<BoxCollider>();
+            }
+
+            blockingCollider.isTrigger = false;
+            float bottom = Mathf.Max(0f, bounds.min.y);
+            if (blockingCollider is CapsuleCollider capsule)
+            {
+                float horizontalSize = Mathf.Min(bounds.size.x, bounds.size.z);
+                capsule.direction = 1;
+                capsule.radius = Mathf.Clamp(horizontalSize * 0.2f, 0.7f, 1.15f);
+                capsule.height = Mathf.Clamp(bounds.size.y * 0.72f, 2.5f, 5.5f);
+                capsule.center = new Vector3(
+                    bounds.center.x,
+                    bottom + capsule.height * 0.5f,
+                    bounds.center.z);
+                this.m_IndicatorLocalPosition = new Vector3(
+                    capsule.center.x + capsule.radius + 0.65f,
+                    bottom + capsule.height * 0.72f,
+                    capsule.center.z);
+            }
+            else if (blockingCollider is BoxCollider box)
+            {
+                box.size = new Vector3(
+                    Mathf.Clamp(bounds.size.x * 0.78f, 1.2f, 2.8f),
+                    Mathf.Clamp(bounds.size.y * 0.82f, 1f, 3f),
+                    Mathf.Clamp(bounds.size.z * 0.78f, 1.2f, 2.8f));
+                box.center = new Vector3(
+                    bounds.center.x,
+                    bottom + box.size.y * 0.5f,
+                    bounds.center.z);
+                this.m_IndicatorLocalPosition = new Vector3(
+                    box.center.x + box.size.x * 0.5f + 0.45f,
+                    bottom + box.size.y + 0.45f,
+                    box.center.z);
+            }
+        }
+
+        private bool TryGetVisualLocalBounds(out Bounds localBounds)
+        {
+            localBounds = default;
+            Renderer[] renderers = this.visuals.GetComponentsInChildren<Renderer>(true);
+            bool hasBounds = false;
+
+            foreach (Renderer renderer in renderers)
+            {
+                if (renderer == null || renderer is ParticleSystemRenderer) continue;
+
+                Bounds worldBounds = renderer.bounds;
+                Vector3 min = worldBounds.min;
+                Vector3 max = worldBounds.max;
+                for (int x = 0; x < 2; x++)
+                {
+                    for (int y = 0; y < 2; y++)
+                    {
+                        for (int z = 0; z < 2; z++)
+                        {
+                            Vector3 worldCorner = new Vector3(
+                                x == 0 ? min.x : max.x,
+                                y == 0 ? min.y : max.y,
+                                z == 0 ? min.z : max.z);
+                            Vector3 localCorner = transform.InverseTransformPoint(worldCorner);
+                            if (!hasBounds)
+                            {
+                                localBounds = new Bounds(localCorner, Vector3.zero);
+                                hasBounds = true;
+                            }
+                            else
+                            {
+                                localBounds.Encapsulate(localCorner);
+                            }
+                        }
+                    }
+                }
+            }
+
+            return hasBounds;
         }
 
         public bool TakeDamage(int damage, PlayerInventory harvester)
@@ -176,6 +294,7 @@ namespace ArenaCraft
             this.RespawnRemaining = Mathf.Max(
                 0.05f,
                 (this.respawnTime + variance) * MatchRules.RespawnMultiplier);
+            this.RespawnDuration = this.RespawnRemaining;
             float previousTime = Time.realtimeSinceStartup;
 
             while (this.RespawnRemaining > 0f)
@@ -214,6 +333,7 @@ namespace ArenaCraft
             this.m_IsDestroyed = false;
             this.State = NodeState.Available;
             this.RespawnRemaining = 0f;
+            this.RespawnDuration = 0f;
             ResetVisualTransform();
             if (this.visuals != null) this.visuals.SetActive(true);
             SetCollidersEnabled(true);

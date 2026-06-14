@@ -55,8 +55,10 @@
                     <ui:Button name="buy-heavy-armor" text="BUY" class="buy-button" />
                 </ui:VisualElement>
             </ui:VisualElement>
-            <ui:Label name="warning-label" text="" class="warning-label" />
-            <ui:Button name="close-button" text="READY FOR BATTLE" class="close-button" />
+            <ui:VisualElement class="shop-footer">
+                <ui:Label name="warning-label" text="" class="warning-label" />
+                <ui:Button name="close-button" text="READY FOR BATTLE" class="close-button" />
+            </ui:VisualElement>
         </ui:VisualElement>
     </ui:VisualElement>
 </ui:UXML>

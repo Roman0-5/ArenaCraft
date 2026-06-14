@@ -82,7 +82,7 @@ namespace ArenaCraft
             this.m_SharedButton?.EnableInClassList("choice-button--active", !split);
             this.m_SplitButton?.EnableInClassList("choice-button--active", split);
             if (this.m_SelectionSummary != null)
-                this.m_SelectionSummary.text = $"{(rules == MatchRuleSet.GddClassic ? "GDD CLASSIC" : "QUICK MATCH")}  |  {(split ? "SPLIT SCREEN" : "SHARED SCREEN")}";
+                this.m_SelectionSummary.text = $"{(rules == MatchRuleSet.GddClassic ? "CLASSIC" : "QUICK MATCH")}  |  {(split ? "SPLIT SCREEN" : "SHARED SCREEN")}";
         }
 
         private void OnSettingsClicked()

@@ -35,6 +35,25 @@ namespace ArenaCraft
         public InputAction Dash { get; private set; }
         public InputAction Block { get; private set; }
 
+        public bool WasAttackPressedThisFrame()
+        {
+            if (!this.isActiveAndEnabled)
+                return false;
+
+            if (Keyboard.current != null)
+            {
+                KeyControl attackKey = this.slot == PlayerSlot.One
+                    ? Keyboard.current.spaceKey
+                    : Keyboard.current.enterKey;
+                if (attackKey.wasPressedThisFrame)
+                    return true;
+            }
+
+            return this.Attack != null &&
+                   this.Attack.enabled &&
+                   this.Attack.WasPerformedThisFrame();
+        }
+
         public Vector2 ReadMove()
         {
             if (!this.isActiveAndEnabled)

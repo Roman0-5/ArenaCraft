@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Reflection;
 using ArenaCraft;
 using UnityEditor;
+using UnityEditor.SceneManagement;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.InputSystem.LowLevel;
@@ -64,6 +65,82 @@ namespace ArenaCraft.Editor
             PlayModeStartScene.Configure();
             EditorApplication.playModeStateChanged += HandlePlayModeStateChanged;
             EditorApplication.isPlaying = true;
+        }
+
+        [MenuItem("ArenaCraft/Validate Real Harvest Interaction")]
+        public static void ValidateRealHarvestInteraction()
+        {
+            const string scenePath = "Assets/Scenes/SampleScene.unity";
+            EditorSceneManager.OpenScene(scenePath, OpenSceneMode.Single);
+
+            PlayerInputProvider[] players =
+                UnityEngine.Object.FindObjectsByType<PlayerInputProvider>(FindObjectsSortMode.None);
+            Array.Sort(players, (a, b) => ((int)a.Slot).CompareTo((int)b.Slot));
+            if (players.Length < 1)
+                throw new InvalidOperationException("Harvest validation could not find Player 1.");
+
+            PlayerInputProvider player = players[0];
+            PlayerInventory inventory = player.GetComponent<PlayerInventory>();
+            Health health = player.GetComponent<Health>();
+            AttackHitbox hitbox = player.GetComponent<MeleeAttack>()?.hitbox;
+            if (inventory == null || health == null || hitbox == null)
+                throw new InvalidOperationException("Harvest interaction components are not fully wired.");
+
+            hitbox.owner = health;
+            InvokePrivate(hitbox, "Awake");
+
+            foreach (ResourceType type in Enum.GetValues(typeof(ResourceType)))
+            {
+                ResourceNode node = Array.Find(
+                    UnityEngine.Object.FindObjectsByType<ResourceNode>(FindObjectsSortMode.None),
+                    candidate => candidate.resourceType == type);
+                if (node == null)
+                    throw new InvalidOperationException($"Harvest validation could not find a {type} resource.");
+
+                InvokePrivate(node, "Awake");
+                Collider resourceCollider = node.GetComponent<Collider>();
+                if (resourceCollider == null)
+                    throw new InvalidOperationException($"{node.name} has no harvest collider.");
+
+                GameObject originalVisuals = node.visuals;
+                AudioClip originalSound = node.hitSound;
+                ParticleSystem originalEffect = node.harvestEffect;
+                node.visuals = null;
+                node.hitSound = null;
+                node.harvestEffect = null;
+
+                int healthBefore = node.CurrentHealth;
+                int resourcesBefore = inventory.CurrentResources;
+                Vector3 target = resourceCollider.bounds.center;
+                player.transform.SetPositionAndRotation(
+                    new Vector3(target.x, player.transform.position.y, target.z - 1.45f),
+                    Quaternion.identity);
+                Physics.SyncTransforms();
+
+                hitbox.BeginSwing(10f);
+                hitbox.EndSwing();
+
+                node.visuals = originalVisuals;
+                node.hitSound = originalSound;
+                node.harvestEffect = originalEffect;
+
+                if (node.CurrentHealth >= healthBefore || inventory.CurrentResources <= resourcesBefore)
+                    throw new InvalidOperationException(
+                        $"Player hitbox did not harvest the {type} world resource.");
+            }
+
+            Debug.Log(
+                $"[ArenaCraft Harvest Validation] PASS: {player.name} harvested Wood, Stone and Metal through the real attack hitbox.");
+        }
+
+        private static void InvokePrivate(object target, string methodName)
+        {
+            MethodInfo method = target.GetType().GetMethod(
+                methodName,
+                BindingFlags.Instance | BindingFlags.NonPublic);
+            if (method == null)
+                throw new MissingMethodException(target.GetType().Name, methodName);
+            method.Invoke(target, null);
         }
 
         private static void HandlePlayModeStateChanged(PlayModeStateChange change)
@@ -156,7 +233,10 @@ namespace ArenaCraft.Editor
             Require(document != null, "Main Menu UI document exists");
             VisualElement root = document.rootVisualElement;
             Require(root.Q<Button>("start-button") != null, "Main Menu start button exists");
-            Require(root.Q<Button>("mode-classic-button") != null && root.Q<Button>("mode-quick-button") != null,
+            Button classicButton = root.Q<Button>("mode-classic-button");
+            Require(classicButton != null && classicButton.text == "CLASSIC",
+                "Classic mode uses the player-facing CLASSIC label");
+            Require(root.Q<Button>("mode-quick-button") != null,
                 "match rule selection exists");
             Require(root.Q<Button>("camera-shared-button") != null && root.Q<Button>("camera-split-button") != null,
                 "camera mode selection exists");
@@ -204,6 +284,17 @@ namespace ArenaCraft.Editor
             Require(Array.TrueForAll(nodes, node =>
                     node.visuals != null && node.GetComponent<Collider>() != null && node.hitSound != null),
                 "all resource nodes keep visuals, colliders and harvest audio");
+            Require(Array.TrueForAll(
+                    Array.FindAll(nodes, node => node.resourceType == ResourceType.Metal),
+                    node => node.visuals.name == "MetalOreVisual" &&
+                            node.visuals.GetComponentsInChildren<Renderer>(true).Length >= 3),
+                "Metal nodes use visible multi-piece ore clusters");
+            Require(Array.TrueForAll(nodes, node =>
+                    !node.GetComponent<Collider>().isTrigger &&
+                    node.GetComponentInChildren<ResourceNodeIndicator>(true) != null),
+                "all resource nodes block players and show harvest indicators");
+            Require(Array.TrueForAll(nodes, HasUsableResourceCollider),
+                "resource colliders match the visible harvest props");
             Require(Array.TrueForAll(nodes, node =>
                     node.TotalYield >= 28 && node.respawnTime >= 10f && node.respawnVariance > 0f),
                 "resource nodes have balanced yields and staggered respawns");
@@ -284,6 +375,8 @@ namespace ArenaCraft.Editor
                     s_TestNode.GetComponent<Collider>().enabled,
                 "respawn restores node health, state and collision");
 
+            ValidateRealPlayerHarvestHit();
+
             int healthBefore = s_P2Health.CurrentHP;
             TriggerPlayerHit(s_Players[0], s_Players[1]);
             Require(s_P2Health.CurrentHP == healthBefore, "PvP damage is blocked in Resource phase");
@@ -323,16 +416,115 @@ namespace ArenaCraft.Editor
 
             InputSystem.QueueStateEvent(Keyboard.current, new KeyboardState());
             InputSystem.Update();
+
+            InputSystem.QueueStateEvent(Keyboard.current, new KeyboardState(Key.Space, Key.Enter));
+            InputSystem.Update();
+            Require(s_Players[0].WasAttackPressedThisFrame(), "Player 1 receives Space attack input");
+            Require(s_Players[1].WasAttackPressedThisFrame(), "Player 2 receives Enter attack input");
+
+            InputSystem.QueueStateEvent(Keyboard.current, new KeyboardState());
+            InputSystem.Update();
+        }
+
+        private static void ValidateRealPlayerHarvestHit()
+        {
+            ResourceNode realNode = Array.Find(
+                UnityEngine.Object.FindObjectsByType<ResourceNode>(FindObjectsSortMode.None),
+                node => node != null && node.name.StartsWith("Resource_", StringComparison.Ordinal));
+            Require(realNode != null, "a real scene resource node is available for hitbox validation");
+
+            PlayerInputProvider player = s_Players[0];
+            PlayerInventory inventory = player.GetComponent<PlayerInventory>();
+            AttackHitbox hitbox = player.GetComponent<MeleeAttack>()?.hitbox;
+            Collider resourceCollider = realNode.GetComponent<Collider>();
+            Rigidbody body = player.GetComponent<Rigidbody>();
+            Require(inventory != null && hitbox != null && resourceCollider != null && body != null,
+                "player harvesting components are fully wired");
+
+            int resourcesBefore = inventory.CurrentResources;
+            int healthBefore = realNode.CurrentHealth;
+            ResourceNodeIndicator indicator =
+                realNode.GetComponentInChildren<ResourceNodeIndicator>(true);
+            Vector3 target = resourceCollider.bounds.center;
+            Vector3 playerPosition = new Vector3(
+                target.x,
+                player.transform.position.y,
+                target.z - 1.45f);
+            player.transform.SetPositionAndRotation(playerPosition, Quaternion.identity);
+            Physics.SyncTransforms();
+            Collider attackCollider = hitbox.GetComponent<Collider>();
+            player.transform.position += target - attackCollider.bounds.center;
+            Physics.SyncTransforms();
+
+            hitbox.BeginSwing(10f);
+            hitbox.EndSwing();
+
+            Require(realNode.CurrentHealth < healthBefore,
+                "real player hitbox damages a world resource node");
+            Require(inventory.CurrentResources > resourcesBefore,
+                "real player hitbox awards harvested resources");
+            Require(indicator != null, "world resource has a harvest indicator");
+            MethodInfo indicatorUpdate = typeof(ResourceNodeIndicator).GetMethod(
+                "LateUpdate",
+                BindingFlags.Instance | BindingFlags.NonPublic);
+            indicatorUpdate?.Invoke(indicator, null);
+            Require(indicator.IsVisible,
+                "nearby resource indicator is visible to the player");
+            Require(indicator.DetailText.Contains("HARVEST") &&
+                    !indicator.DetailText.Contains("MOVE CLOSER"),
+                "resource indicator gives a direct readable harvest action");
+            Require(Mathf.Abs(indicator.DisplayedProgress - realNode.HealthNormalized) < 0.01f,
+                "resource indicator tracks remaining node durability");
+            realNode.RestoreNode();
+        }
+
+        private static bool HasUsableResourceCollider(ResourceNode node)
+        {
+            Collider collider = node.GetComponent<Collider>();
+            if (collider is CapsuleCollider capsule)
+                return capsule.radius >= 0.65f && capsule.height >= 2.4f;
+            if (collider is BoxCollider box)
+                return box.size.x >= 1.15f && box.size.y >= 0.95f && box.size.z >= 1.15f;
+            return false;
         }
 
         private static void ValidateShoppingPhase()
         {
             Require(!s_TestNode.TakeDamage(1, s_TestInventory), "resource harvesting is blocked in Shopping phase");
             Require(!s_Players[0].enabled && !s_Players[1].enabled, "player controls are locked while shopping");
+            ValidateShopLayout();
 
             int healthBefore = s_P2Health.CurrentHP;
             TriggerPlayerHit(s_Players[0], s_Players[1]);
             Require(s_P2Health.CurrentHP == healthBefore, "PvP damage is blocked in Shopping phase");
+        }
+
+        private static void ValidateShopLayout()
+        {
+            ShopController shop = UnityEngine.Object.FindAnyObjectByType<ShopController>();
+            UIDocument document = shop != null ? shop.GetComponent<UIDocument>() : null;
+            Require(document != null, "shop UI document exists");
+
+            VisualElement root = document.rootVisualElement;
+            List<VisualElement> cards = root.Query<VisualElement>(className: "shop-item").ToList();
+            Require(cards.Count == 4, "shop contains four equipment cards");
+            foreach (VisualElement card in cards)
+            {
+                Rect cardBounds = card.worldBound;
+                foreach (Label label in card.Query<Label>().ToList())
+                {
+                    Rect labelBounds = label.worldBound;
+                    Require(
+                        labelBounds.yMin >= cardBounds.yMin - 0.5f &&
+                        labelBounds.yMax <= cardBounds.yMax + 0.5f,
+                        $"{label.text} stays inside its shop card");
+                }
+            }
+
+            VisualElement grid = root.Q<VisualElement>("items-grid");
+            VisualElement footer = root.Q<VisualElement>(className: "shop-footer");
+            Require(grid != null && footer != null && grid.worldBound.yMax <= footer.worldBound.yMin + 0.5f,
+                "shop cards do not overlap the footer");
         }
 
         private static void ValidateBattlePhase()

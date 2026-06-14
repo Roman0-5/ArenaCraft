@@ -12,6 +12,8 @@ namespace ArenaCraft.Editor
     internal static class ArenaSceneBuilder
     {
         private const string ScenePath = "Assets/Scenes/SampleScene.unity";
+        private const string MetalVisualPrefabPath =
+            "Assets/Palmov Island/Low Poly Atmospheric Locations Pack/Prefabs/Environment/coal.prefab";
 
         private static readonly Dictionary<ResourceType, Vector3[]> ResourcePositions =
             new Dictionary<ResourceType, Vector3[]>
@@ -51,7 +53,7 @@ namespace ArenaCraft.Editor
                 }
             };
 
-        [MenuItem("ArenaCraft/Build GDD Arena Resources")]
+        [MenuItem("ArenaCraft/Build Classic Arena Resources")]
         public static void BuildResources()
         {
             if (EditorApplication.isPlaying)
@@ -88,6 +90,8 @@ namespace ArenaCraft.Editor
 
                     ResourceNode node = clone.GetComponent<ResourceNode>();
                     ConfigureNode(node, entry.Key);
+                    ConfigureResourceVisual(node);
+                    node.FitBlockingColliderToVisuals();
                 }
             }
 
@@ -101,6 +105,117 @@ namespace ArenaCraft.Editor
             EditorSceneManager.MarkSceneDirty(scene);
             EditorSceneManager.SaveScene(scene);
             Debug.Log("[ArenaCraft] Built 30 harvestable resource nodes and saved SampleScene.");
+        }
+
+        [MenuItem("ArenaCraft/Fix Player Harvest Hitboxes")]
+        public static void FixPlayerHarvestHitboxes()
+        {
+            if (EditorApplication.isPlaying)
+            {
+                Debug.LogWarning("Stop Play Mode before fixing player hitboxes.");
+                return;
+            }
+
+            Scene scene = EditorSceneManager.OpenScene(ScenePath, OpenSceneMode.Single);
+            AttackHitbox[] hitboxes = UnityEngine.Object.FindObjectsByType<AttackHitbox>(FindObjectsSortMode.None);
+            foreach (AttackHitbox hitbox in hitboxes)
+            {
+                BoxCollider box = hitbox.GetComponent<BoxCollider>();
+                if (box == null) continue;
+                box.size = new Vector3(1.8f, 2f, 2.2f);
+                box.center = new Vector3(0f, -0.2f, 0.35f);
+                hitbox.transform.localPosition = new Vector3(0f, 0.9f, 1.05f);
+                hitbox.transform.localRotation = Quaternion.identity;
+                hitbox.resourceHarvestRadius = 1.35f;
+            }
+
+            EditorSceneManager.MarkSceneDirty(scene);
+            EditorSceneManager.SaveScene(scene);
+            Debug.Log($"[ArenaCraft] Updated {hitboxes.Length} player harvesting hitboxes.");
+        }
+
+        [MenuItem("ArenaCraft/Fit Resource Colliders")]
+        public static void FitResourceColliders()
+        {
+            if (EditorApplication.isPlaying)
+            {
+                Debug.LogWarning("Stop Play Mode before fitting resource colliders.");
+                return;
+            }
+
+            Scene scene = EditorSceneManager.OpenScene(ScenePath, OpenSceneMode.Single);
+            ResourceNode[] nodes = UnityEngine.Object.FindObjectsByType<ResourceNode>(FindObjectsSortMode.None);
+            foreach (ResourceNode node in nodes)
+                node.FitBlockingColliderToVisuals();
+
+            EditorSceneManager.MarkSceneDirty(scene);
+            EditorSceneManager.SaveScene(scene);
+            Debug.Log($"[ArenaCraft] Fitted {nodes.Length} resource colliders to their visible models.");
+        }
+
+        [MenuItem("ArenaCraft/Improve Resource Visuals")]
+        public static void ImproveResourceVisuals()
+        {
+            if (EditorApplication.isPlaying)
+            {
+                Debug.LogWarning("Stop Play Mode before improving resource visuals.");
+                return;
+            }
+
+            Scene scene = EditorSceneManager.OpenScene(ScenePath, OpenSceneMode.Single);
+            ResourceNode[] nodes = UnityEngine.Object.FindObjectsByType<ResourceNode>(FindObjectsSortMode.None);
+            foreach (ResourceNode node in nodes)
+            {
+                ConfigureResourceVisual(node);
+                node.FitBlockingColliderToVisuals();
+            }
+
+            EditorSceneManager.MarkSceneDirty(scene);
+            EditorSceneManager.SaveScene(scene);
+            Debug.Log($"[ArenaCraft] Centered and improved visuals for {nodes.Length} resource nodes.");
+        }
+
+        private static void ConfigureResourceVisual(ResourceNode node)
+        {
+            if (node.resourceType == ResourceType.Metal)
+            {
+                GameObject metalPrefab = AssetDatabase.LoadAssetAtPath<GameObject>(MetalVisualPrefabPath);
+                if (metalPrefab == null)
+                    throw new InvalidOperationException($"Missing metal visual prefab at {MetalVisualPrefabPath}.");
+
+                if (node.visuals != null)
+                    UnityEngine.Object.DestroyImmediate(node.visuals);
+                node.visuals = new GameObject("MetalOreVisual");
+                node.visuals.transform.SetParent(node.transform, false);
+                node.visuals.name = "MetalOreVisual";
+                CreateMetalOrePiece(metalPrefab, node.visuals.transform, new Vector3(-0.55f, 0f, 0f), -24f);
+                CreateMetalOrePiece(metalPrefab, node.visuals.transform, new Vector3(0.55f, 0f, 0.14f), 28f);
+                CreateMetalOrePiece(metalPrefab, node.visuals.transform, new Vector3(0f, 0.16f, -0.32f), 90f);
+            }
+            else if (node.visuals != null)
+            {
+                node.visuals.transform.localScale = Vector3.one *
+                    (node.resourceType == ResourceType.Wood ? 1.35f : 1.65f);
+            }
+
+            if (node.visuals == null) return;
+            node.visuals.transform.localPosition = Vector3.zero;
+            node.visuals.transform.localRotation = Quaternion.identity;
+            foreach (Collider childCollider in node.visuals.GetComponentsInChildren<Collider>(true))
+                UnityEngine.Object.DestroyImmediate(childCollider);
+        }
+
+        private static void CreateMetalOrePiece(
+            GameObject prefab,
+            Transform parent,
+            Vector3 localPosition,
+            float yaw)
+        {
+            GameObject piece = (GameObject)PrefabUtility.InstantiatePrefab(prefab, parent);
+            piece.name = "OreChunk";
+            piece.transform.localPosition = localPosition;
+            piece.transform.localRotation = Quaternion.Euler(0f, yaw, 0f);
+            piece.transform.localScale = Vector3.one * 0.5f;
         }
 
         private static void ConfigureNode(ResourceNode node, ResourceType type)

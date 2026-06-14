@@ -199,7 +199,7 @@ namespace ArenaCraft
             if (this.m_PhaseBanner == null) return;
             string text = phase switch
             {
-                GamePhase.Resource => "GATHER. BUILD. PREPARE.",
+                GamePhase.Resource => "HARVEST: P1 SPACE  |  P2 ENTER",
                 GamePhase.Shopping => "THE ARMORY IS OPEN",
                 GamePhase.BattleRoyale => "FIGHT!",
                 _ => ""
