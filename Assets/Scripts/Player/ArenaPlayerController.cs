@@ -59,8 +59,7 @@ namespace ArenaCraft
             // Lock vertical position (gameplay is on the X/Z plane) and freeze tilt so collisions
             // can't pop the body up or tip it over. Y rotation stays free for facing via MoveRotation;
             // collision-induced spin is killed by zeroing angular velocity each FixedUpdate.
-            this.rb.constraints = RigidbodyConstraints.FreezePositionY
-                | RigidbodyConstraints.FreezeRotationX
+            this.rb.constraints = RigidbodyConstraints.FreezeRotationX
                 | RigidbodyConstraints.FreezeRotationZ;
 
             if (this.animator == null) this.animator = GetComponentInChildren<Animator>();

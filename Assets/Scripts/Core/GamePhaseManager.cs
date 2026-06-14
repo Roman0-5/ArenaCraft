@@ -23,6 +23,12 @@ namespace ArenaCraft
         [Header("Phase Durations")]
         [SerializeField] private float m_ResourcePhaseTime = 180f;
         [SerializeField] private float m_ShoppingPhaseTime = 60f;
+        [Header("Spawn Points Battle Pit")]
+        [SerializeField] Transform m_SpawnPointP1;
+        [SerializeField] Transform m_SpawnPointP2;
+        [Header("Spawn Points Island")]
+        [SerializeField] Transform m_SpawnPointIsland1;
+        [SerializeField] Transform m_SpawnPointIsland2;
         public AudioClip phaseStartSound;
 
         [CreateProperty]
@@ -57,7 +63,9 @@ namespace ArenaCraft
 
         private void Start()
         {
+            Debug.Log($"[Player] Start Position: {transform.position}");
             BeginMatch();
+            
         }
 
         public void BeginMatch()
@@ -152,7 +160,7 @@ namespace ArenaCraft
             foreach (var p in players)
             {
                 float side = p.Slot == PlayerSlot.One ? -1.5f : 1.5f;
-                MovePlayer(p, shopZone.transform.position + Vector3.right * side + Vector3.up * 0.5f);
+                MovePlayer(p, shopZone.transform.position + Vector3.right * side + Vector3.up * 1.5f);
 
                 if (ShopController.Instance != null)
                 {
@@ -164,19 +172,27 @@ namespace ArenaCraft
             }
         }
 
+        
+        private void TeleportPlayerToIsland()
+        {
+
+        }
         private void TeleportPlayersToBattlePit()
         {
-            GameObject pit = GameObject.Find("BattlePit");
-            if (pit == null) return;
+            if (m_SpawnPointP1 == null || m_SpawnPointP2 == null)
+            {
+                Debug.LogWarning("[BattlePit] Spawn points not assigned!");
+                return;
+            }
 
             var players = UnityEngine.Object.FindObjectsByType<PlayerInputProvider>(FindObjectsSortMode.None);
             System.Array.Sort(players, (a, b) => ((int)a.Slot).CompareTo((int)b.Slot));
+
             foreach (var p in players)
             {
-                float side = p.Slot == PlayerSlot.One ? -2f : 2f;
-                Vector3 position = pit.transform.position + Vector3.right * side + Vector3.up * 0.5f;
-                MovePlayer(p, position);
-                p.transform.rotation = Quaternion.LookRotation(pit.transform.position - new Vector3(position.x, pit.transform.position.y, position.z));
+                Transform spawnPoint = p.Slot == PlayerSlot.One ? m_SpawnPointP1 : m_SpawnPointP2;
+                MovePlayer(p, spawnPoint.position);
+                p.transform.rotation = spawnPoint.rotation;
             }
         }
 
