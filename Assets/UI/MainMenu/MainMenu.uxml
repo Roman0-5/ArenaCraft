@@ -11,6 +11,17 @@
                 <ui:Label text="◆" class="divider-mark" />
                 <ui:VisualElement class="divider-line" />
             </ui:VisualElement>
+            <ui:Label text="MATCH RULES" class="choice-title" />
+            <ui:VisualElement class="choice-row">
+                <ui:Button name="mode-classic-button" text="GDD CLASSIC" class="choice-button" />
+                <ui:Button name="mode-quick-button" text="QUICK MATCH" class="choice-button" />
+            </ui:VisualElement>
+            <ui:Label text="CAMERA" class="choice-title" />
+            <ui:VisualElement class="choice-row">
+                <ui:Button name="camera-shared-button" text="SHARED" class="choice-button" />
+                <ui:Button name="camera-split-button" text="SPLIT SCREEN" class="choice-button" />
+            </ui:VisualElement>
+            <ui:Label name="selection-summary" text="GDD CLASSIC | SHARED SCREEN" class="selection-summary" />
             <ui:Button name="start-button" text="ENTER THE ARENA" class="menu-button" />
             <ui:Button name="settings-button" text="SETTINGS" class="menu-button settings-btn" />
         </ui:VisualElement>

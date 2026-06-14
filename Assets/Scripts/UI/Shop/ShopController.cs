@@ -31,12 +31,15 @@ namespace ArenaCraft
         private PlayerInventory m_PendingInventory;
         private Health m_PendingHealth;
         private MeleeAttack m_PendingMelee;
+        private bool m_HasPurchased;
+        private bool m_ConfirmedEmptyLoadout;
 
         private void Awake()
         {
             if (Instance == null) Instance = this;
             this.m_UIDocument = GetComponent<UIDocument>();
             this.m_UIDocument.sortingOrder = 50;
+            ResponsiveUILayout.Attach(this.m_UIDocument.rootVisualElement);
             this.m_Root = this.m_UIDocument.rootVisualElement.Q<VisualElement>("shop-root");
             if (this.m_Root == null)
             {
@@ -69,6 +72,8 @@ namespace ArenaCraft
             this.m_ActiveInventory = inventory;
             this.m_ActiveHealth = health;
             this.m_ActiveMelee = melee;
+            this.m_HasPurchased = false;
+            this.m_ConfirmedEmptyLoadout = false;
 
             if (this.m_ActiveInventory != null)
                 this.m_ActiveInventory.OnGoldChanged += this.HandleGoldChanged;
@@ -79,6 +84,7 @@ namespace ArenaCraft
 
             this.m_Root.style.display = DisplayStyle.Flex;
             this.m_Root.BringToFront();
+            SetHudVisible(false);
             this.SetStatus("Choose your equipment.", false);
             this.RefreshShopState();
         }
@@ -111,6 +117,7 @@ namespace ArenaCraft
             if (weapon != null && this.m_ActiveInventory != null && this.m_ActiveMelee != null && this.m_ActiveInventory.SpendGold(price))
             {
                 this.m_ActiveMelee.EquipWeapon(weapon);
+                this.m_HasPurchased = true;
                 if (this.buySound != null) this.m_AudioSource.PlayOneShot(this.buySound);
                 this.SetStatus($"{weapon.displayName.ToUpper()} EQUIPPED", false);
                 this.RefreshShopState();
@@ -124,6 +131,7 @@ namespace ArenaCraft
             if (this.m_ActiveInventory != null && this.m_ActiveHealth != null && this.m_ActiveInventory.SpendGold(price))
             {
                 this.m_ActiveHealth.ApplyArmor(armor);
+                this.m_HasPurchased = true;
                 if (this.buySound != null) this.m_AudioSource.PlayOneShot(this.buySound);
                 this.SetStatus($"{armor.ToString().ToUpper()} ARMOR EQUIPPED", false);
                 this.RefreshShopState();
@@ -134,6 +142,13 @@ namespace ArenaCraft
 
         private void CloseShop()
         {
+            if (!this.m_HasPurchased && !this.m_ConfirmedEmptyLoadout)
+            {
+                this.m_ConfirmedEmptyLoadout = true;
+                this.SetStatus("NO UPGRADE PURCHASED - CLOSE AGAIN TO CONFIRM", true);
+                return;
+            }
+
             if (this.m_ActiveInventory != null)
                 this.m_ActiveInventory.OnGoldChanged -= this.HandleGoldChanged;
             this.m_Root.style.display = DisplayStyle.None;
@@ -141,6 +156,8 @@ namespace ArenaCraft
             this.m_ActiveInventory = null;
             this.m_ActiveHealth = null;
             this.m_ActiveMelee = null;
+            this.m_HasPurchased = false;
+            this.m_ConfirmedEmptyLoadout = false;
 
             if (this.m_PendingInventory != null)
             {
@@ -151,6 +168,10 @@ namespace ArenaCraft
                 this.m_PendingHealth = null;
                 this.m_PendingMelee = null;
                 this.OpenShop(inventory, health, melee);
+            }
+            else
+            {
+                SetHudVisible(true);
             }
         }
 
@@ -164,7 +185,16 @@ namespace ArenaCraft
             this.m_PendingInventory = null;
             this.m_PendingHealth = null;
             this.m_PendingMelee = null;
+            this.m_HasPurchased = false;
+            this.m_ConfirmedEmptyLoadout = false;
             if (this.m_Root != null) this.m_Root.style.display = DisplayStyle.None;
+            SetHudVisible(true);
+        }
+
+        private static void SetHudVisible(bool visible)
+        {
+            var hud = Object.FindAnyObjectByType<HUDController>();
+            if (hud != null) hud.SetVisible(visible);
         }
 
         private void HandleGoldChanged(int _) => this.RefreshShopState();

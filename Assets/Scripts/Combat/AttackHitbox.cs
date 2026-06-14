@@ -62,6 +62,7 @@ namespace ArenaCraft
             Health target = other.GetComponentInParent<Health>();
             if (target != null && target != this.owner)
             {
+                if (!IsPhase(GamePhase.BattleRoyale)) return;
                 if (this.hitThisSwing.Add(target))
                 {
                     target.TakeDamage(this.currentDamage);
@@ -74,13 +75,18 @@ namespace ArenaCraft
             ResourceNode node = other.GetComponentInParent<ResourceNode>();
             if (node != null)
             {
+                if (!IsPhase(GamePhase.Resource)) return;
                 if (this.nodesHitThisSwing.Add(node))
                 {
                     PlayerInventory inv = this.owner != null ? this.owner.GetComponent<PlayerInventory>() : null;
-                    node.TakeDamage(1, inv);
-                    this.OnResourceHit?.Invoke(node);
+                    if (node.TakeDamage(1, inv)) this.OnResourceHit?.Invoke(node);
                 }
             }
+        }
+
+        private static bool IsPhase(GamePhase phase)
+        {
+            return GamePhaseManager.Instance == null || GamePhaseManager.Instance.CurrentPhase == phase;
         }
     }
 }

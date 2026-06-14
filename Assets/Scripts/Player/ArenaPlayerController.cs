@@ -48,6 +48,7 @@ namespace ArenaCraft
         private float dashEndTime;
         private float lastDashTime = -999f;
         private Vector3 dashDir = Vector3.forward;
+        private float currentPlanarSpeed;
         #endregion
 
         private void Awake()
@@ -68,7 +69,7 @@ namespace ArenaCraft
 
         private void Update()
         {
-            this.moveInput = this.input.Move != null ? this.input.Move.ReadValue<Vector2>() : Vector2.zero;
+            this.moveInput = this.input.ReadMove();
             this.TryStartDash();
             this.UpdateAnimator();
         }
@@ -97,19 +98,22 @@ namespace ArenaCraft
                 }
                 else
                 {
-                    this.rb.linearVelocity = this.dashDir * this.dashSpeed;
+                    this.rb.MovePosition(this.rb.position + this.dashDir * this.dashSpeed * Time.fixedDeltaTime);
+                    this.rb.linearVelocity = Vector3.zero;
                     this.rb.angularVelocity = Vector3.zero;
                     this.rb.MoveRotation(Quaternion.LookRotation(this.dashDir, Vector3.up));
+                    this.currentPlanarSpeed = this.dashSpeed;
                     return;
                 }
             }
 
-            // 2D input -> X/Z plane (input.y maps to world Z).
-            Vector3 dir = new Vector3(this.moveInput.x, 0f, this.moveInput.y);
+            Vector3 dir = this.GetCameraRelativeDirection(this.moveInput);
             if (dir.sqrMagnitude > 1f) dir.Normalize();
 
-            // Horizontal velocity from input only; Y is locked by the constraint.
-            this.rb.linearVelocity = dir * this.moveSpeed;
+            Vector3 movement = dir * this.moveSpeed;
+            this.rb.MovePosition(this.rb.position + movement * Time.fixedDeltaTime);
+            this.rb.linearVelocity = Vector3.zero;
+            this.currentPlanarSpeed = movement.magnitude;
 
             // Kill any spin a collision may have imparted, so facing stays fully script-controlled.
             this.rb.angularVelocity = Vector3.zero;
@@ -122,12 +126,33 @@ namespace ArenaCraft
             }
         }
 
+        private Vector3 GetCameraRelativeDirection(Vector2 inputValue)
+        {
+            Camera playerCamera = this.input.Slot == PlayerSlot.One
+                ? GameObject.Find("Player 1 Camera")?.GetComponent<Camera>()
+                : GameObject.Find("Player 2 Camera")?.GetComponent<Camera>();
+            if (playerCamera == null || !playerCamera.enabled) playerCamera = Camera.main;
+
+            if (playerCamera == null) return new Vector3(inputValue.x, 0f, inputValue.y);
+
+            Vector3 forward = playerCamera.transform.forward;
+            Vector3 right = playerCamera.transform.right;
+            forward.y = 0f;
+            right.y = 0f;
+
+            if (forward.sqrMagnitude < 0.001f) forward = Vector3.forward;
+            else forward.Normalize();
+
+            if (right.sqrMagnitude < 0.001f) right = Vector3.right;
+            else right.Normalize();
+
+            return right * inputValue.x + forward * inputValue.y;
+        }
+
         private void UpdateAnimator()
         {
             if (this.animator == null) return;
-            Vector3 v = this.rb.linearVelocity;
-            float planarSpeed = new Vector2(v.x, v.z).magnitude;
-            this.animator.SetFloat(this.speedHash, planarSpeed);
+            this.animator.SetFloat(this.speedHash, this.currentPlanarSpeed);
         }
     }
 }

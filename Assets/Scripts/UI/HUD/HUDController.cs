@@ -45,11 +45,18 @@ namespace ArenaCraft
         private MeleeAttack m_P1Melee;
         private MeleeAttack m_P2Melee;
 
+        public void SetVisible(bool visible)
+        {
+            if (this.m_Root != null)
+                this.m_Root.style.display = visible ? DisplayStyle.Flex : DisplayStyle.None;
+        }
+
         private void OnEnable()
         {
             this.m_UIDocument = GetComponent<UIDocument>();
             this.m_UIDocument.sortingOrder = 0;
             this.m_Root = this.m_UIDocument.rootVisualElement;
+            ResponsiveUILayout.Attach(this.m_Root);
             DisablePicking(this.m_Root);
 
             this.m_P1HPFill = this.m_Root.Q<VisualElement>("p1-hp-fill");
@@ -96,6 +103,7 @@ namespace ArenaCraft
                     this.m_P1Inventory = p.GetComponent<PlayerInventory>();
                     this.m_P1Melee = p.GetComponent<MeleeAttack>();
                     this.BindHealthFeedback(this.m_P1Health, this.m_P1HitFeedback);
+                    this.BindResourceFeedback(this.m_P1Inventory, this.m_P1HitFeedback);
                 }
                 else
                 {
@@ -103,6 +111,7 @@ namespace ArenaCraft
                     this.m_P2Inventory = p.GetComponent<PlayerInventory>();
                     this.m_P2Melee = p.GetComponent<MeleeAttack>();
                     this.BindHealthFeedback(this.m_P2Health, this.m_P2HitFeedback);
+                    this.BindResourceFeedback(this.m_P2Inventory, this.m_P2HitFeedback);
                 }
             }
         }
@@ -112,6 +121,13 @@ namespace ArenaCraft
             if (health == null || feedback == null) return;
             health.OnDamaged += (_, damage) => this.ShowFeedback(feedback, $"-{damage}", false);
             health.OnBlocked += _ => this.ShowFeedback(feedback, "BLOCKED", true);
+        }
+
+        private void BindResourceFeedback(PlayerInventory inventory, Label feedback)
+        {
+            if (inventory == null || feedback == null) return;
+            inventory.OnResourceCollected += (type, amount, gold) =>
+                this.ShowFeedback(feedback, $"+{amount} {type.ToString().ToUpper()}  +{gold}G", false);
         }
 
         private void Update()
@@ -162,7 +178,13 @@ namespace ArenaCraft
                 }
 
                 if (resourceText != null)
-                    resourceText.text = $"RESOURCES {inventory.CurrentResources} / {inventory.MaxResources}";
+                {
+                    resourceText.text =
+                        $"W {inventory.GetResourceCount(ResourceType.Wood)}  " +
+                        $"S {inventory.GetResourceCount(ResourceType.Stone)}  " +
+                        $"M {inventory.GetResourceCount(ResourceType.Metal)}  " +
+                        $"| {inventory.CurrentResources}/{inventory.MaxResources}";
+                }
             }
 
             if (melee != null && weaponIcon != null)

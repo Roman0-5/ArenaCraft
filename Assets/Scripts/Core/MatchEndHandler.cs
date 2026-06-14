@@ -1,6 +1,5 @@
 using UnityEngine;
 using UnityEngine.UIElements;
-using UnityEngine.SceneManagement;
 using System.Collections.Generic;
 
 namespace ArenaCraft
@@ -13,12 +12,31 @@ namespace ArenaCraft
         private bool m_GameEnded;
         private UIDocument m_VictoryDoc;
 
+        private void Awake()
+        {
+            Health.OnAnyDied += OnPlayerDied;
+        }
+
         private void Update()
         {
             if (this.m_GameEnded || GamePhaseManager.Instance == null || GamePhaseManager.Instance.CurrentPhase != GamePhase.BattleRoyale)
                 return;
 
             CheckWinCondition();
+        }
+
+        private void OnDestroy()
+        {
+            Health.OnAnyDied -= OnPlayerDied;
+        }
+
+        private void OnPlayerDied(Health player)
+        {
+            if (GamePhaseManager.Instance != null &&
+                GamePhaseManager.Instance.CurrentPhase == GamePhase.BattleRoyale)
+            {
+                CheckWinCondition();
+            }
         }
 
         private void CheckWinCondition()
@@ -41,9 +59,15 @@ namespace ArenaCraft
 
         private void ShowVictoryScreen(string winner)
         {
+            if (this.victoryUxml == null || this.panelSettings == null)
+            {
+                Debug.LogError("Victory screen assets are not assigned.", this);
+                return;
+            }
+
             // Hide HUD
             var hud = UnityEngine.Object.FindAnyObjectByType<HUDController>();
-            if (hud != null) hud.GetComponent<UIDocument>().enabled = false;
+            if (hud != null) hud.SetVisible(false);
 
             GameObject victoryObj = new GameObject("VictoryUI");
             this.m_VictoryDoc = victoryObj.AddComponent<UIDocument>();
@@ -52,18 +76,26 @@ namespace ArenaCraft
             this.m_VictoryDoc.sortingOrder = 300;
 
             var root = this.m_VictoryDoc.rootVisualElement;
+            ResponsiveUILayout.Attach(root);
             root.style.position = Position.Absolute;
             root.style.left = 0;
             root.style.top = 0;
             root.style.right = 0;
             root.style.bottom = 0;
-            root.Q<Label>("winner-label").text = winner == "DRAW" ? "IT'S A DRAW!" : winner.ToUpper() + " WINS!";
-            root.Q<Button>("rematch-button").clicked += () => SceneManager.LoadScene("SampleScene");
-            root.Q<Button>("main-menu-button").clicked += () => SceneManager.LoadScene("MainMenu");
+            Label winnerLabel = root.Q<Label>("winner-label");
+            Button rematchButton = root.Q<Button>("rematch-button");
+            Button mainMenuButton = root.Q<Button>("main-menu-button");
+            if (winnerLabel != null)
+                winnerLabel.text = winner == "DRAW" ? "IT'S A DRAW!" : winner.ToUpper() + " WINS!";
+            if (rematchButton != null) rematchButton.clicked += SceneNavigation.LoadGame;
+            if (mainMenuButton != null) mainMenuButton.clicked += SceneNavigation.LoadMainMenu;
 
             foreach (var provider in Object.FindObjectsByType<PlayerInputProvider>(FindObjectsSortMode.None))
                 provider.enabled = false;
         }
+
+        public void Rematch() => SceneNavigation.LoadGame();
+        public void ReturnToMainMenu() => SceneNavigation.LoadMainMenu();
 
         private static string GetPlayerName(Health health)
         {

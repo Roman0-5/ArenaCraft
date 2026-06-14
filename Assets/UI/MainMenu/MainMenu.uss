@@ -103,6 +103,52 @@
     margin-bottom: 9px;
 }
 
+.choice-title {
+    flex-shrink: 0;
+    color: var(--text-muted);
+    font-size: 12px;
+    -unity-font-style: bold;
+    letter-spacing: 3px;
+    margin: 2px 0 5px 0;
+}
+
+.choice-row {
+    width: 82%;
+    max-width: 620px;
+    min-height: 38px;
+    flex-shrink: 0;
+    flex-direction: row;
+    margin-bottom: 8px;
+}
+
+.choice-button {
+    flex-grow: 1;
+    height: 38px;
+    margin: 0 4px;
+    color: #d8cbbd;
+    background-color: rgba(55, 47, 42, 0.96);
+    border-color: #756454;
+    border-width: 1px;
+    border-radius: 5px;
+    -unity-font-style: bold;
+}
+
+.choice-button--active {
+    color: #fff8e8;
+    background-color: var(--terracotta);
+    border-color: var(--gold-bright);
+}
+
+.selection-summary {
+    min-height: 20px;
+    flex-shrink: 0;
+    color: var(--gold);
+    font-size: 12px;
+    -unity-font-style: bold;
+    letter-spacing: 2px;
+    margin: 6px 0 9px 0;
+}
+
 .menu-button:hover {
     background-color: var(--terracotta-hover);
     border-color: var(--gold-bright);
@@ -142,4 +188,71 @@
 
 .p2-hint {
     color: #6fa8df;
+}
+
+.layout-compact .menu-panel {
+    width: 92%;
+    padding: 12px 4% 12px 4%;
+}
+
+.layout-compact .title {
+    font-size: 44px;
+    letter-spacing: 4px;
+}
+
+.layout-compact .subtitle {
+    font-size: 13px;
+    margin-bottom: 5px;
+}
+
+.layout-compact .title-divider {
+    margin-bottom: 7px;
+}
+
+.layout-compact .choice-row,
+.layout-compact .menu-button {
+    width: 90%;
+}
+
+.layout-compact .choice-button {
+    height: 32px;
+}
+
+.layout-compact .choice-row {
+    min-height: 32px;
+}
+
+.layout-compact .menu-button {
+    height: 40px;
+    font-size: 16px;
+    margin-bottom: 6px;
+}
+
+.layout-short .eyebrow,
+.layout-short .subtitle,
+.layout-short .title-divider {
+    display: none;
+}
+
+.layout-short .title {
+    font-size: 34px;
+    margin-bottom: 2px;
+}
+
+.layout-short .choice-title {
+    margin-top: 0;
+    margin-bottom: 2px;
+}
+
+.layout-short .choice-row {
+    margin-bottom: 3px;
+}
+
+.layout-narrow .title {
+    font-size: 32px;
+    letter-spacing: 2px;
+}
+
+.layout-narrow .choice-row {
+    width: 96%;
 }

@@ -42,6 +42,9 @@ namespace ArenaCraft
         /// <summary>Raised once when this player reaches 0 HP.</summary>
         public event Action<Health> OnDied;
 
+        /// <summary>Raised for every eliminated player, independent of component initialization order.</summary>
+        public static event Action<Health> OnAnyDied;
+
         /// <summary>Raised after damage is applied: (target, damage dealt).</summary>
         public event Action<Health, int> OnDamaged;
 
@@ -125,6 +128,7 @@ namespace ArenaCraft
             }
 
             this.OnDied?.Invoke(this);
+            OnAnyDied?.Invoke(this);
         }
     }
 }

@@ -141,6 +141,7 @@
 
 .item-copy {
     flex-grow: 1;
+    justify-content: center;
 }
 
 .icon-basic-sword { background-image: url("project://database/Assets/UI/Icons/Icon_BasicSword.png"); }
@@ -209,4 +210,62 @@
 .close-button:hover {
     background-color: #594a3e;
     border-color: var(--gold);
+}
+
+.layout-compact .shop-panel {
+    width: 97%;
+    padding: 7px 12px;
+}
+
+.layout-compact .shop-header {
+    font-size: 23px;
+}
+
+.layout-compact .shop-item {
+    height: 70px;
+    margin: 3px;
+    padding: 7px 8px;
+}
+
+.layout-compact .item-icon-container {
+    width: 40px;
+    height: 40px;
+}
+
+.layout-compact .item-icon {
+    width: 29px;
+    height: 29px;
+}
+
+.layout-narrow .items-grid {
+    flex-direction: column;
+    flex-wrap: nowrap;
+    align-items: center;
+}
+
+.layout-narrow .shop-item {
+    width: 96%;
+    max-width: none;
+    height: 54px;
+}
+
+.layout-narrow .shop-subtitle,
+.layout-short .shop-kicker {
+    display: none;
+}
+
+.layout-narrow .item-name {
+    font-size: 12px;
+}
+
+.layout-narrow .item-desc {
+    font-size: 8px;
+}
+
+.layout-short .shop-header {
+    font-size: 18px;
+}
+
+.layout-short .shop-status-bar {
+    height: 23px;
 }

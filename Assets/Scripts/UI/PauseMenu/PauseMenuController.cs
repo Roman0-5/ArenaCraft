@@ -1,6 +1,5 @@
 using UnityEngine;
 using UnityEngine.UIElements;
-using UnityEngine.SceneManagement;
 using UnityEngine.InputSystem;
 
 namespace ArenaCraft
@@ -9,19 +8,23 @@ namespace ArenaCraft
     {
         [SerializeField] private InputActionAsset m_Controls;
         [SerializeField] private SettingsUIController m_SettingsMenu;
-        [SerializeField] private string m_MainMenuSceneName = "MainMenu";
 
         private UIDocument m_UIDocument;
         private VisualElement m_PauseRoot;
         private bool m_IsPaused;
         private InputAction m_MenuAction;
+        private float m_AcceptPauseInputAt;
 
         private void Awake()
         {
+            Time.timeScale = 1f;
+            this.m_IsPaused = false;
+            this.m_AcceptPauseInputAt = Time.unscaledTime + 0.35f;
             this.m_UIDocument = GetComponent<UIDocument>();
             if (this.m_UIDocument == null) return;
 
             this.m_UIDocument.sortingOrder = 100;
+            ResponsiveUILayout.Attach(this.m_UIDocument.rootVisualElement);
             this.m_PauseRoot = this.m_UIDocument.rootVisualElement.Q<VisualElement>("pause-root");
             if (this.m_PauseRoot != null)
             {
@@ -68,6 +71,9 @@ namespace ArenaCraft
 
         private void OnMenuPressed(InputAction.CallbackContext context)
         {
+            if (Time.unscaledTime < this.m_AcceptPauseInputAt)
+                return;
+
             if (this.m_SettingsMenu != null && this.m_SettingsMenu.gameObject.activeInHierarchy && this.m_SettingsMenu.IsMenuOpen())
             {
                 this.m_SettingsMenu.CloseMenu();
@@ -116,8 +122,7 @@ namespace ArenaCraft
 
         private void LoadMainMenu()
         {
-            Time.timeScale = 1f;
-            SceneManager.LoadScene(this.m_MainMenuSceneName);
+            SceneNavigation.LoadMainMenu();
         }
 
         private void QuitGame()
@@ -127,6 +132,11 @@ namespace ArenaCraft
 #else
             Application.Quit();
 #endif
+        }
+
+        private void OnDestroy()
+        {
+            Time.timeScale = 1f;
         }
     }
 }

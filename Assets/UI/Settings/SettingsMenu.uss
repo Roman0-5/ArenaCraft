@@ -124,6 +124,14 @@
     justify-content: space-between;
 }
 
+.controls-scroll {
+    flex-grow: 1;
+}
+
+.controls-scroll .unity-scroll-view__content-container {
+    flex-grow: 1;
+}
+
 .player-bindings-card {
     width: 49%;
     padding: 6px;
@@ -286,4 +294,68 @@
     -unity-font-style: bold;
     letter-spacing: 2px;
     margin-top: 10px;
+}
+
+.layout-compact .settings-panel {
+    width: 97%;
+    height: 96%;
+    padding: 5px 9px;
+}
+
+.layout-compact .settings-header {
+    font-size: 18px;
+    margin-bottom: 2px;
+}
+
+.layout-compact .tab-button {
+    height: 26px;
+    font-size: 11px;
+}
+
+.layout-compact .keybind-row {
+    height: 24px;
+}
+
+.layout-compact .footer-button {
+    height: 28px;
+    font-size: 11px;
+}
+
+.layout-narrow .settings-kicker,
+.layout-short .settings-kicker {
+    display: none;
+}
+
+.layout-narrow .controls-grid {
+    flex-direction: column;
+}
+
+.layout-narrow .player-bindings-card {
+    width: 100%;
+    margin-bottom: 7px;
+    flex-shrink: 0;
+}
+
+.layout-narrow .setting-row {
+    min-height: 32px;
+    padding-left: 6px;
+    padding-right: 6px;
+}
+
+.layout-narrow .setting-label {
+    width: 40%;
+    font-size: 11px;
+}
+
+.layout-narrow .footer-button {
+    width: 48%;
+    margin-left: 4px;
+}
+
+.layout-short .settings-header {
+    font-size: 15px;
+}
+
+.layout-short .tabs-container {
+    margin-bottom: 2px;
 }

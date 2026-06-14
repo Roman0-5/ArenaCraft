@@ -26,6 +26,10 @@
                         <ui:Label text="Quality Preset" class="setting-label" />
                         <ui:DropdownField name="quality-dropdown" class="setting-input" />
                     </ui:VisualElement>
+                    <ui:VisualElement class="setting-row">
+                        <ui:Label text="Split Screen" class="setting-label" />
+                        <ui:Toggle name="split-screen-toggle" class="setting-input" tooltip="Use one dedicated camera for each player. Press F10 during a match to toggle." />
+                    </ui:VisualElement>
                 </ui:VisualElement>
 
                 <!-- Audio Tab -->
@@ -46,23 +50,25 @@
 
                 <!-- Controls Tab -->
                 <ui:VisualElement name="tab-content-controls" class="tab-content">
-                    <ui:VisualElement class="controls-grid">
-                        <ui:VisualElement class="player-bindings-card player-one-card">
-                            <ui:VisualElement class="player-card-header">
-                                <ui:Label text="PLAYER 1" class="player-section-header" />
-                                <ui:Label text="KEYBOARD LEFT" class="player-device-label" />
+                    <ui:ScrollView name="controls-scroll" class="controls-scroll" mode="Vertical">
+                        <ui:VisualElement class="controls-grid">
+                            <ui:VisualElement class="player-bindings-card player-one-card">
+                                <ui:VisualElement class="player-card-header">
+                                    <ui:Label text="PLAYER 1" class="player-section-header" />
+                                    <ui:Label text="KEYBOARD LEFT" class="player-device-label" />
+                                </ui:VisualElement>
+                                <ui:VisualElement name="p1-rows-container" class="bindings-list" />
                             </ui:VisualElement>
-                            <ui:VisualElement name="p1-rows-container" class="bindings-list" />
-                        </ui:VisualElement>
 
-                        <ui:VisualElement class="player-bindings-card player-two-card">
-                            <ui:VisualElement class="player-card-header">
-                                <ui:Label text="PLAYER 2" class="player-section-header" />
-                                <ui:Label text="KEYBOARD RIGHT" class="player-device-label" />
+                            <ui:VisualElement class="player-bindings-card player-two-card">
+                                <ui:VisualElement class="player-card-header">
+                                    <ui:Label text="PLAYER 2" class="player-section-header" />
+                                    <ui:Label text="KEYBOARD RIGHT" class="player-device-label" />
+                                </ui:VisualElement>
+                                <ui:VisualElement name="p2-rows-container" class="bindings-list" />
                             </ui:VisualElement>
-                            <ui:VisualElement name="p2-rows-container" class="bindings-list" />
                         </ui:VisualElement>
-                    </ui:VisualElement>
+                    </ui:ScrollView>
                 </ui:VisualElement>
             </ui:VisualElement>
 

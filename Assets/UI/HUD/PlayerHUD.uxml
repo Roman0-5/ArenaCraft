@@ -14,8 +14,8 @@
                 </ui:VisualElement>
                 <ui:VisualElement class="hp-bar-container">
                     <ui:VisualElement name="p1-hp-fill" class="hp-fill" />
-                    <ui:Label name="p1-hp-text" text="100 / 100" class="hp-text" />
                 </ui:VisualElement>
+                <ui:Label name="p1-hp-text" text="100 / 100" class="hp-text" />
                 <ui:Label name="p1-resource-text" text="RESOURCES 0 / 100" class="resource-text" />
                 <ui:VisualElement class="items-row">
                     <ui:VisualElement class="item-slot">
@@ -46,8 +46,8 @@
                 
                 <ui:VisualElement class="hp-bar-container">
                     <ui:VisualElement name="p2-hp-fill" class="hp-fill" />
-                    <ui:Label name="p2-hp-text" text="100 / 100" class="hp-text" />
                 </ui:VisualElement>
+                <ui:Label name="p2-hp-text" text="100 / 100" class="hp-text" />
                 <ui:Label name="p2-resource-text" text="RESOURCES 0 / 100" class="resource-text" />
                 <ui:VisualElement class="items-row">
                     <ui:VisualElement class="item-slot">

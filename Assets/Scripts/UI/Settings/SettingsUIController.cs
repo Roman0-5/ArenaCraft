@@ -40,6 +40,7 @@ namespace ArenaCraft
             this.m_UIDocument.sortingOrder = 200;
 
             var documentRoot = this.m_UIDocument.rootVisualElement;
+            ResponsiveUILayout.Attach(documentRoot);
             documentRoot.style.position = Position.Absolute;
             documentRoot.style.left = 0;
             documentRoot.style.top = 0;
@@ -119,6 +120,21 @@ namespace ArenaCraft
             var resDropdown = m_Root.Q<DropdownField>("resolution-dropdown");
             var fsToggle = m_Root.Q<Toggle>("fullscreen-toggle");
             var qualityDropdown = m_Root.Q<DropdownField>("quality-dropdown");
+            var splitScreenToggle = m_Root.Q<Toggle>("split-screen-toggle");
+
+            if (splitScreenToggle == null && this.m_ContentGeneral != null)
+            {
+                var row = new VisualElement();
+                row.AddToClassList("setting-row");
+                var label = new Label("Split Screen");
+                label.AddToClassList("setting-label");
+                splitScreenToggle = new Toggle { name = "split-screen-toggle" };
+                splitScreenToggle.AddToClassList("setting-input");
+                splitScreenToggle.tooltip = "Use one dedicated camera for each player. Press F10 during a match to toggle.";
+                row.Add(label);
+                row.Add(splitScreenToggle);
+                this.m_ContentGeneral.Add(row);
+            }
 
             if (resDropdown != null)
             {
@@ -154,6 +170,16 @@ namespace ArenaCraft
                 qualityDropdown.RegisterValueChangedCallback(evt => {
                     int index = qualityLevels.IndexOf(evt.newValue);
                     if (index != -1 && SettingsManager.Instance != null) SettingsManager.Instance.SetQuality(index);
+                });
+            }
+
+            if (splitScreenToggle != null)
+            {
+                splitScreenToggle.value = PlayerPrefs.GetInt(SplitScreenManager.PreferenceKey, 1) == 1;
+                splitScreenToggle.RegisterValueChangedCallback(evt =>
+                {
+                    if (SettingsManager.Instance != null) SettingsManager.Instance.SetSplitScreen(evt.newValue);
+                    else PlayerPrefs.SetInt(SplitScreenManager.PreferenceKey, evt.newValue ? 1 : 0);
                 });
             }
         }

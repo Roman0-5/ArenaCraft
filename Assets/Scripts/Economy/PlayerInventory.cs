@@ -12,7 +12,9 @@ namespace ArenaCraft
         public int Gold { get; private set; }
         
         [CreateProperty]
-        public float ResourceFillAmount => (float)this.m_CurrentResources / this.m_MaxResourceCapacity;
+        public float ResourceFillAmount => this.m_MaxResourceCapacity > 0
+            ? (float)this.m_CurrentResources / this.m_MaxResourceCapacity
+            : 0f;
 
         [CreateProperty]
         public int CurrentResources => this.m_CurrentResources;
@@ -20,32 +22,70 @@ namespace ArenaCraft
         [CreateProperty]
         public int MaxResources => this.m_MaxResourceCapacity;
 
+        public bool IsFull => this.m_CurrentResources >= this.m_MaxResourceCapacity;
+
         private int m_CurrentResources;
+        private int m_Wood;
+        private int m_Stone;
+        private int m_Metal;
         
         public event Action<int> OnGoldChanged;
         public event Action<int, int> OnResourcesChanged;
+        public event Action<ResourceType, int, int> OnResourceCollected;
         public event Action OnCapacityReached;
 
-        public void AddResource(ResourceType type, int amount)
+        public int AddResource(ResourceType type, int amount)
         {
-            if (this.m_CurrentResources >= this.m_MaxResourceCapacity) return;
+            if (amount <= 0 || this.m_MaxResourceCapacity <= 0 || this.IsFull) return 0;
 
             int actualAdded = Mathf.Min(amount, this.m_MaxResourceCapacity - this.m_CurrentResources);
             this.m_CurrentResources += actualAdded;
 
             int goldValue = GetGoldValue(type);
-            this.Gold += actualAdded * goldValue;
+            int goldEarned = actualAdded * goldValue;
+            this.Gold += goldEarned;
+            AddToTypeTotal(type, actualAdded);
 
             this.OnResourcesChanged?.Invoke(this.m_CurrentResources, this.m_MaxResourceCapacity);
             this.OnGoldChanged?.Invoke(this.Gold);
+            this.OnResourceCollected?.Invoke(type, actualAdded, goldEarned);
 
-            if (this.m_CurrentResources >= this.m_MaxResourceCapacity)
+            if (this.IsFull)
             {
                 this.OnCapacityReached?.Invoke();
             }
+
+            return actualAdded;
         }
 
-        private int GetGoldValue(ResourceType type)
+        public int GetResourceCount(ResourceType type)
+        {
+            return type switch
+            {
+                ResourceType.Wood => this.m_Wood,
+                ResourceType.Stone => this.m_Stone,
+                ResourceType.Metal => this.m_Metal,
+                _ => 0,
+            };
+        }
+
+        private void AddToTypeTotal(ResourceType type, int amount)
+        {
+            switch (type)
+            {
+                case ResourceType.Wood:
+                    this.m_Wood += amount;
+                    break;
+                case ResourceType.Stone:
+                    this.m_Stone += amount;
+                    break;
+                case ResourceType.Metal:
+                    this.m_Metal += amount;
+                    break;
+            }
+        }
+
+        public static int GetGoldValue(ResourceType type)
         {
             return type switch
             {
@@ -58,7 +98,7 @@ namespace ArenaCraft
 
         public bool SpendGold(int amount)
         {
-            if (this.Gold >= amount)
+            if (amount > 0 && this.Gold >= amount)
             {
                 this.Gold -= amount;
                 this.OnGoldChanged?.Invoke(this.Gold);

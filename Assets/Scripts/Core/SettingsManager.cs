@@ -80,5 +80,12 @@ namespace ArenaCraft
             PlayerPrefs.SetInt("ResWidth", width);
             PlayerPrefs.SetInt("ResHeight", height);
         }
+
+        public void SetSplitScreen(bool enabled)
+        {
+            PlayerPrefs.SetInt(SplitScreenManager.PreferenceKey, enabled ? 1 : 0);
+            SplitScreenManager splitScreen = Object.FindAnyObjectByType<SplitScreenManager>();
+            if (splitScreen != null) splitScreen.SetSplitScreen(enabled);
+        }
     }
 }

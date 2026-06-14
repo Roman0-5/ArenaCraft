@@ -86,11 +86,11 @@
 
 .hp-bar-container {
     position: relative;
-    height: 16px;
+    height: 12px;
     background-color: #17110f;
     border-width: 1px;
     border-color: rgba(255, 255, 255, 0.14);
-    margin-bottom: 9px;
+    margin-bottom: 2px;
     overflow: hidden;
     border-radius: 2px;
 }
@@ -101,17 +101,11 @@
 }
 
 .hp-text {
-    position: absolute;
-    left: 0;
-    top: 0;
-    width: 100%;
-    height: 100%;
-    color: white;
-    font-size: 10px;
+    height: 13px;
+    color: #fff7e7;
+    font-size: 9px;
     -unity-font-style: bold;
-    -unity-text-align: middle-center;
-    -unity-text-outline-width: 1px;
-    -unity-text-outline-color: rgba(0, 0, 0, 0.85);
+    -unity-text-align: middle-right;
 }
 
 .resource-text {
@@ -119,8 +113,8 @@
     font-size: 9px;
     -unity-font-style: bold;
     letter-spacing: 1px;
-    margin-top: -5px;
-    margin-bottom: 5px;
+    margin-top: 0;
+    margin-bottom: 4px;
 }
 
 .hp-fill.low {
@@ -213,4 +207,78 @@
     -unity-text-outline-width: 2px;
     -unity-text-outline-color: rgba(20, 10, 5, 0.9);
     opacity: 0;
+}
+
+.layout-compact .hud-container {
+    padding: 14px 16px;
+}
+
+.layout-compact .player-panel {
+    width: 36%;
+    min-height: 100px;
+    padding: 8px 9px;
+}
+
+.layout-compact .resource-bar-container {
+    height: 78px;
+}
+
+.layout-compact .item-slot {
+    width: 30px;
+    height: 30px;
+}
+
+.layout-compact .item-icon {
+    width: 25px;
+    height: 25px;
+}
+
+.layout-compact .timer-container {
+    top: 12px;
+    padding: 4px 18px 6px 18px;
+}
+
+.layout-compact .timer-label {
+    font-size: 24px;
+}
+
+.layout-narrow .hud-container {
+    padding: 8px;
+}
+
+.layout-narrow .player-panel {
+    width: 46%;
+    min-height: 82px;
+}
+
+.layout-narrow .resource-bar-container,
+.layout-narrow .items-row {
+    display: none;
+}
+
+.layout-narrow .panel-content-main {
+    margin: 0 4px;
+}
+
+.layout-narrow .player-label,
+.layout-narrow .gold-label {
+    font-size: 11px;
+}
+
+.layout-narrow .resource-text {
+    font-size: 7px;
+    letter-spacing: 0;
+    margin-top: -3px;
+}
+
+.layout-short .timer-container {
+    top: 5px;
+}
+
+.layout-short .phase-label {
+    font-size: 9px;
+}
+
+.layout-short .timer-label {
+    font-size: 19px;
 }

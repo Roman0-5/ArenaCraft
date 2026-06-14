@@ -108,3 +108,48 @@
     background-color: #594a3e;
     border-color: var(--gold);
 }
+
+.layout-compact .victory-panel {
+    width: 92%;
+    padding: 24px 34px 28px 34px;
+}
+
+.layout-compact .victory-title {
+    font-size: 48px;
+}
+
+.layout-compact .winner-label {
+    font-size: 24px;
+}
+
+.layout-compact .victory-divider {
+    margin-top: 14px;
+    margin-bottom: 16px;
+}
+
+.layout-compact .victory-button {
+    height: 44px;
+    font-size: 16px;
+}
+
+.layout-narrow .victory-actions {
+    flex-direction: column;
+    align-items: center;
+}
+
+.layout-narrow .victory-button {
+    width: 90%;
+    max-width: none;
+    margin-top: 4px;
+    margin-bottom: 4px;
+}
+
+.layout-short .victory-kicker,
+.layout-short .result-label,
+.layout-short .victory-divider {
+    display: none;
+}
+
+.layout-short .victory-title {
+    font-size: 36px;
+}

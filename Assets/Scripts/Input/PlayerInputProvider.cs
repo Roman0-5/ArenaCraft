@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.InputSystem.Controls;
 
 namespace ArenaCraft
 {
@@ -34,6 +35,35 @@ namespace ArenaCraft
         public InputAction Dash { get; private set; }
         public InputAction Block { get; private set; }
 
+        public Vector2 ReadMove()
+        {
+            if (!this.isActiveAndEnabled)
+                return Vector2.zero;
+
+            if (Keyboard.current != null)
+            {
+                Vector2 keyboardValue = this.slot == PlayerSlot.One
+                    ? new Vector2(
+                        ReadAxis(Keyboard.current.aKey, Keyboard.current.dKey),
+                        ReadAxis(Keyboard.current.sKey, Keyboard.current.wKey))
+                    : new Vector2(
+                        ReadAxis(Keyboard.current.leftArrowKey, Keyboard.current.rightArrowKey),
+                        ReadAxis(Keyboard.current.downArrowKey, Keyboard.current.upArrowKey));
+
+                if (keyboardValue.sqrMagnitude > 0.001f)
+                    return keyboardValue;
+            }
+
+            return this.Move != null && this.Move.enabled
+                ? this.Move.ReadValue<Vector2>()
+                : Vector2.zero;
+        }
+
+        private static float ReadAxis(KeyControl negative, KeyControl positive)
+        {
+            return (positive.isPressed ? 1f : 0f) - (negative.isPressed ? 1f : 0f);
+        }
+
         private void Awake()
         {
             if (this.controls == null)
@@ -42,6 +72,24 @@ namespace ArenaCraft
                 return;
             }
 
+            ResolveActions();
+        }
+
+        private void OnEnable()
+        {
+            if (this.map == null && this.controls != null)
+                ResolveActions();
+
+            this.map?.Enable();
+        }
+
+        private void OnDisable()
+        {
+            this.map?.Disable();
+        }
+
+        private void ResolveActions()
+        {
             string mapName = this.slot == PlayerSlot.One ? "PlayerOne" : "PlayerTwo";
             this.map = this.controls.FindActionMap(mapName, throwIfNotFound: true);
             this.Move = this.map.FindAction("Move", throwIfNotFound: true);
@@ -49,16 +97,6 @@ namespace ArenaCraft
             this.Interact = this.map.FindAction("Interact", throwIfNotFound: true);
             this.Dash = this.map.FindAction("Dash", throwIfNotFound: true);
             this.Block = this.map.FindAction("Block", throwIfNotFound: true);
-        }
-
-        private void OnEnable()
-        {
-            this.map?.Enable();
-        }
-
-        private void OnDisable()
-        {
-            this.map?.Disable();
         }
     }
 }

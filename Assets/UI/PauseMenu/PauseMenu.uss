@@ -81,3 +81,28 @@
     background-color: var(--terracotta);
     border-color: #d9825d;
 }
+
+.layout-compact .pause-panel {
+    width: 90%;
+    padding: 12px 26px 14px 26px;
+}
+
+.layout-compact .pause-header {
+    font-size: 36px;
+}
+
+.layout-compact .pause-button {
+    height: 38px;
+    font-size: 15px;
+    margin-bottom: 5px;
+}
+
+.layout-short .pause-kicker,
+.layout-short .pause-divider {
+    display: none;
+}
+
+.layout-short .pause-header {
+    font-size: 28px;
+    margin-bottom: 5px;
+}
