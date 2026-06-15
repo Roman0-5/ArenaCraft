@@ -45,7 +45,6 @@ namespace ArenaCraft
             }
 
             Vector3 center = (this.m_PlayerOne.position + this.m_PlayerTwo.position) * 0.5f;
-            center.y = 0f;
             float separation = Vector3.Distance(this.m_PlayerOne.position, this.m_PlayerTwo.position);
             float scale = Mathf.Lerp(this.m_MinDistanceScale, this.m_MaxDistanceScale, Mathf.InverseLerp(5f, 28f, separation));
             Vector3 destination = center + this.m_ViewOffset * scale;
