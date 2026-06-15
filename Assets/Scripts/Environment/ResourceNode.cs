@@ -38,6 +38,7 @@ namespace ArenaCraft
         private Vector3 m_VisualStartScale;
         private Vector3 m_IndicatorLocalPosition = new Vector3(0f, 2.5f, 0f);
         private bool m_Initialized;
+        private float m_GroundHeight;
 
         public int CurrentHealth => this.m_CurrentHealth;
         public bool IsDestroyed => this.m_IsDestroyed;
@@ -51,6 +52,9 @@ namespace ArenaCraft
         public int TotalYield => this.maxHealth * this.resourcesPerHit + this.depletionBonus;
         public bool CanHarvest => this.State == NodeState.Available && !this.m_IsDestroyed;
         public Vector3 IndicatorWorldPosition => transform.TransformPoint(this.m_IndicatorLocalPosition);
+        public float GroundHeight => this.m_GroundHeight;
+        public float VisualBottomHeight =>
+            TryGetVisualWorldBounds(out Bounds bounds) ? bounds.min.y : transform.position.y;
 
         public event Action<ResourceNode, PlayerInventory, int> OnHarvested;
         public event Action<ResourceNode> OnDepleted;
@@ -71,6 +75,7 @@ namespace ArenaCraft
                 return;
             }
 
+            ApplyBalancedDefaults();
             this.maxHealth = Mathf.Max(1, this.maxHealth);
             this.resourcesPerHit = Mathf.Max(1, this.resourcesPerHit);
             this.depletionBonus = Mathf.Max(0, this.depletionBonus);
@@ -78,6 +83,7 @@ namespace ArenaCraft
             this.respawnVariance = Mathf.Max(0f, this.respawnVariance);
             this.respawnWarningTime = Mathf.Max(0f, this.respawnWarningTime);
             this.m_CurrentHealth = this.maxHealth;
+            SnapToGround();
             FitBlockingColliderToVisuals();
             this.m_Colliders = GetComponentsInChildren<Collider>(true);
             this.m_ColliderDefaults = new bool[this.m_Colliders.Length];
@@ -98,6 +104,111 @@ namespace ArenaCraft
             this.m_Initialized = true;
             if (Application.isPlaying)
                 ResourceNodeIndicator.Attach(this);
+        }
+
+        private void ApplyBalancedDefaults()
+        {
+            bool usesLegacyBalance = this.resourceType switch
+            {
+                ResourceType.Wood =>
+                    this.maxHealth == 3 &&
+                    this.resourcesPerHit == 7 &&
+                    this.depletionBonus == 7 &&
+                    Mathf.Approximately(this.respawnTime, 10f),
+                ResourceType.Stone =>
+                    this.maxHealth == 4 &&
+                    this.resourcesPerHit == 6 &&
+                    this.depletionBonus == 8 &&
+                    Mathf.Approximately(this.respawnTime, 14f),
+                ResourceType.Metal =>
+                    this.maxHealth == 5 &&
+                    this.resourcesPerHit == 4 &&
+                    this.depletionBonus == 10 &&
+                    Mathf.Approximately(this.respawnTime, 18f),
+                _ => false
+            };
+            if (!usesLegacyBalance) return;
+
+            this.resourcesPerHit = 1;
+            this.depletionBonus = 2;
+            this.respawnWarningTime = 1.5f;
+
+            switch (this.resourceType)
+            {
+                case ResourceType.Wood:
+                    this.maxHealth = 5;
+                    this.respawnTime = 18f;
+                    this.respawnVariance = 3f;
+                    break;
+                case ResourceType.Stone:
+                    this.maxHealth = 6;
+                    this.respawnTime = 24f;
+                    this.respawnVariance = 4f;
+                    break;
+                case ResourceType.Metal:
+                    this.maxHealth = 8;
+                    this.respawnTime = 32f;
+                    this.respawnVariance = 5f;
+                    break;
+            }
+        }
+
+        public bool SnapToGround(float clearance = -1f)
+        {
+            if (this.visuals == null || !TryGetVisualWorldBounds(out Bounds visualBounds))
+                return false;
+
+            if (clearance < 0f)
+            {
+                clearance = this.resourceType switch
+                {
+                    ResourceType.Metal => 0.3f,
+                    ResourceType.Stone => 0.12f,
+                    _ => 0.08f
+                };
+            }
+
+            Collider[] ownColliders = GetComponentsInChildren<Collider>(true);
+            bool[] colliderStates = new bool[ownColliders.Length];
+            for (int i = 0; i < ownColliders.Length; i++)
+            {
+                colliderStates[i] = ownColliders[i].enabled;
+                ownColliders[i].enabled = false;
+            }
+
+            Vector3 origin = new Vector3(transform.position.x, transform.position.y + 50f, transform.position.z);
+            RaycastHit[] hits = Physics.RaycastAll(
+                origin,
+                Vector3.down,
+                100f,
+                Physics.DefaultRaycastLayers,
+                QueryTriggerInteraction.Ignore);
+
+            for (int i = 0; i < ownColliders.Length; i++)
+                ownColliders[i].enabled = colliderStates[i];
+
+            float groundHeight = transform.position.y;
+            float bestDistance = float.PositiveInfinity;
+            foreach (RaycastHit hit in hits)
+            {
+                if (hit.normal.y < 0.6f ||
+                    hit.collider.GetComponentInParent<ResourceNode>() != null ||
+                    hit.collider.GetComponentInParent<PlayerInputProvider>() != null)
+                    continue;
+
+                float distanceFromNodePlane = Mathf.Abs(hit.point.y - transform.position.y);
+                if (distanceFromNodePlane >= bestDistance) continue;
+                bestDistance = distanceFromNodePlane;
+                groundHeight = hit.point.y;
+            }
+
+            this.m_GroundHeight = groundHeight;
+            float verticalCorrection = groundHeight + Mathf.Max(0.02f, clearance) - visualBounds.min.y;
+            if (Mathf.Abs(verticalCorrection) > 0.001f)
+                transform.position += Vector3.up * verticalCorrection;
+
+            Physics.SyncTransforms();
+            return true;
         }
 
         private void ApplyResourceTint()
@@ -196,6 +307,29 @@ namespace ArenaCraft
                             }
                         }
                     }
+                }
+            }
+
+            return hasBounds;
+        }
+
+        private bool TryGetVisualWorldBounds(out Bounds worldBounds)
+        {
+            worldBounds = default;
+            if (this.visuals == null) return false;
+
+            bool hasBounds = false;
+            foreach (Renderer renderer in this.visuals.GetComponentsInChildren<Renderer>(true))
+            {
+                if (renderer == null || renderer is ParticleSystemRenderer) continue;
+                if (!hasBounds)
+                {
+                    worldBounds = renderer.bounds;
+                    hasBounds = true;
+                }
+                else
+                {
+                    worldBounds.Encapsulate(renderer.bounds);
                 }
             }
 

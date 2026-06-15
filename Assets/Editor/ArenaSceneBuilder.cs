@@ -91,6 +91,7 @@ namespace ArenaCraft.Editor
                     ResourceNode node = clone.GetComponent<ResourceNode>();
                     ConfigureNode(node, entry.Key);
                     ConfigureResourceVisual(node);
+                    node.SnapToGround();
                     node.FitBlockingColliderToVisuals();
                 }
             }
@@ -146,7 +147,10 @@ namespace ArenaCraft.Editor
             Scene scene = EditorSceneManager.OpenScene(ScenePath, OpenSceneMode.Single);
             ResourceNode[] nodes = UnityEngine.Object.FindObjectsByType<ResourceNode>(FindObjectsSortMode.None);
             foreach (ResourceNode node in nodes)
+            {
+                node.SnapToGround();
                 node.FitBlockingColliderToVisuals();
+            }
 
             EditorSceneManager.MarkSceneDirty(scene);
             EditorSceneManager.SaveScene(scene);
@@ -167,6 +171,7 @@ namespace ArenaCraft.Editor
             foreach (ResourceNode node in nodes)
             {
                 ConfigureResourceVisual(node);
+                node.SnapToGround();
                 node.FitBlockingColliderToVisuals();
             }
 
@@ -223,25 +228,25 @@ namespace ArenaCraft.Editor
             switch (type)
             {
                 case ResourceType.Wood:
-                    node.maxHealth = 3;
-                    node.resourcesPerHit = 7;
-                    node.depletionBonus = 7;
-                    node.respawnTime = 10f;
-                    node.respawnVariance = 2f;
-                    break;
-                case ResourceType.Stone:
-                    node.maxHealth = 4;
-                    node.resourcesPerHit = 6;
-                    node.depletionBonus = 8;
-                    node.respawnTime = 14f;
-                    node.respawnVariance = 2.5f;
-                    break;
-                case ResourceType.Metal:
                     node.maxHealth = 5;
-                    node.resourcesPerHit = 4;
-                    node.depletionBonus = 10;
+                    node.resourcesPerHit = 1;
+                    node.depletionBonus = 2;
                     node.respawnTime = 18f;
                     node.respawnVariance = 3f;
+                    break;
+                case ResourceType.Stone:
+                    node.maxHealth = 6;
+                    node.resourcesPerHit = 1;
+                    node.depletionBonus = 2;
+                    node.respawnTime = 24f;
+                    node.respawnVariance = 4f;
+                    break;
+                case ResourceType.Metal:
+                    node.maxHealth = 8;
+                    node.resourcesPerHit = 1;
+                    node.depletionBonus = 2;
+                    node.respawnTime = 32f;
+                    node.respawnVariance = 5f;
                     break;
             }
 

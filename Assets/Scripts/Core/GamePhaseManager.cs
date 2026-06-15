@@ -24,8 +24,14 @@ namespace ArenaCraft
         [SerializeField] private float m_ResourcePhaseTime = 180f;
         [SerializeField] private float m_ShoppingPhaseTime = 60f;
         [Header("Spawn Points Battle Pit")]
-        [SerializeField] Transform m_SpawnPointP1;
-        [SerializeField] Transform m_SpawnPointP2;
+        [SerializeField] private Transform m_SpawnPointP1;
+        [SerializeField] private Transform m_SpawnPointP2;
+        [Header("Playable Bounds")]
+        [SerializeField] private Vector2 m_ResourceBoundsCenter = new Vector2(0f, 2f);
+        [SerializeField] private Vector2 m_ResourceBoundsSize = new Vector2(42f, 42f);
+        [SerializeField] private Vector2 m_ShopBoundsCenter = new Vector2(0f, 18f);
+        [SerializeField] private Vector2 m_ShopBoundsSize = new Vector2(12f, 12f);
+        [SerializeField] private float m_BattleBoundsPadding = 18f;
         [Header("Audio")]
         public AudioClip phaseStartSound;
 
@@ -39,6 +45,7 @@ namespace ArenaCraft
         private AudioSource m_AudioSource;
         private bool m_PhaseSkipRequested;
         private bool m_GameLoopStarted;
+        private ArenaBoundsController m_BoundsController;
 
         private void Awake()
         {
@@ -51,6 +58,9 @@ namespace ArenaCraft
 
             this.m_AudioSource = gameObject.AddComponent<AudioSource>();
             this.m_AudioSource.playOnAwake = false;
+            this.m_BoundsController = GetComponent<ArenaBoundsController>();
+            if (this.m_BoundsController == null)
+                this.m_BoundsController = gameObject.AddComponent<ArenaBoundsController>();
 
             Camera arenaCamera = UnityEngine.Object.FindAnyObjectByType<Camera>();
             if (arenaCamera != null && arenaCamera.GetComponent<ArenaCameraController>() == null)
@@ -61,9 +71,7 @@ namespace ArenaCraft
 
         private void Start()
         {
-            Debug.Log($"[Player] Start Position: {transform.position}");
             StartCoroutine(DelayedBeginMatch());
-
         }
 
         private IEnumerator DelayedBeginMatch()
@@ -130,6 +138,7 @@ namespace ArenaCraft
 
         private void EnterPhase(GamePhase phase, float duration)
         {
+            this.m_PhaseSkipRequested = false;
             this.CurrentPhase = phase;
             this.PhaseTimer = duration;
             this.OnPhaseChanged?.Invoke(phase);
@@ -139,18 +148,25 @@ namespace ArenaCraft
 
             if (phase == GamePhase.Resource)
             {
+                this.m_BoundsController.Configure(
+                    ToWorldBounds(this.m_ResourceBoundsCenter, this.m_ResourceBoundsSize),
+                    "Resource Arena");
                 SetPlayerControlsEnabled(true);
             }
             else if (phase == GamePhase.Shopping)
             {
                 SetPlayerControlsEnabled(false);
+                this.m_BoundsController.Configure(
+                    ToWorldBounds(this.m_ShopBoundsCenter, this.m_ShopBoundsSize),
+                    "Shop");
                 TeleportPlayersToShop();
             }
             else if (phase == GamePhase.BattleRoyale)
             {
-                Time.timeScale = 1f; // NEU
+                Time.timeScale = 1f;
                 if (ShopController.Instance != null) ShopController.Instance.ForceCloseAll();
                 TeleportPlayersToBattlePit();
+                this.m_BoundsController.Configure(CreateBattleBounds(), "Battle Arena");
                 SetPlayerControlsEnabled(true);
             }
         }
@@ -162,6 +178,9 @@ namespace ArenaCraft
 
             var players = UnityEngine.Object.FindObjectsByType<PlayerInputProvider>(FindObjectsSortMode.None);
             System.Array.Sort(players, (a, b) => ((int)a.Slot).CompareTo((int)b.Slot));
+            if (ShopController.Instance != null)
+                ShopController.Instance.BeginShoppingSession(players.Length);
+
             foreach (var p in players)
             {
                 float side = p.Slot == PlayerSlot.One ? -1.5f : 1.5f;
@@ -182,8 +201,15 @@ namespace ArenaCraft
         {
             if (m_SpawnPointP1 == null || m_SpawnPointP2 == null)
             {
-                Debug.LogWarning("[BattlePit] Spawn points not assigned!");
-                return;
+                GameObject spawnOne = GameObject.Find("ArenaSpawn1");
+                GameObject spawnTwo = GameObject.Find("ArenaSpawn2");
+                this.m_SpawnPointP1 = spawnOne != null ? spawnOne.transform : null;
+                this.m_SpawnPointP2 = spawnTwo != null ? spawnTwo.transform : null;
+                if (this.m_SpawnPointP1 == null || this.m_SpawnPointP2 == null)
+                {
+                    Debug.LogError("[BattlePit] Spawn points are missing.");
+                    return;
+                }
             }
 
             var players = UnityEngine.Object.FindObjectsByType<PlayerInputProvider>(FindObjectsSortMode.None);
@@ -192,15 +218,25 @@ namespace ArenaCraft
             foreach (var p in players)
             {
                 Transform spawnPoint = p.Slot == PlayerSlot.One ? m_SpawnPointP1 : m_SpawnPointP2;
-                MovePlayer(p, spawnPoint.position);
-                p.transform.rotation = spawnPoint.rotation;
+                MovePlayer(p, spawnPoint.position, spawnPoint.rotation);
             }
+
+            Physics.SyncTransforms();
         }
 
         public void SkipToNextPhase()
         {
             if (this.CurrentPhase == GamePhase.Resource || this.CurrentPhase == GamePhase.Shopping)
                 this.m_PhaseSkipRequested = true;
+        }
+
+        public void RequestShoppingComplete()
+        {
+            if (this.CurrentPhase != GamePhase.Shopping || this.m_PhaseSkipRequested)
+                return;
+
+            this.m_PhaseSkipRequested = true;
+            Debug.Log("[ArenaCraft] Both players are ready. Advancing to Battle Royale.");
         }
 
         private void OnDestroy()
@@ -238,19 +274,54 @@ namespace ArenaCraft
             }
         }
 
-        private static void MovePlayer(PlayerInputProvider provider, Vector3 position)
+        private static void MovePlayer(
+            PlayerInputProvider provider,
+            Vector3 position,
+            Quaternion? rotation = null)
         {
             Rigidbody body = provider.GetComponent<Rigidbody>();
             if (body != null)
             {
                 body.linearVelocity = Vector3.zero;
                 body.angularVelocity = Vector3.zero;
+                provider.transform.SetPositionAndRotation(
+                    position,
+                    rotation ?? provider.transform.rotation);
                 body.position = position;
+                if (rotation.HasValue) body.rotation = rotation.Value;
             }
             else
             {
                 provider.transform.position = position;
+                if (rotation.HasValue) provider.transform.rotation = rotation.Value;
             }
+        }
+
+        private static Bounds ToWorldBounds(Vector2 center, Vector2 size)
+        {
+            return new Bounds(
+                new Vector3(center.x, 0f, center.y),
+                new Vector3(Mathf.Max(2f, size.x), 20f, Mathf.Max(2f, size.y)));
+        }
+
+        private Bounds CreateBattleBounds()
+        {
+            if (this.m_SpawnPointP1 == null || this.m_SpawnPointP2 == null)
+                return new Bounds(Vector3.zero, new Vector3(50f, 20f, 50f));
+
+            Vector3 first = this.m_SpawnPointP1.position;
+            Vector3 second = this.m_SpawnPointP2.position;
+            Vector3 center = (first + second) * 0.5f;
+            Vector3 separation = new Vector3(
+                Mathf.Abs(first.x - second.x),
+                0f,
+                Mathf.Abs(first.z - second.z));
+            return new Bounds(
+                new Vector3(center.x, center.y, center.z),
+                new Vector3(
+                    Mathf.Max(30f, separation.x + this.m_BattleBoundsPadding * 2f),
+                    24f,
+                    Mathf.Max(30f, separation.z + this.m_BattleBoundsPadding * 2f)));
         }
     }
 }
