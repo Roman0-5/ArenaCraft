@@ -26,9 +26,7 @@ namespace ArenaCraft
         [Header("Spawn Points Battle Pit")]
         [SerializeField] Transform m_SpawnPointP1;
         [SerializeField] Transform m_SpawnPointP2;
-        [Header("Spawn Points Island")]
-        [SerializeField] Transform m_SpawnPointIsland1;
-        [SerializeField] Transform m_SpawnPointIsland2;
+        [Header("Audio")]
         public AudioClip phaseStartSound;
 
         [CreateProperty]
@@ -64,8 +62,14 @@ namespace ArenaCraft
         private void Start()
         {
             Debug.Log($"[Player] Start Position: {transform.position}");
+            StartCoroutine(DelayedBeginMatch());
+
+        }
+
+        private IEnumerator DelayedBeginMatch()
+        {
+            yield return null; // einen Frame warten → alle Start() sind durch
             BeginMatch();
-            
         }
 
         public void BeginMatch()
@@ -149,7 +153,7 @@ namespace ArenaCraft
                 SetPlayerControlsEnabled(true);
             }
         }
-
+ 
         private void TeleportPlayersToShop()
         {
             GameObject shopZone = GameObject.Find("ShopZone");
@@ -172,11 +176,7 @@ namespace ArenaCraft
             }
         }
 
-        
-        private void TeleportPlayerToIsland()
-        {
 
-        }
         private void TeleportPlayersToBattlePit()
         {
             if (m_SpawnPointP1 == null || m_SpawnPointP2 == null)

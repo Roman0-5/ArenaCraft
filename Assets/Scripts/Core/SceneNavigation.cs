@@ -7,6 +7,7 @@ namespace ArenaCraft
     {
         public const string MainMenuScene = "MainMenu";
         public const string GameScene = "SampleScene";
+        //public const string GameScene = "MainScene";
 
         public static void LoadMainMenu()
         {
