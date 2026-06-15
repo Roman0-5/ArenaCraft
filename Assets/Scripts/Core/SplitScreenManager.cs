@@ -9,9 +9,9 @@ namespace ArenaCraft
         public const string PreferenceKey = "ArenaCraft.SplitScreen";
 
         [SerializeField] private bool m_DefaultToSplitScreen;
-        [SerializeField] private Vector3 m_PlayerViewOffset = new Vector3(0f, 4f, -7f);
-        [SerializeField] private float m_FollowSmoothTime = 0.1f;
-        [SerializeField] private float m_FieldOfView = 60f;
+        [SerializeField] private Vector3 m_PlayerViewOffset = new Vector3(0f, 13f, -17f);
+        [SerializeField] private float m_FollowSmoothTime = 0.18f;
+        [SerializeField] private float m_FieldOfView = 50f;
 
         private Camera m_SharedCamera;
         private ArenaCameraController m_SharedController;
