@@ -147040,8 +147040,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::ArenaCraft.GamePhaseManager
   m_ResourcePhaseTime: 180
   m_ShoppingPhaseTime: 60
-  m_SpawnPointP1: {fileID: 0}
-  m_SpawnPointP2: {fileID: 0}
+  m_SpawnPointP1: {fileID: 378281870}
+  m_SpawnPointP2: {fileID: 1563163039}
   phaseStartSound: {fileID: 0}
 --- !u!4 &1695655217
 Transform:

@@ -24,7 +24,7 @@ namespace ArenaCraft
         private Button m_AdvancedSwordButton;
         private Button m_LightArmorButton;
         private Button m_HeavyArmorButton;
-        
+
         private PlayerInventory m_ActiveInventory;
         private Health m_ActiveHealth;
         private MeleeAttack m_ActiveMelee;
@@ -161,6 +161,7 @@ namespace ArenaCraft
 
             if (this.m_PendingInventory != null)
             {
+                // Zweiter Spieler wartet noch → Shop für ihn öffnen
                 PlayerInventory inventory = this.m_PendingInventory;
                 Health health = this.m_PendingHealth;
                 MeleeAttack melee = this.m_PendingMelee;
@@ -171,7 +172,19 @@ namespace ArenaCraft
             }
             else
             {
+                // Beide Spieler fertig
                 SetHudVisible(true);
+
+                var players = UnityEngine.Object.FindObjectsByType<PlayerInputProvider>(FindObjectsSortMode.None);
+                foreach (var p in players)
+                    p.enabled = true;
+
+                // Shopping Phase skippen
+                if (GamePhaseManager.Instance != null &&
+                    GamePhaseManager.Instance.CurrentPhase == GamePhase.Shopping)
+                {
+                    GamePhaseManager.Instance.SkipToNextPhase();
+                }
             }
         }
 
@@ -189,6 +202,10 @@ namespace ArenaCraft
             this.m_ConfirmedEmptyLoadout = false;
             if (this.m_Root != null) this.m_Root.style.display = DisplayStyle.None;
             SetHudVisible(true);
+
+            var players = UnityEngine.Object.FindObjectsByType<PlayerInputProvider>(FindObjectsSortMode.None);
+            foreach (var p in players)
+                p.enabled = true;
         }
 
         private static void SetHudVisible(bool visible)

@@ -107,7 +107,7 @@ namespace ArenaCraft
         private IEnumerator StartPhase(GamePhase phase, float duration)
         {
             EnterPhase(phase, duration);
-
+            yield return null;
             if (duration > 0)
             {
                 while (this.PhaseTimer > 0)
@@ -148,6 +148,7 @@ namespace ArenaCraft
             }
             else if (phase == GamePhase.BattleRoyale)
             {
+                Time.timeScale = 1f; // NEU
                 if (ShopController.Instance != null) ShopController.Instance.ForceCloseAll();
                 TeleportPlayersToBattlePit();
                 SetPlayerControlsEnabled(true);
