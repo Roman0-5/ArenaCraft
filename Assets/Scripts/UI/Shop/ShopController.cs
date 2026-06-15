@@ -31,8 +31,13 @@ namespace ArenaCraft
         private PlayerInventory m_PendingInventory;
         private Health m_PendingHealth;
         private MeleeAttack m_PendingMelee;
-        private bool m_HasPurchased;
-        private bool m_ConfirmedEmptyLoadout;
+        private readonly HashSet<PlayerInventory> m_ReadyInventories = new HashSet<PlayerInventory>();
+        private int m_ExpectedPlayerCount;
+        private bool m_IsChangingPlayer;
+
+        public int ReadyPlayerCount => this.m_ReadyInventories.Count;
+        public bool IsOpen => this.m_Root != null &&
+                              this.m_Root.resolvedStyle.display != DisplayStyle.None;
 
         private void Awake()
         {
@@ -59,7 +64,8 @@ namespace ArenaCraft
 
         public void OpenShop(PlayerInventory inventory, Health health, MeleeAttack melee)
         {
-            if (this.m_Root == null) return;
+            if (this.m_Root == null || inventory == null || this.m_ReadyInventories.Contains(inventory))
+                return;
             if (inventory == this.m_ActiveInventory || inventory == this.m_PendingInventory) return;
             if (this.m_Root.style.display == DisplayStyle.Flex && inventory != this.m_ActiveInventory)
             {
@@ -72,8 +78,7 @@ namespace ArenaCraft
             this.m_ActiveInventory = inventory;
             this.m_ActiveHealth = health;
             this.m_ActiveMelee = melee;
-            this.m_HasPurchased = false;
-            this.m_ConfirmedEmptyLoadout = false;
+            this.m_IsChangingPlayer = false;
 
             if (this.m_ActiveInventory != null)
                 this.m_ActiveInventory.OnGoldChanged += this.HandleGoldChanged;
@@ -87,6 +92,23 @@ namespace ArenaCraft
             SetHudVisible(false);
             this.SetStatus("Choose your equipment.", false);
             this.RefreshShopState();
+        }
+
+        public void BeginShoppingSession(int expectedPlayerCount)
+        {
+            this.StopAllCoroutines();
+            if (this.m_ActiveInventory != null)
+                this.m_ActiveInventory.OnGoldChanged -= this.HandleGoldChanged;
+            this.m_ActiveInventory = null;
+            this.m_ActiveHealth = null;
+            this.m_ActiveMelee = null;
+            this.m_ReadyInventories.Clear();
+            this.m_ExpectedPlayerCount = Mathf.Max(1, expectedPlayerCount);
+            this.m_IsChangingPlayer = false;
+            this.m_PendingInventory = null;
+            this.m_PendingHealth = null;
+            this.m_PendingMelee = null;
+            if (this.m_Root != null) this.m_Root.style.display = DisplayStyle.None;
         }
 
         private void BindButtons()
@@ -117,7 +139,6 @@ namespace ArenaCraft
             if (weapon != null && this.m_ActiveInventory != null && this.m_ActiveMelee != null && this.m_ActiveInventory.SpendGold(price))
             {
                 this.m_ActiveMelee.EquipWeapon(weapon);
-                this.m_HasPurchased = true;
                 if (this.buySound != null) this.m_AudioSource.PlayOneShot(this.buySound);
                 this.SetStatus($"{weapon.displayName.ToUpper()} EQUIPPED", false);
                 this.RefreshShopState();
@@ -131,7 +152,6 @@ namespace ArenaCraft
             if (this.m_ActiveInventory != null && this.m_ActiveHealth != null && this.m_ActiveInventory.SpendGold(price))
             {
                 this.m_ActiveHealth.ApplyArmor(armor);
-                this.m_HasPurchased = true;
                 if (this.buySound != null) this.m_AudioSource.PlayOneShot(this.buySound);
                 this.SetStatus($"{armor.ToString().ToUpper()} ARMOR EQUIPPED", false);
                 this.RefreshShopState();
@@ -142,54 +162,55 @@ namespace ArenaCraft
 
         private void CloseShop()
         {
-            if (!this.m_HasPurchased && !this.m_ConfirmedEmptyLoadout)
-            {
-                this.m_ConfirmedEmptyLoadout = true;
-                this.SetStatus("NO UPGRADE PURCHASED - CLOSE AGAIN TO CONFIRM", true);
-                return;
-            }
+            if (this.m_IsChangingPlayer || this.m_ActiveInventory == null) return;
+            this.m_IsChangingPlayer = true;
 
-            if (this.m_ActiveInventory != null)
-                this.m_ActiveInventory.OnGoldChanged -= this.HandleGoldChanged;
+            PlayerInventory completedInventory = this.m_ActiveInventory;
+            completedInventory.OnGoldChanged -= this.HandleGoldChanged;
+            this.m_ReadyInventories.Add(completedInventory);
             this.m_Root.style.display = DisplayStyle.None;
 
             this.m_ActiveInventory = null;
             this.m_ActiveHealth = null;
             this.m_ActiveMelee = null;
-            this.m_HasPurchased = false;
-            this.m_ConfirmedEmptyLoadout = false;
 
             if (this.m_PendingInventory != null)
             {
-                // Zweiter Spieler wartet noch → Shop für ihn öffnen
                 PlayerInventory inventory = this.m_PendingInventory;
                 Health health = this.m_PendingHealth;
                 MeleeAttack melee = this.m_PendingMelee;
                 this.m_PendingInventory = null;
                 this.m_PendingHealth = null;
                 this.m_PendingMelee = null;
-                this.OpenShop(inventory, health, melee);
+                this.StartCoroutine(this.OpenPendingPlayerNextFrame(inventory, health, melee));
             }
             else
             {
-                // Beide Spieler fertig
-                SetHudVisible(true);
-
-                var players = UnityEngine.Object.FindObjectsByType<PlayerInputProvider>(FindObjectsSortMode.None);
-                foreach (var p in players)
-                    p.enabled = true;
-
-                // Shopping Phase skippen
-                if (GamePhaseManager.Instance != null &&
-                    GamePhaseManager.Instance.CurrentPhase == GamePhase.Shopping)
-                {
-                    GamePhaseManager.Instance.SkipToNextPhase();
-                }
+                this.m_IsChangingPlayer = false;
+                if (this.m_ReadyInventories.Count >= this.m_ExpectedPlayerCount &&
+                    GamePhaseManager.Instance != null)
+                    GamePhaseManager.Instance.RequestShoppingComplete();
             }
+        }
+
+        public void ConfirmCurrentPlayerReady()
+        {
+            this.CloseShop();
+        }
+
+        private IEnumerator OpenPendingPlayerNextFrame(
+            PlayerInventory inventory,
+            Health health,
+            MeleeAttack melee)
+        {
+            yield return null;
+            this.m_IsChangingPlayer = false;
+            this.OpenShop(inventory, health, melee);
         }
 
         public void ForceCloseAll()
         {
+            this.StopAllCoroutines();
             if (this.m_ActiveInventory != null)
                 this.m_ActiveInventory.OnGoldChanged -= this.HandleGoldChanged;
             this.m_ActiveInventory = null;
@@ -198,14 +219,9 @@ namespace ArenaCraft
             this.m_PendingInventory = null;
             this.m_PendingHealth = null;
             this.m_PendingMelee = null;
-            this.m_HasPurchased = false;
-            this.m_ConfirmedEmptyLoadout = false;
+            this.m_IsChangingPlayer = false;
             if (this.m_Root != null) this.m_Root.style.display = DisplayStyle.None;
             SetHudVisible(true);
-
-            var players = UnityEngine.Object.FindObjectsByType<PlayerInputProvider>(FindObjectsSortMode.None);
-            foreach (var p in players)
-                p.enabled = true;
         }
 
         private static void SetHudVisible(bool visible)
@@ -263,6 +279,8 @@ namespace ArenaCraft
 
         private void OnDestroy()
         {
+            if (this.m_ActiveInventory != null)
+                this.m_ActiveInventory.OnGoldChanged -= this.HandleGoldChanged;
             if (Instance == this) Instance = null;
         }
     }

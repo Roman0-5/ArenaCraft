@@ -17,7 +17,7 @@ namespace ArenaCraft
 
         public static float ResourcePhaseDuration => Current == MatchRuleSet.GddClassic ? 180f : 75f;
         public static float ShoppingPhaseDuration => Current == MatchRuleSet.GddClassic ? 60f : 30f;
-        public static float RespawnMultiplier => Current == MatchRuleSet.GddClassic ? 1f : 0.45f;
+        public static float RespawnMultiplier => Current == MatchRuleSet.GddClassic ? 1f : 0.65f;
 
         public static void Select(MatchRuleSet ruleSet)
         {

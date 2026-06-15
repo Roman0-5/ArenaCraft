@@ -91,7 +91,7 @@ namespace ArenaCraft
             {
                 ResourceType.Wood => 1,
                 ResourceType.Stone => 2,
-                ResourceType.Metal => 5,
+                ResourceType.Metal => 3,
                 _ => 1,
             };
         }

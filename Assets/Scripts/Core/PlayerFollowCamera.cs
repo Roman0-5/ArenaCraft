@@ -19,26 +19,36 @@ namespace ArenaCraft
         {
             this.m_Target = target;
             if (target == null) return;
-            this.transform.position = target.position + this.m_Offset;
-            this.transform.LookAt(target.position + Vector3.up, Vector3.up);
+            this.transform.position = this.GetDesiredPosition();
+            this.transform.LookAt(this.GetLookTarget(), Vector3.up);
         }
 
         private void LateUpdate()
         {
             if (this.m_Target == null) return;
 
-            // World-space Offset → Kamera bleibt immer von oben, dreht nicht mit
-            Vector3 destination = this.m_Target.position + this.m_Offset;
-
             this.transform.position = Vector3.SmoothDamp(
                 this.transform.position,
-                destination,
+                this.GetDesiredPosition(),
                 ref this.m_Velocity,
                 this.m_SmoothTime);
-
             this.transform.rotation = Quaternion.LookRotation(
-                (this.m_Target.position + Vector3.up) - this.transform.position,
+                this.GetLookTarget() - this.transform.position,
                 Vector3.up);
+        }
+
+        private Vector3 GetDesiredPosition()
+        {
+            Vector3 targetPosition = this.m_Target.position;
+            targetPosition.y = 0f;
+            return targetPosition + this.m_Offset;
+        }
+
+        private Vector3 GetLookTarget()
+        {
+            Vector3 targetPosition = this.m_Target.position;
+            targetPosition.y = 0f;
+            return targetPosition;
         }
     }
 }

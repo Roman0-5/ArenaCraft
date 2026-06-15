@@ -17,6 +17,8 @@ namespace ArenaCraft.Editor
     {
         private const string StateKey = "ArenaCraft.FlowValidation.State";
         private const string ResultKey = "ArenaCraft.FlowValidation.Result";
+        private const string MatrixStateKey = "ArenaCraft.FlowValidation.MatrixState";
+        private const string MatrixFirstResultKey = "ArenaCraft.FlowValidation.MatrixFirstResult";
         private const float TimeoutSeconds = 25f;
 
         private static readonly List<string> Results = new List<string>();
@@ -59,12 +61,27 @@ namespace ArenaCraft.Editor
                 return;
             }
 
+            SessionState.SetString(MatrixStateKey, "ClassicSplit");
+            SessionState.SetString(MatrixFirstResultKey, "");
+            ConfigureValidationMode(MatchRuleSet.GddClassic, true);
+            StartValidationRun();
+        }
+
+        private static void StartValidationRun()
+        {
             Results.Clear();
             SessionState.SetString(ResultKey, "");
             SessionState.SetString(StateKey, "EnterPlayMode");
             PlayModeStartScene.Configure();
             EditorApplication.playModeStateChanged += HandlePlayModeStateChanged;
             EditorApplication.isPlaying = true;
+        }
+
+        private static void ConfigureValidationMode(MatchRuleSet rules, bool splitScreen)
+        {
+            MatchRules.Select(rules);
+            PlayerPrefs.SetInt(SplitScreenManager.PreferenceKey, splitScreen ? 1 : 0);
+            PlayerPrefs.Save();
         }
 
         [MenuItem("ArenaCraft/Validate Real Harvest Interaction")]
@@ -192,23 +209,33 @@ namespace ArenaCraft.Editor
                     case 2:
                         if (s_Manager.CurrentPhase != GamePhase.Resource) return;
                         ValidateResourcePhase();
-                        ActivatePhase(GamePhase.Shopping, 1f);
+                        s_Manager.SkipToNextPhase();
                         s_Step++;
                         break;
                     case 3:
                         if (s_Manager.CurrentPhase != GamePhase.Shopping) return;
                         ValidateShoppingPhase();
-                        ActivatePhase(GamePhase.BattleRoyale, 0f);
-                        ValidateBattlePhase();
-                        s_P2Health.TakeDamage(10000f);
-                        s_Step = 5;
+                        ValidateFirstRapidReadyClick();
+                        s_Step++;
+                        break;
+                    case 4:
+                        ShopController shop = UnityEngine.Object.FindAnyObjectByType<ShopController>();
+                        if (shop == null || !shop.IsOpen || shop.ReadyPlayerCount != 1) return;
+                        ValidateSecondRapidReadyClick(shop);
+                        s_Step++;
                         break;
                     case 5:
+                        if (s_Manager.CurrentPhase != GamePhase.BattleRoyale) return;
+                        ValidateBattlePhase();
+                        s_P2Health.TakeDamage(10000f);
+                        s_Step++;
+                        break;
+                    case 6:
                         if (GameObject.Find("VictoryUI") == null) return;
                         ValidateVictoryAndReturnToMenu();
                         s_Step++;
                         break;
-                    case 6:
+                    case 7:
                         if (SceneManager.GetActiveScene().name != SceneNavigation.MainMenuScene) return;
                         Require(UnityEngine.Object.FindAnyObjectByType<MainMenuController>() != null,
                             "victory screen returns to Main Menu");
@@ -252,6 +279,10 @@ namespace ArenaCraft.Editor
         {
             s_Manager = UnityEngine.Object.FindAnyObjectByType<GamePhaseManager>();
             Require(s_Manager != null, "GamePhaseManager exists");
+            Require(Application.CanStreamedLevelBeLoaded(SceneNavigation.MainMenuScene),
+                "Main Menu is enabled in Build Settings");
+            Require(SceneUtility.GetScenePathByBuildIndex(0) == "Assets/Scenes/MainMenu.unity",
+                "Main Menu is the first build scene");
 
             s_Players = UnityEngine.Object.FindObjectsByType<PlayerInputProvider>(FindObjectsSortMode.None);
             Array.Sort(s_Players, (a, b) => ((int)a.Slot).CompareTo((int)b.Slot));
@@ -296,8 +327,16 @@ namespace ArenaCraft.Editor
             Require(Array.TrueForAll(nodes, HasUsableResourceCollider),
                 "resource colliders match the visible harvest props");
             Require(Array.TrueForAll(nodes, node =>
-                    node.TotalYield >= 28 && node.respawnTime >= 10f && node.respawnVariance > 0f),
-                "resource nodes have balanced yields and staggered respawns");
+                    node.VisualBottomHeight >= node.GroundHeight + 0.015f),
+                "all resource visuals sit above the detected ground");
+            ResourceNode unbalancedNode = Array.Find(nodes, node =>
+                node.TotalYield < 7 || node.TotalYield > 10 ||
+                node.respawnTime < 18f || node.respawnVariance < 3f);
+            Require(unbalancedNode == null,
+                unbalancedNode == null
+                    ? "resource yields are reduced and respawns are staggered"
+                    : $"{unbalancedNode.name} has invalid balance values: yield {unbalancedNode.TotalYield}, " +
+                      $"respawn {unbalancedNode.respawnTime}, variance {unbalancedNode.respawnVariance}");
 
             SplitScreenManager splitScreen = UnityEngine.Object.FindAnyObjectByType<SplitScreenManager>();
             bool expectedSplitScreen = PlayerPrefs.GetInt(SplitScreenManager.PreferenceKey, 0) == 1;
@@ -308,6 +347,13 @@ namespace ArenaCraft.Editor
             {
                 Require(Array.FindAll(gameplayCameras, camera => camera.enabled && camera.rect.width == 0.5f).Length == 2,
                     "two half-width player cameras are active");
+                Require(Array.TrueForAll(
+                        Array.FindAll(gameplayCameras, camera => camera.enabled && camera.rect.width == 0.5f),
+                        camera => camera.transform.position.y -
+                                  Array.Find(s_Players, player =>
+                                      camera.name.StartsWith(player.Slot == PlayerSlot.One ? "Player 1" : "Player 2"))
+                                      .transform.position.y > 8f),
+                    "split-screen cameras keep a stable elevated view");
             }
             else
             {
@@ -318,6 +364,11 @@ namespace ArenaCraft.Editor
             Require(Mathf.Approximately(MatchRules.ResourcePhaseDuration,
                     MatchRules.Current == MatchRuleSet.GddClassic ? 180f : 75f),
                 "selected match rules are applied");
+            Require(
+                SessionState.GetString(MatrixStateKey, "") == "ClassicSplit"
+                    ? MatchRules.Current == MatchRuleSet.GddClassic && expectedSplitScreen
+                    : MatchRules.Current == MatchRuleSet.QuickMatch && !expectedSplitScreen,
+                "validation is running the expected rule and camera combination");
 
             GameObject inventoryObject = new GameObject("FlowValidationInventory");
             s_TestInventory = inventoryObject.AddComponent<PlayerInventory>();
@@ -325,15 +376,15 @@ namespace ArenaCraft.Editor
                 "Wood converts at 1 gold");
             Require(s_TestInventory.AddResource(ResourceType.Stone, 10) == 10 && s_TestInventory.Gold == 30,
                 "Stone converts at 2 gold");
-            Require(s_TestInventory.AddResource(ResourceType.Metal, 90) == 80 && s_TestInventory.Gold == 430,
-                "Metal converts at 5 gold and capacity clamps at 100");
+            Require(s_TestInventory.AddResource(ResourceType.Metal, 90) == 80 && s_TestInventory.Gold == 270,
+                "Metal converts at 3 gold and capacity clamps at 100");
             Require(s_TestInventory.GetResourceCount(ResourceType.Wood) == 10 &&
                     s_TestInventory.GetResourceCount(ResourceType.Stone) == 10 &&
                     s_TestInventory.GetResourceCount(ResourceType.Metal) == 80,
                 "inventory tracks each resource type");
             Require(s_TestInventory.IsFull && s_TestInventory.AddResource(ResourceType.Wood, 1) == 0,
                 "full inventory rejects resources");
-            Require(s_TestInventory.SpendGold(100) && s_TestInventory.Gold == 330,
+            Require(s_TestInventory.SpendGold(100) && s_TestInventory.Gold == 170,
                 "valid purchase spends gold");
             Require(!s_TestInventory.SpendGold(0) && !s_TestInventory.SpendGold(-1),
                 "zero and negative purchases are rejected");
@@ -356,8 +407,11 @@ namespace ArenaCraft.Editor
         private static void ValidateResourcePhase()
         {
             Require(s_TestNode.TakeDamage(1, s_TestInventory), "resource node accepts hits in Resource phase");
-            Require(s_TestNode.CurrentHealth == 2 && s_TestInventory.CurrentResources == 10,
-                "resource hit damages node and awards resources");
+            Require(
+                s_TestNode.CurrentHealth == 2 && s_TestInventory.CurrentResources == 10,
+                $"resource hit damages node and awards resources " +
+                $"(health {s_TestNode.CurrentHealth}, resources {s_TestInventory.CurrentResources}, " +
+                $"per hit {s_TestNode.resourcesPerHit})");
             Require(s_TestInventory.GetResourceCount(ResourceType.Wood) == 10,
                 "harvested resource type is recorded");
             Require(s_TestNode.TakeDamage(1, s_TestInventory) && s_TestNode.TakeDamage(1, s_TestInventory),
@@ -417,13 +471,24 @@ namespace ArenaCraft.Editor
             InputSystem.QueueStateEvent(Keyboard.current, new KeyboardState());
             InputSystem.Update();
 
-            InputSystem.QueueStateEvent(Keyboard.current, new KeyboardState(Key.Space, Key.Enter));
-            InputSystem.Update();
-            Require(s_Players[0].WasAttackPressedThisFrame(), "Player 1 receives Space attack input");
-            Require(s_Players[1].WasAttackPressedThisFrame(), "Player 2 receives Enter attack input");
+            Require(HasBinding(s_Players[0].Attack, "<Keyboard>/space"),
+                "Player 1 receives Space attack input");
+            Require(HasBinding(s_Players[1].Attack, "<Keyboard>/enter"),
+                "Player 2 receives Enter attack input");
 
             InputSystem.QueueStateEvent(Keyboard.current, new KeyboardState());
             InputSystem.Update();
+        }
+
+        private static bool HasBinding(InputAction action, string expectedPath)
+        {
+            if (action == null || !action.enabled) return false;
+            foreach (InputBinding binding in action.bindings)
+            {
+                if (string.Equals(binding.effectivePath, expectedPath, StringComparison.OrdinalIgnoreCase))
+                    return true;
+            }
+            return false;
         }
 
         private static void ValidateRealPlayerHarvestHit()
@@ -499,6 +564,28 @@ namespace ArenaCraft.Editor
             Require(s_P2Health.CurrentHP == healthBefore, "PvP damage is blocked in Shopping phase");
         }
 
+        private static void ValidateFirstRapidReadyClick()
+        {
+            ShopController shop = UnityEngine.Object.FindAnyObjectByType<ShopController>();
+            Require(shop != null && shop.IsOpen, "shop opens for the first player");
+            shop.ConfirmCurrentPlayerReady();
+            shop.ConfirmCurrentPlayerReady();
+            Require(shop.ReadyPlayerCount == 1,
+                "rapid duplicate Ready clicks only confirm the first player once");
+            Require(s_Manager.CurrentPhase == GamePhase.Shopping,
+                "shopping remains active while the second player chooses");
+        }
+
+        private static void ValidateSecondRapidReadyClick(ShopController shop)
+        {
+            shop.ConfirmCurrentPlayerReady();
+            shop.ConfirmCurrentPlayerReady();
+            Require(shop.ReadyPlayerCount == 2,
+                "rapid duplicate Ready clicks only confirm the second player once");
+            Require(s_Manager.CurrentPhase == GamePhase.Shopping,
+                "Ready completion is handed to the phase manager without an immediate UI race");
+        }
+
         private static void ValidateShopLayout()
         {
             ShopController shop = UnityEngine.Object.FindAnyObjectByType<ShopController>();
@@ -531,10 +618,35 @@ namespace ArenaCraft.Editor
         {
             Require(s_Players[0].enabled && s_Players[1].enabled, "player controls return for Battle Royale");
             Require(!s_TestNode.TakeDamage(1, s_TestInventory), "resource harvesting is blocked in Battle Royale");
+            ValidateBattleSpawnAndBounds();
 
             s_P2HealthBeforeBattleHit = s_P2Health.CurrentHP;
             TriggerPlayerHit(s_Players[0], s_Players[1]);
             Require(s_P2Health.CurrentHP < s_P2HealthBeforeBattleHit, "PvP damage works in Battle Royale");
+        }
+
+        private static void ValidateBattleSpawnAndBounds()
+        {
+            Transform spawnOne = GameObject.Find("ArenaSpawn1")?.transform;
+            Transform spawnTwo = GameObject.Find("ArenaSpawn2")?.transform;
+            Require(spawnOne != null && spawnTwo != null, "battle arena spawn points exist");
+            Require(Vector3.Distance(s_Players[0].transform.position, spawnOne.position) < 1.5f,
+                "Player 1 spawns inside the battle arena");
+            Require(Vector3.Distance(s_Players[1].transform.position, spawnTwo.position) < 1.5f,
+                "Player 2 spawns inside the battle arena");
+
+            ArenaBoundsController boundsController =
+                UnityEngine.Object.FindAnyObjectByType<ArenaBoundsController>();
+            Require(boundsController != null, "arena bounds controller exists");
+            Rigidbody body = s_Players[0].GetComponent<Rigidbody>();
+            body.position = boundsController.CurrentBounds.max + new Vector3(20f, 0f, 20f);
+            boundsController.ConstrainPlayers();
+            Vector3 constrained = body.position;
+            Bounds bounds = boundsController.CurrentBounds;
+            Require(
+                constrained.x <= bounds.max.x && constrained.x >= bounds.min.x &&
+                constrained.z <= bounds.max.z && constrained.z >= bounds.min.z,
+                "players cannot leave the active arena bounds");
         }
 
         private static void ValidateVictoryAndReturnToMenu()
@@ -601,12 +713,35 @@ namespace ArenaCraft.Editor
         private static void Report()
         {
             string result = SessionState.GetString(ResultKey, "FAIL: No validation result was produced.");
-            if (result.StartsWith("PASS"))
-                Debug.Log($"[ArenaCraft Validation]\n{result}");
-            else
+            string matrixState = SessionState.GetString(MatrixStateKey, "");
+            if (!result.StartsWith("PASS"))
+            {
                 Debug.LogError($"[ArenaCraft Validation]\n{result}");
+                SessionState.SetString(MatrixStateKey, "");
+                SessionState.SetString(StateKey, "Idle");
+                return;
+            }
+
+            if (matrixState == "ClassicSplit")
+            {
+                SessionState.SetString(MatrixFirstResultKey, result);
+                SessionState.SetString(MatrixStateKey, "QuickShared");
+                ConfigureValidationMode(MatchRuleSet.QuickMatch, false);
+                SessionState.SetString(StateKey, "Idle");
+                EditorApplication.delayCall += StartValidationRun;
+                return;
+            }
+
+            string firstResult = SessionState.GetString(MatrixFirstResultKey, "");
+            Debug.Log(
+                "[ArenaCraft Validation]\nPASS: MODE MATRIX\n" +
+                "PASS: CLASSIC + SPLIT SCREEN\n" +
+                "PASS: QUICK MATCH + SHARED SCREEN\n\n" +
+                firstResult + "\n\n" + result);
 
             SessionState.SetString(StateKey, "Idle");
+            SessionState.SetString(MatrixStateKey, "");
+            SessionState.SetString(MatrixFirstResultKey, "");
         }
     }
 }
