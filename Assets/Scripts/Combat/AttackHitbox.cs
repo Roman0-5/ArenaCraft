@@ -19,6 +19,16 @@ namespace ArenaCraft
 
         [Tooltip("Extra tolerance around the forward hitbox when harvesting differently sized world props.")]
         public float resourceHarvestRadius = 1.35f;
+
+        [Header("PvP Hit Reaction")]
+        [Tooltip("Knockback velocity applied to the victim on hit (units/second).")]
+        public float knockbackSpeed = 4.5f;
+
+        [Tooltip("How long the victim is briefly stunned after a hit (seconds).")]
+        public float knockbackDuration = 0.18f;
+
+        [Tooltip("Resource Phase only: how many units from the victim's biggest stack are stolen and dropped on hit.")]
+        public int resourceStealOnHit = 4;
         #endregion
 
         #region Private Fields
@@ -110,13 +120,14 @@ namespace ArenaCraft
 
         private void ScanNearbyResources()
         {
-            if (!IsPhase(GamePhase.Resource)) return;
+            if (CurrentPhase() != GamePhase.Resource) return;
 
             Vector3 center = this.col.bounds.center;
             float radius = Mathf.Max(0.1f, this.resourceHarvestRadius);
-            foreach (ResourceNode node in
-                     UnityEngine.Object.FindObjectsByType<ResourceNode>(FindObjectsSortMode.None))
+            System.Collections.Generic.IReadOnlyList<ResourceNode> nodes = ResourceNode.AllActive;
+            for (int i = 0; i < nodes.Count; i++)
             {
+                ResourceNode node = nodes[i];
                 if (node == null || !node.CanHarvest || this.nodesHitThisSwing.Contains(node))
                     continue;
 
@@ -145,11 +156,21 @@ namespace ArenaCraft
             Health target = other.GetComponentInParent<Health>();
             if (target != null && target != this.owner)
             {
-                if (!IsPhase(GamePhase.BattleRoyale)) return;
-                if (this.hitThisSwing.Add(target))
+                GamePhase phase = CurrentPhase();
+                if (phase != GamePhase.Resource && phase != GamePhase.BattleRoyale) return;
+                if (!this.hitThisSwing.Add(target)) return;
+
+                ApplyKnockback(target);
+
+                if (phase == GamePhase.BattleRoyale)
                 {
                     target.TakeDamage(this.currentDamage);
                     this.OnHit?.Invoke(target, this.currentDamage);
+                }
+                else // Resource phase: steal + drop resources, no HP damage
+                {
+                    StealAndDrop(target);
+                    this.OnHit?.Invoke(target, 0f);
                 }
                 return;
             }
@@ -158,7 +179,7 @@ namespace ArenaCraft
             ResourceNode node = other.GetComponentInParent<ResourceNode>();
             if (node != null)
             {
-                if (!IsPhase(GamePhase.Resource)) return;
+                if (CurrentPhase() != GamePhase.Resource) return;
                 if (this.nodesHitThisSwing.Add(node))
                 {
                     PlayerInventory inv = this.owner != null ? this.owner.GetComponent<PlayerInventory>() : null;
@@ -167,9 +188,40 @@ namespace ArenaCraft
             }
         }
 
-        private static bool IsPhase(GamePhase phase)
+        private void ApplyKnockback(Health victim)
         {
-            return GamePhaseManager.Instance == null || GamePhaseManager.Instance.CurrentPhase == phase;
+            ArenaPlayerController ctrl = victim.GetComponent<ArenaPlayerController>();
+            if (ctrl == null) return;
+
+            Vector3 fromAttacker = victim.transform.position - this.owner.transform.position;
+            fromAttacker.y = 0f;
+            Vector3 direction = fromAttacker.sqrMagnitude > 0.0001f
+                ? fromAttacker.normalized
+                : this.transform.forward;
+
+            ctrl.ApplyKnockback(direction * this.knockbackSpeed, this.knockbackDuration);
+        }
+
+        private void StealAndDrop(Health victim)
+        {
+            PlayerInventory victimInv = victim.GetComponent<PlayerInventory>();
+            if (victimInv == null || this.resourceStealOnHit <= 0) return;
+
+            int dropped = victimInv.DropLargestStack(this.resourceStealOnHit, out ResourceType type);
+            if (dropped <= 0) return;
+
+            // Drop slightly behind the victim along the knockback direction so they fly off the pile.
+            Vector3 toVictim = victim.transform.position - this.owner.transform.position;
+            toVictim.y = 0f;
+            Vector3 offset = toVictim.sqrMagnitude > 0.0001f ? toVictim.normalized * -0.6f : Vector3.zero;
+            ResourceDrop.Spawn(type, dropped, victim.transform.position + offset);
+        }
+
+        private static GamePhase CurrentPhase()
+        {
+            return GamePhaseManager.Instance != null
+                ? GamePhaseManager.Instance.CurrentPhase
+                : GamePhase.BattleRoyale;
         }
     }
 }

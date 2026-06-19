@@ -69,10 +69,11 @@ namespace ArenaCraft
             return true;
         }
 
-        /// <summary>Shop hook (Paket 3): give the player a fresh shield.</summary>
-        public void EquipShield()
+        /// <summary>Shop hook: give the player a fresh shield with the given durability.</summary>
+        public void EquipShield(int blocks)
         {
             this.hasShield = true;
+            this.maxBlocks = Mathf.Max(1, blocks);
             this.blocksRemaining = this.maxBlocks;
             this.ApplyShieldVisible();
         }
@@ -81,7 +82,6 @@ namespace ArenaCraft
         {
             this.hasShield = false;
             this.ApplyShieldVisible();
-            Debug.Log($"{name}: shield broke!", this);
         }
 
         private void ApplyShieldVisible()

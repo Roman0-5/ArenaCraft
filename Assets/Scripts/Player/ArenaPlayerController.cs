@@ -49,7 +49,24 @@ namespace ArenaCraft
         private float lastDashTime = -999f;
         private Vector3 dashDir = Vector3.forward;
         private float currentPlanarSpeed;
+        private float knockbackEndTime;
         #endregion
+
+        public bool IsKnockedBack => Time.time < this.knockbackEndTime;
+
+        /// <summary>
+        /// Apply a horizontal velocity impulse and suspend movement input for <paramref name="duration"/>
+        /// seconds, so the knockback isn't immediately overridden by the next FixedUpdate.
+        /// </summary>
+        public void ApplyKnockback(Vector3 horizontalVelocity, float duration)
+        {
+            if (this.rb == null) this.rb = GetComponent<Rigidbody>();
+            horizontalVelocity.y = 0f;
+            Vector3 currentVel = this.rb.linearVelocity;
+            this.rb.linearVelocity = new Vector3(horizontalVelocity.x, currentVel.y, horizontalVelocity.z);
+            this.knockbackEndTime = Time.time + duration;
+            this.isDashing = false;
+        }
 
         private void Awake()
         {
@@ -88,6 +105,14 @@ namespace ArenaCraft
 
         private void FixedUpdate()
         {
+            // Knockback suspends input control briefly so the impulse isn't zeroed out by movement.
+            if (this.IsKnockedBack)
+            {
+                this.rb.angularVelocity = Vector3.zero;
+                this.currentPlanarSpeed = new Vector2(this.rb.linearVelocity.x, this.rb.linearVelocity.z).magnitude;
+                return;
+            }
+
             // Dash overrides normal movement for its duration.
             if (this.isDashing)
             {
@@ -97,8 +122,11 @@ namespace ArenaCraft
                 }
                 else
                 {
-                    this.rb.MovePosition(this.rb.position + this.dashDir * this.dashSpeed * Time.fixedDeltaTime);
-                    this.rb.linearVelocity = Vector3.zero;
+                    Vector3 dashVel = this.rb.linearVelocity;
+                    this.rb.linearVelocity = new Vector3(
+                        this.dashDir.x * this.dashSpeed,
+                        dashVel.y,
+                        this.dashDir.z * this.dashSpeed);
                     this.rb.angularVelocity = Vector3.zero;
                     this.rb.MoveRotation(Quaternion.LookRotation(this.dashDir, Vector3.up));
                     this.currentPlanarSpeed = this.dashSpeed;
@@ -110,8 +138,8 @@ namespace ArenaCraft
             if (dir.sqrMagnitude > 1f) dir.Normalize();
 
             Vector3 movement = dir * this.moveSpeed;
-            this.rb.MovePosition(this.rb.position + movement * Time.fixedDeltaTime);
-            this.rb.linearVelocity = Vector3.zero;
+            Vector3 vel = this.rb.linearVelocity;
+            this.rb.linearVelocity = new Vector3(movement.x, vel.y, movement.z);
             this.currentPlanarSpeed = movement.magnitude;
 
             // Kill any spin a collision may have imparted, so facing stays fully script-controlled.

@@ -87,7 +87,6 @@ namespace ArenaCraft
             {
                 this.OnBlocked?.Invoke(this);
                 ArenaCameraImpact.Shake(0.08f, 0.08f);
-                Debug.Log($"{name}: BLOCKED  ({this.shieldBlock.BlocksRemaining} blocks left)", this);
                 return;
             }
 
@@ -97,8 +96,6 @@ namespace ArenaCraft
             this.OnDamaged?.Invoke(this, damage);
             ArenaCameraImpact.Shake(this.currentHP <= 0 ? 0.22f : 0.13f, this.currentHP <= 0 ? 0.24f : 0.12f);
 
-            Debug.Log($"{name}: -{damage} HP  ->  {this.currentHP}/{this.maxHP}", this);
-
             if (this.currentHP <= 0) this.Die();
         }
 
@@ -106,9 +103,6 @@ namespace ArenaCraft
         {
             if (this.isDead) return;
             this.isDead = true;
-
-            // Temporary dev feedback until the HUD exists (Paket 3).
-            Debug.Log($"{name}: ELIMINATED", this);
 
             if (this.disableControlsOnDeath)
             {

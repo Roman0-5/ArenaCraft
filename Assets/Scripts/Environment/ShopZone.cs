@@ -11,10 +11,11 @@ namespace ArenaCraft
             PlayerInventory inv = other.GetComponentInParent<PlayerInventory>();
             Health hp = other.GetComponentInParent<Health>();
             MeleeAttack melee = other.GetComponentInParent<MeleeAttack>();
+            ShieldBlock shield = other.GetComponentInParent<ShieldBlock>();
 
             if (inv != null && ShopController.Instance != null)
             {
-                ShopController.Instance.OpenShop(inv, hp, melee);
+                ShopController.Instance.OpenShop(inv, hp, melee, shield);
             }
         }
     }

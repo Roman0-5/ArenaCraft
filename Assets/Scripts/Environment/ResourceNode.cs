@@ -1,11 +1,19 @@
 using UnityEngine;
 using System.Collections;
+using System.Collections.Generic;
 using System;
 
 namespace ArenaCraft
 {
     public class ResourceNode : MonoBehaviour
     {
+        private static readonly List<ResourceNode> s_Active = new List<ResourceNode>();
+
+        /// <summary>All enabled ResourceNodes in the scene. Maintained via OnEnable/OnDisable so
+        /// callers don't need FindObjectsByType every frame.</summary>
+        public static IReadOnlyList<ResourceNode> AllActive => s_Active;
+
+
         public enum NodeState
         {
             Available,
@@ -508,8 +516,14 @@ namespace ArenaCraft
             this.visuals.transform.localScale = this.m_VisualStartScale;
         }
 
+        private void OnEnable()
+        {
+            if (!s_Active.Contains(this)) s_Active.Add(this);
+        }
+
         private void OnDisable()
         {
+            s_Active.Remove(this);
             if (this.m_HitFeedbackRoutine != null) this.m_HitFeedbackRoutine = null;
             if (this.m_RespawnRoutine != null) this.m_RespawnRoutine = null;
             ResetVisualTransform();

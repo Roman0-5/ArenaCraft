@@ -52,7 +52,6 @@ namespace ArenaCraft
             {
                 this.m_GameEnded = true;
                 string winnerName = alivePlayers.Count == 1 ? GetPlayerName(alivePlayers[0]) : "DRAW";
-                Debug.Log($"Game Over! Winner: {winnerName}");
                 ShowVictoryScreen(winnerName);
             }
         }
