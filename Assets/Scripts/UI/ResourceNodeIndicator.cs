@@ -41,6 +41,8 @@ namespace ArenaCraft
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
         private static void AttachToLoadedNodes()
         {
+            // Use FindObjectsByType once at scene load to include inactive nodes; the runtime
+            // registry (ResourceNode.AllActive) only tracks enabled ones.
             foreach (ResourceNode node in
                      Object.FindObjectsByType<ResourceNode>(FindObjectsInactive.Include, FindObjectsSortMode.None))
             {
@@ -262,9 +264,10 @@ namespace ArenaCraft
 
         private bool IsClosestNodeForPlayer(PlayerInputProvider player, float thisDistance)
         {
-            foreach (ResourceNode candidate in
-                     Object.FindObjectsByType<ResourceNode>(FindObjectsSortMode.None))
+            System.Collections.Generic.IReadOnlyList<ResourceNode> candidates = ResourceNode.AllActive;
+            for (int i = 0; i < candidates.Count; i++)
             {
+                ResourceNode candidate = candidates[i];
                 if (candidate == null || candidate == this.m_Node) continue;
                 if (DistanceToNode(player, candidate) + 0.05f < thisDistance)
                     return false;

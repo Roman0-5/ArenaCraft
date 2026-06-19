@@ -25,12 +25,17 @@ namespace ArenaCraft
         private Button m_LightArmorButton;
         private Button m_HeavyArmorButton;
 
+        private const int LightArmorShieldBlocks = 5;
+        private const int HeavyArmorShieldBlocks = 12;
+
         private PlayerInventory m_ActiveInventory;
         private Health m_ActiveHealth;
         private MeleeAttack m_ActiveMelee;
+        private ShieldBlock m_ActiveShield;
         private PlayerInventory m_PendingInventory;
         private Health m_PendingHealth;
         private MeleeAttack m_PendingMelee;
+        private ShieldBlock m_PendingShield;
         private readonly HashSet<PlayerInventory> m_ReadyInventories = new HashSet<PlayerInventory>();
         private int m_ExpectedPlayerCount;
         private bool m_IsChangingPlayer;
@@ -62,7 +67,7 @@ namespace ArenaCraft
             this.m_Root.style.display = DisplayStyle.None;
         }
 
-        public void OpenShop(PlayerInventory inventory, Health health, MeleeAttack melee)
+        public void OpenShop(PlayerInventory inventory, Health health, MeleeAttack melee, ShieldBlock shield)
         {
             if (this.m_Root == null || inventory == null || this.m_ReadyInventories.Contains(inventory))
                 return;
@@ -72,12 +77,14 @@ namespace ArenaCraft
                 this.m_PendingInventory = inventory;
                 this.m_PendingHealth = health;
                 this.m_PendingMelee = melee;
+                this.m_PendingShield = shield;
                 return;
             }
 
             this.m_ActiveInventory = inventory;
             this.m_ActiveHealth = health;
             this.m_ActiveMelee = melee;
+            this.m_ActiveShield = shield;
             this.m_IsChangingPlayer = false;
 
             if (this.m_ActiveInventory != null)
@@ -102,12 +109,14 @@ namespace ArenaCraft
             this.m_ActiveInventory = null;
             this.m_ActiveHealth = null;
             this.m_ActiveMelee = null;
+            this.m_ActiveShield = null;
             this.m_ReadyInventories.Clear();
             this.m_ExpectedPlayerCount = Mathf.Max(1, expectedPlayerCount);
             this.m_IsChangingPlayer = false;
             this.m_PendingInventory = null;
             this.m_PendingHealth = null;
             this.m_PendingMelee = null;
+            this.m_PendingShield = null;
             if (this.m_Root != null) this.m_Root.style.display = DisplayStyle.None;
         }
 
@@ -131,8 +140,8 @@ namespace ArenaCraft
 
         private void BuyBasicSword() => BuyWeapon(this.basicSword, 50);
         private void BuyAdvancedSword() => BuyWeapon(this.advancedSword, 100);
-        private void BuyLightArmor() => BuyArmor(ArmorType.Light, 50);
-        private void BuyHeavyArmor() => BuyArmor(ArmorType.Heavy, 100);
+        private void BuyLightArmor() => BuyArmor(ArmorType.Light, 50, LightArmorShieldBlocks);
+        private void BuyHeavyArmor() => BuyArmor(ArmorType.Heavy, 100, HeavyArmorShieldBlocks);
 
         private void BuyWeapon(Weapon weapon, int price)
         {
@@ -142,20 +151,19 @@ namespace ArenaCraft
                 if (this.buySound != null) this.m_AudioSource.PlayOneShot(this.buySound);
                 this.SetStatus($"{weapon.displayName.ToUpper()} EQUIPPED", false);
                 this.RefreshShopState();
-                Debug.Log($"Bought {weapon.displayName}");
             }
             else this.ShowPurchaseError(price);
         }
 
-        private void BuyArmor(ArmorType armor, int price)
+        private void BuyArmor(ArmorType armor, int price, int shieldBlocks)
         {
             if (this.m_ActiveInventory != null && this.m_ActiveHealth != null && this.m_ActiveInventory.SpendGold(price))
             {
                 this.m_ActiveHealth.ApplyArmor(armor);
+                if (this.m_ActiveShield != null) this.m_ActiveShield.EquipShield(shieldBlocks);
                 if (this.buySound != null) this.m_AudioSource.PlayOneShot(this.buySound);
                 this.SetStatus($"{armor.ToString().ToUpper()} ARMOR EQUIPPED", false);
                 this.RefreshShopState();
-                Debug.Log($"Bought {armor}");
             }
             else this.ShowPurchaseError(price);
         }
@@ -173,16 +181,19 @@ namespace ArenaCraft
             this.m_ActiveInventory = null;
             this.m_ActiveHealth = null;
             this.m_ActiveMelee = null;
+            this.m_ActiveShield = null;
 
             if (this.m_PendingInventory != null)
             {
                 PlayerInventory inventory = this.m_PendingInventory;
                 Health health = this.m_PendingHealth;
                 MeleeAttack melee = this.m_PendingMelee;
+                ShieldBlock shield = this.m_PendingShield;
                 this.m_PendingInventory = null;
                 this.m_PendingHealth = null;
                 this.m_PendingMelee = null;
-                this.StartCoroutine(this.OpenPendingPlayerNextFrame(inventory, health, melee));
+                this.m_PendingShield = null;
+                this.StartCoroutine(this.OpenPendingPlayerNextFrame(inventory, health, melee, shield));
             }
             else
             {
@@ -201,11 +212,12 @@ namespace ArenaCraft
         private IEnumerator OpenPendingPlayerNextFrame(
             PlayerInventory inventory,
             Health health,
-            MeleeAttack melee)
+            MeleeAttack melee,
+            ShieldBlock shield)
         {
             yield return null;
             this.m_IsChangingPlayer = false;
-            this.OpenShop(inventory, health, melee);
+            this.OpenShop(inventory, health, melee, shield);
         }
 
         public void ForceCloseAll()
@@ -216,9 +228,11 @@ namespace ArenaCraft
             this.m_ActiveInventory = null;
             this.m_ActiveHealth = null;
             this.m_ActiveMelee = null;
+            this.m_ActiveShield = null;
             this.m_PendingInventory = null;
             this.m_PendingHealth = null;
             this.m_PendingMelee = null;
+            this.m_PendingShield = null;
             this.m_IsChangingPlayer = false;
             if (this.m_Root != null) this.m_Root.style.display = DisplayStyle.None;
             SetHudVisible(true);

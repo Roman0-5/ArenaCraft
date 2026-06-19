@@ -27,6 +27,8 @@ namespace ArenaCraft
         [SerializeField] private Transform m_SpawnPointP1;
         [SerializeField] private Transform m_SpawnPointP2;
         [Header("Playable Bounds")]
+        [Tooltip("Optional. If set, the Resource-phase bounds match this collider exactly (e.g. an invisible box around the fences). Overrides Resource Bounds Center/Size below.")]
+        [SerializeField] private Collider m_ResourceBoundsCollider;
         [SerializeField] private Vector2 m_ResourceBoundsCenter = new Vector2(0f, 2f);
         [SerializeField] private Vector2 m_ResourceBoundsSize = new Vector2(42f, 42f);
         [SerializeField] private Vector2 m_ShopBoundsCenter = new Vector2(0f, 18f);
@@ -144,13 +146,13 @@ namespace ArenaCraft
             this.OnPhaseChanged?.Invoke(phase);
 
             if (this.phaseStartSound != null) this.m_AudioSource.PlayOneShot(this.phaseStartSound);
-            Debug.Log($"Phase Started: {phase}");
 
             if (phase == GamePhase.Resource)
             {
-                this.m_BoundsController.Configure(
-                    ToWorldBounds(this.m_ResourceBoundsCenter, this.m_ResourceBoundsSize),
-                    "Resource Arena");
+                Bounds resourceBounds = this.m_ResourceBoundsCollider != null
+                    ? this.m_ResourceBoundsCollider.bounds
+                    : ToWorldBounds(this.m_ResourceBoundsCenter, this.m_ResourceBoundsSize);
+                this.m_BoundsController.Configure(resourceBounds, "Resource Arena");
                 SetPlayerControlsEnabled(true);
             }
             else if (phase == GamePhase.Shopping)
@@ -191,7 +193,8 @@ namespace ArenaCraft
                     ShopController.Instance.OpenShop(
                         p.GetComponent<PlayerInventory>(),
                         p.GetComponent<Health>(),
-                        p.GetComponent<MeleeAttack>());
+                        p.GetComponent<MeleeAttack>(),
+                        p.GetComponent<ShieldBlock>());
                 }
             }
         }
@@ -236,7 +239,6 @@ namespace ArenaCraft
                 return;
 
             this.m_PhaseSkipRequested = true;
-            Debug.Log("[ArenaCraft] Both players are ready. Advancing to Battle Royale.");
         }
 
         private void OnDestroy()

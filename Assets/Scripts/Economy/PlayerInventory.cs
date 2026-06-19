@@ -106,5 +106,33 @@ namespace ArenaCraft
             }
             return false;
         }
+
+        /// <summary>
+        /// Remove up to <paramref name="amount"/> resources from the player's largest stack.
+        /// Returns the actual removed count. Outputs the type that was reduced, or Wood if nothing
+        /// could be dropped.
+        /// </summary>
+        public int DropLargestStack(int amount, out ResourceType type)
+        {
+            type = ResourceType.Wood;
+            int max = this.m_Wood;
+            if (this.m_Stone > max) { max = this.m_Stone; type = ResourceType.Stone; }
+            if (this.m_Metal > max) { max = this.m_Metal; type = ResourceType.Metal; }
+            if (max <= 0 || amount <= 0) return 0;
+
+            int removed = Mathf.Min(amount, max);
+            switch (type)
+            {
+                case ResourceType.Wood: this.m_Wood -= removed; break;
+                case ResourceType.Stone: this.m_Stone -= removed; break;
+                case ResourceType.Metal: this.m_Metal -= removed; break;
+            }
+            this.m_CurrentResources = Mathf.Max(0, this.m_CurrentResources - removed);
+            this.Gold = Mathf.Max(0, this.Gold - removed * GetGoldValue(type));
+
+            this.OnResourcesChanged?.Invoke(this.m_CurrentResources, this.m_MaxResourceCapacity);
+            this.OnGoldChanged?.Invoke(this.Gold);
+            return removed;
+        }
     }
 }

@@ -37,9 +37,9 @@
                         <ui:VisualElement class="item-icon icon-light-armor" />
                     </ui:VisualElement>
                     <ui:VisualElement class="item-copy">
-                        <ui:Label text="ARMOR" class="item-type" />
+                        <ui:Label text="ARMOR + SHIELD" class="item-type" />
                         <ui:Label text="Light Armor" class="item-name" />
-                        <ui:Label text="+25 MAX HP | 50 GOLD" class="item-desc" />
+                        <ui:Label text="+25 MAX HP | BLOCKS 5 HITS | 50 GOLD" class="item-desc" />
                     </ui:VisualElement>
                     <ui:Button name="buy-light-armor" text="BUY" class="buy-button" />
                 </ui:VisualElement>
@@ -48,9 +48,9 @@
                         <ui:VisualElement class="item-icon icon-heavy-armor" />
                     </ui:VisualElement>
                     <ui:VisualElement class="item-copy">
-                        <ui:Label text="ARMOR" class="item-type" />
+                        <ui:Label text="ARMOR + SHIELD" class="item-type" />
                         <ui:Label text="Heavy Armor" class="item-name" />
-                        <ui:Label text="+50 MAX HP | 100 GOLD" class="item-desc" />
+                        <ui:Label text="+50 MAX HP | BLOCKS 12 HITS | 100 GOLD" class="item-desc" />
                     </ui:VisualElement>
                     <ui:Button name="buy-heavy-armor" text="BUY" class="buy-button" />
                 </ui:VisualElement>
