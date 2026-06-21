@@ -23,6 +23,7 @@ namespace ArenaCraft
         [Header("Phase Durations")]
         [SerializeField] private float m_ResourcePhaseTime = 180f;
         [SerializeField] private float m_ShoppingPhaseTime = 60f;
+        [SerializeField] private float m_BattlePhaseTime = 180f;
         [Header("Spawn Points Battle Pit")]
         [SerializeField] private Transform m_SpawnPointP1;
         [SerializeField] private Transform m_SpawnPointP2;
@@ -91,6 +92,7 @@ namespace ArenaCraft
             this.m_GameLoopStarted = true;
             this.m_ResourcePhaseTime = MatchRules.ResourcePhaseDuration;
             this.m_ShoppingPhaseTime = MatchRules.ShoppingPhaseDuration;
+            this.m_BattlePhaseTime = MatchRules.BattlePhaseDuration;
             StartCoroutine(GameLoop());
         }
 
@@ -111,7 +113,7 @@ namespace ArenaCraft
             yield return StartPhase(GamePhase.Shopping, this.m_ShoppingPhaseTime);
 
             // Battle Royale Phase
-            yield return StartPhase(GamePhase.BattleRoyale, 0f);
+            yield return StartPhase(GamePhase.BattleRoyale, this.m_BattlePhaseTime);
         }
 
         private IEnumerator StartPhase(GamePhase phase, float duration)
@@ -130,6 +132,13 @@ namespace ArenaCraft
                 }
                 this.PhaseTimer = 0;
                 this.m_PhaseSkipRequested = false;
+                if (phase == GamePhase.BattleRoyale)
+                {
+                    MatchEndHandler matchEndHandler =
+                        UnityEngine.Object.FindAnyObjectByType<MatchEndHandler>();
+                    if (matchEndHandler != null)
+                        matchEndHandler.EndBattleByTimer();
+                }
             }
             else
             {

@@ -19,6 +19,8 @@ namespace ArenaCraft.Editor
         private const string ResultKey = "ArenaCraft.FlowValidation.Result";
         private const string MatrixStateKey = "ArenaCraft.FlowValidation.MatrixState";
         private const string MatrixFirstResultKey = "ArenaCraft.FlowValidation.MatrixFirstResult";
+        private const string TimerStateKey = "ArenaCraft.TimerValidation.State";
+        private const string TimerResultKey = "ArenaCraft.TimerValidation.Result";
         private const float TimeoutSeconds = 25f;
 
         private static readonly List<string> Results = new List<string>();
@@ -49,6 +51,23 @@ namespace ArenaCraft.Editor
             else if (state == "LeavingPlayMode" && !EditorApplication.isPlaying)
             {
                 EditorApplication.delayCall += Report;
+            }
+
+            string timerState = SessionState.GetString(TimerStateKey, "Idle");
+            if (timerState == "EnterPlayMode")
+            {
+                if (EditorApplication.isPlaying)
+                    EditorApplication.delayCall += BeginTimerValidation;
+                else
+                    EditorApplication.playModeStateChanged += HandleTimerPlayModeStateChanged;
+            }
+            else if (timerState == "Running" && EditorApplication.isPlaying)
+            {
+                EditorApplication.update += TickTimerValidation;
+            }
+            else if (timerState == "LeavingPlayMode" && !EditorApplication.isPlaying)
+            {
+                EditorApplication.delayCall += ReportTimerValidation;
             }
         }
 
@@ -82,6 +101,117 @@ namespace ArenaCraft.Editor
             MatchRules.Select(rules);
             PlayerPrefs.SetInt(SplitScreenManager.PreferenceKey, splitScreen ? 1 : 0);
             PlayerPrefs.Save();
+        }
+
+        [MenuItem("ArenaCraft/Validate Battle Timer Tiebreak")]
+        public static void ValidateBattleTimerTiebreakOnly()
+        {
+            if (EditorApplication.isPlayingOrWillChangePlaymode)
+            {
+                Debug.LogWarning("[ArenaCraft Timer Validation] Stop Play Mode before starting validation.");
+                return;
+            }
+
+            ConfigureValidationMode(MatchRuleSet.GddClassic, false);
+            SessionState.SetString(TimerResultKey, "");
+            SessionState.SetString(TimerStateKey, "EnterPlayMode");
+            PlayModeStartScene.Configure();
+            EditorApplication.playModeStateChanged += HandleTimerPlayModeStateChanged;
+            EditorApplication.isPlaying = true;
+        }
+
+        private static void HandleTimerPlayModeStateChanged(PlayModeStateChange change)
+        {
+            if (change != PlayModeStateChange.EnteredPlayMode) return;
+            EditorApplication.playModeStateChanged -= HandleTimerPlayModeStateChanged;
+            BeginTimerValidation();
+        }
+
+        private static void BeginTimerValidation()
+        {
+            EditorApplication.isPaused = false;
+            SessionState.SetString(TimerStateKey, "Running");
+            Results.Clear();
+            s_StartedAt = EditorApplication.timeSinceStartup;
+            s_Step = 0;
+            EditorApplication.update -= TickTimerValidation;
+            EditorApplication.update += TickTimerValidation;
+        }
+
+        private static void TickTimerValidation()
+        {
+            EditorApplication.QueuePlayerLoopUpdate();
+            try
+            {
+                if (EditorApplication.timeSinceStartup - s_StartedAt > TimeoutSeconds)
+                    throw new TimeoutException($"Timer validation timed out during step {s_Step}.");
+
+                switch (s_Step)
+                {
+                    case 0:
+                        if (SceneManager.GetActiveScene().name != SceneNavigation.MainMenuScene) return;
+                        MainMenuController controller =
+                            UnityEngine.Object.FindAnyObjectByType<MainMenuController>();
+                        MethodInfo start = typeof(MainMenuController).GetMethod(
+                            "OnStartClicked",
+                            BindingFlags.Instance | BindingFlags.NonPublic);
+                        Require(controller != null && start != null, "timer validation can start a match");
+                        start.Invoke(controller, null);
+                        s_Step++;
+                        break;
+                    case 1:
+                        s_Manager = UnityEngine.Object.FindAnyObjectByType<GamePhaseManager>();
+                        if (s_Manager == null) return;
+                        s_Manager.BeginMatch();
+                        ActivatePhase(GamePhase.BattleRoyale, MatchRules.BattlePhaseDuration);
+                        s_Players = UnityEngine.Object.FindObjectsByType<PlayerInputProvider>(FindObjectsSortMode.None);
+                        Array.Sort(s_Players, (a, b) => ((int)a.Slot).CompareTo((int)b.Slot));
+                        Require(s_Players.Length == 2, "timer validation has two players");
+                        s_P1Health = s_Players[0].GetComponent<Health>();
+                        s_P2Health = s_Players[1].GetComponent<Health>();
+                        Require(s_P1Health != null && s_P2Health != null, "timer validation has player health");
+                        s_Step++;
+                        break;
+                    case 2:
+                        s_P2Health.TakeDamage(10f);
+                        ValidateBattleTimerTiebreak();
+                        FinishTimerValidation(true);
+                        break;
+                }
+            }
+            catch (Exception exception)
+            {
+                Results.Add($"FAIL: {exception.Message}");
+                Debug.LogException(exception);
+                FinishTimerValidation(false);
+            }
+        }
+
+        private static void FinishTimerValidation(bool success)
+        {
+            EditorApplication.update -= TickTimerValidation;
+            Results.Insert(0, success ? "PASS: BATTLE TIMER TIEBREAK" : "FAIL: BATTLE TIMER TIEBREAK");
+            SessionState.SetString(TimerResultKey, string.Join("\n", Results));
+            SessionState.SetString(TimerStateKey, "LeavingPlayMode");
+            EditorApplication.playModeStateChanged += HandleTimerExitPlayMode;
+            EditorApplication.isPlaying = false;
+        }
+
+        private static void HandleTimerExitPlayMode(PlayModeStateChange change)
+        {
+            if (change != PlayModeStateChange.EnteredEditMode) return;
+            EditorApplication.playModeStateChanged -= HandleTimerExitPlayMode;
+            ReportTimerValidation();
+        }
+
+        private static void ReportTimerValidation()
+        {
+            string result = SessionState.GetString(TimerResultKey, "FAIL: No timer validation result was produced.");
+            if (result.StartsWith("PASS"))
+                Debug.Log($"[ArenaCraft Timer Validation]\n{result}");
+            else
+                Debug.LogError($"[ArenaCraft Timer Validation]\n{result}");
+            SessionState.SetString(TimerStateKey, "Idle");
         }
 
         [MenuItem("ArenaCraft/Validate Real Harvest Interaction")]
@@ -227,7 +357,7 @@ namespace ArenaCraft.Editor
                     case 5:
                         if (s_Manager.CurrentPhase != GamePhase.BattleRoyale) return;
                         ValidateBattlePhase();
-                        s_P2Health.TakeDamage(10000f);
+                        ValidateBattleTimerTiebreak();
                         s_Step++;
                         break;
                     case 6:
@@ -300,21 +430,26 @@ namespace ArenaCraft.Editor
             ValidatePlayerMovement();
 
             var resourceTypes = new HashSet<ResourceType>();
-            ResourceNode[] nodes = UnityEngine.Object.FindObjectsByType<ResourceNode>(FindObjectsSortMode.None);
+            ResourceNode[] nodes = Array.FindAll(
+                UnityEngine.Object.FindObjectsByType<ResourceNode>(FindObjectsSortMode.None),
+                node => node.name.StartsWith("Resource_", StringComparison.Ordinal));
             foreach (ResourceNode node in nodes)
                 resourceTypes.Add(node.resourceType);
             Require(resourceTypes.SetEquals(new[] { ResourceType.Wood, ResourceType.Stone, ResourceType.Metal }),
                 "Wood, Stone and Metal nodes exist");
-            Require(nodes.Length == 30, "arena contains 30 resource nodes");
+            Require(nodes.Length == 30, "arena contains 30 named resource nodes");
             Require(Array.FindAll(nodes, node => node.resourceType == ResourceType.Wood).Length == 12,
                 "arena contains twelve Wood nodes");
             Require(Array.FindAll(nodes, node => node.resourceType == ResourceType.Stone).Length == 10,
                 "arena contains ten Stone nodes");
             Require(Array.FindAll(nodes, node => node.resourceType == ResourceType.Metal).Length == 8,
                 "arena contains eight Metal nodes");
-            Require(Array.TrueForAll(nodes, node =>
-                    node.visuals != null && node.GetComponent<Collider>() != null && node.hitSound != null),
-                "all resource nodes keep visuals, colliders and harvest audio");
+            ResourceNode incompleteNode = Array.Find(nodes, node =>
+                node.visuals == null || node.GetComponent<Collider>() == null || node.hitSound == null);
+            Require(incompleteNode == null,
+                incompleteNode == null
+                    ? "all resource nodes keep visuals, colliders and harvest audio"
+                    : $"{incompleteNode.name} is missing visuals/collider/audio");
             Require(Array.TrueForAll(
                     Array.FindAll(nodes, node => node.resourceType == ResourceType.Metal),
                     node => node.visuals.name == "MetalOreVisual" &&
@@ -364,6 +499,9 @@ namespace ArenaCraft.Editor
             Require(Mathf.Approximately(MatchRules.ResourcePhaseDuration,
                     MatchRules.Current == MatchRuleSet.GddClassic ? 180f : 75f),
                 "selected match rules are applied");
+            Require(Mathf.Approximately(MatchRules.BattlePhaseDuration,
+                    MatchRules.Current == MatchRuleSet.GddClassic ? 180f : 90f),
+                "battle timer duration follows the selected match rules");
             Require(
                 SessionState.GetString(MatrixStateKey, "") == "ClassicSplit"
                     ? MatchRules.Current == MatchRuleSet.GddClassic && expectedSplitScreen
@@ -617,12 +755,28 @@ namespace ArenaCraft.Editor
         private static void ValidateBattlePhase()
         {
             Require(s_Players[0].enabled && s_Players[1].enabled, "player controls return for Battle Royale");
+            Require(s_Manager.PhaseTimer > 0f, "Battle Royale starts with an active timer");
             Require(!s_TestNode.TakeDamage(1, s_TestInventory), "resource harvesting is blocked in Battle Royale");
             ValidateBattleSpawnAndBounds();
 
             s_P2HealthBeforeBattleHit = s_P2Health.CurrentHP;
             TriggerPlayerHit(s_Players[0], s_Players[1]);
             Require(s_P2Health.CurrentHP < s_P2HealthBeforeBattleHit, "PvP damage works in Battle Royale");
+        }
+
+        private static void ValidateBattleTimerTiebreak()
+        {
+            MatchEndHandler handler = UnityEngine.Object.FindAnyObjectByType<MatchEndHandler>();
+            Require(handler != null, "match end handler remains available");
+            Require(!s_P1Health.IsDead && !s_P2Health.IsDead,
+                "timer tiebreak runs while both players are alive");
+
+            handler.EndBattleByTimer();
+            GameObject victoryObject = GameObject.Find("VictoryUI");
+            UIDocument document = victoryObject != null ? victoryObject.GetComponent<UIDocument>() : null;
+            Label winnerLabel = document?.rootVisualElement.Q<Label>("winner-label");
+            Require(winnerLabel != null && winnerLabel.text.Contains("PLAYER 1"),
+                "battle timer awards the win to the player with more HP");
         }
 
         private static void ValidateBattleSpawnAndBounds()
@@ -660,7 +814,7 @@ namespace ArenaCraft.Editor
                 "victory screen provides Main Menu return");
 
             MatchEndHandler handler = UnityEngine.Object.FindAnyObjectByType<MatchEndHandler>();
-            Require(handler != null, "match end handler remains available");
+            Require(handler != null, "match end handler remains available after victory");
             handler.ReturnToMainMenu();
         }
 

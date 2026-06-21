@@ -56,6 +56,47 @@ namespace ArenaCraft
             }
         }
 
+        public void EndBattleByTimer()
+        {
+            if (this.m_GameEnded ||
+                GamePhaseManager.Instance == null ||
+                GamePhaseManager.Instance.CurrentPhase != GamePhase.BattleRoyale)
+                return;
+
+            var players = Object.FindObjectsByType<PlayerInputProvider>(FindObjectsSortMode.None);
+            List<Health> playerHealths = new List<Health>();
+            foreach (PlayerInputProvider player in players)
+            {
+                Health health = player.GetComponent<Health>();
+                if (health != null) playerHealths.Add(health);
+            }
+
+            if (playerHealths.Count < 2)
+            {
+                CheckWinCondition();
+                return;
+            }
+
+            playerHealths.Sort((a, b) =>
+                ((int)a.GetComponent<PlayerInputProvider>().Slot)
+                .CompareTo((int)b.GetComponent<PlayerInputProvider>().Slot));
+
+            Health first = playerHealths[0];
+            Health second = playerHealths[1];
+            this.m_GameEnded = true;
+
+            if (first.IsDead && !second.IsDead)
+                ShowVictoryScreen(GetPlayerName(second));
+            else if (second.IsDead && !first.IsDead)
+                ShowVictoryScreen(GetPlayerName(first));
+            else if (first.CurrentHP > second.CurrentHP)
+                ShowVictoryScreen(GetPlayerName(first));
+            else if (second.CurrentHP > first.CurrentHP)
+                ShowVictoryScreen(GetPlayerName(second));
+            else
+                ShowVictoryScreen("DRAW");
+        }
+
         private void ShowVictoryScreen(string winner)
         {
             if (this.victoryUxml == null || this.panelSettings == null)
