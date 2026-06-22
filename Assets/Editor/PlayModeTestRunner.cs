@@ -21,6 +21,7 @@ namespace ArenaCraft.Editor
         private const string MatrixFirstResultKey = "ArenaCraft.FlowValidation.MatrixFirstResult";
         private const string TimerStateKey = "ArenaCraft.TimerValidation.State";
         private const string TimerResultKey = "ArenaCraft.TimerValidation.Result";
+        private const string TimerExpectDrawKey = "ArenaCraft.TimerValidation.ExpectDraw";
         private const float TimeoutSeconds = 25f;
 
         private static readonly List<string> Results = new List<string>();
@@ -106,6 +107,17 @@ namespace ArenaCraft.Editor
         [MenuItem("ArenaCraft/Validate Battle Timer Tiebreak")]
         public static void ValidateBattleTimerTiebreakOnly()
         {
+            StartTimerValidation(expectDraw: false);
+        }
+
+        [MenuItem("ArenaCraft/Validate Battle Timer Draw")]
+        public static void ValidateBattleTimerDrawOnly()
+        {
+            StartTimerValidation(expectDraw: true);
+        }
+
+        private static void StartTimerValidation(bool expectDraw)
+        {
             if (EditorApplication.isPlayingOrWillChangePlaymode)
             {
                 Debug.LogWarning("[ArenaCraft Timer Validation] Stop Play Mode before starting validation.");
@@ -114,6 +126,7 @@ namespace ArenaCraft.Editor
 
             ConfigureValidationMode(MatchRuleSet.GddClassic, false);
             SessionState.SetString(TimerResultKey, "");
+            SessionState.SetBool(TimerExpectDrawKey, expectDraw);
             SessionState.SetString(TimerStateKey, "EnterPlayMode");
             PlayModeStartScene.Configure();
             EditorApplication.playModeStateChanged += HandleTimerPlayModeStateChanged;
@@ -173,8 +186,10 @@ namespace ArenaCraft.Editor
                         s_Step++;
                         break;
                     case 2:
-                        s_P2Health.TakeDamage(10f);
-                        ValidateBattleTimerTiebreak();
+                        bool expectDraw = SessionState.GetBool(TimerExpectDrawKey, false);
+                        if (!expectDraw)
+                            s_P2Health.TakeDamage(10f);
+                        ValidateBattleTimerTiebreak(expectDraw);
                         FinishTimerValidation(true);
                         break;
                 }
@@ -190,7 +205,9 @@ namespace ArenaCraft.Editor
         private static void FinishTimerValidation(bool success)
         {
             EditorApplication.update -= TickTimerValidation;
-            Results.Insert(0, success ? "PASS: BATTLE TIMER TIEBREAK" : "FAIL: BATTLE TIMER TIEBREAK");
+            bool expectDraw = SessionState.GetBool(TimerExpectDrawKey, false);
+            string label = expectDraw ? "BATTLE TIMER DRAW" : "BATTLE TIMER TIEBREAK";
+            Results.Insert(0, success ? $"PASS: {label}" : $"FAIL: {label}");
             SessionState.SetString(TimerResultKey, string.Join("\n", Results));
             SessionState.SetString(TimerStateKey, "LeavingPlayMode");
             EditorApplication.playModeStateChanged += HandleTimerExitPlayMode;
@@ -212,6 +229,7 @@ namespace ArenaCraft.Editor
             else
                 Debug.LogError($"[ArenaCraft Timer Validation]\n{result}");
             SessionState.SetString(TimerStateKey, "Idle");
+            SessionState.SetBool(TimerExpectDrawKey, false);
         }
 
         [MenuItem("ArenaCraft/Validate Real Harvest Interaction")]
@@ -766,6 +784,11 @@ namespace ArenaCraft.Editor
 
         private static void ValidateBattleTimerTiebreak()
         {
+            ValidateBattleTimerTiebreak(expectDraw: false);
+        }
+
+        private static void ValidateBattleTimerTiebreak(bool expectDraw)
+        {
             MatchEndHandler handler = UnityEngine.Object.FindAnyObjectByType<MatchEndHandler>();
             Require(handler != null, "match end handler remains available");
             Require(!s_P1Health.IsDead && !s_P2Health.IsDead,
@@ -775,8 +798,16 @@ namespace ArenaCraft.Editor
             GameObject victoryObject = GameObject.Find("VictoryUI");
             UIDocument document = victoryObject != null ? victoryObject.GetComponent<UIDocument>() : null;
             Label winnerLabel = document?.rootVisualElement.Q<Label>("winner-label");
-            Require(winnerLabel != null && winnerLabel.text.Contains("PLAYER 1"),
-                "battle timer awards the win to the player with more HP");
+            if (expectDraw)
+            {
+                Require(winnerLabel != null && winnerLabel.text.Contains("DRAW"),
+                    "battle timer ends in a draw when player HP is equal");
+            }
+            else
+            {
+                Require(winnerLabel != null && winnerLabel.text.Contains("PLAYER 1"),
+                    "battle timer awards the win to the player with more HP");
+            }
         }
 
         private static void ValidateBattleSpawnAndBounds()
