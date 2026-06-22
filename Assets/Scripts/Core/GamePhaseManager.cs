@@ -35,6 +35,9 @@ namespace ArenaCraft
         [SerializeField] private Vector2 m_ShopBoundsCenter = new Vector2(0f, 18f);
         [SerializeField] private Vector2 m_ShopBoundsSize = new Vector2(12f, 12f);
         [SerializeField] private float m_BattleBoundsPadding = 18f;
+        [Header("References")]
+        [Tooltip("Assign the MatchEndHandler from the scene. If left empty, FindAnyObjectByType is used as fallback (slower and fails if it's missing).")]
+        [SerializeField] private MatchEndHandler m_MatchEndHandler;
         [Header("Audio")]
         public AudioClip phaseStartSound;
 
@@ -134,10 +137,12 @@ namespace ArenaCraft
                 this.m_PhaseSkipRequested = false;
                 if (phase == GamePhase.BattleRoyale)
                 {
-                    MatchEndHandler matchEndHandler =
-                        UnityEngine.Object.FindAnyObjectByType<MatchEndHandler>();
+                    MatchEndHandler matchEndHandler = this.m_MatchEndHandler
+                        ?? UnityEngine.Object.FindAnyObjectByType<MatchEndHandler>();
                     if (matchEndHandler != null)
                         matchEndHandler.EndBattleByTimer();
+                    else
+                        Debug.LogError("[GamePhaseManager] Battle timer expired but no MatchEndHandler found in scene. Add one and assign it to GamePhaseManager.MatchEndHandler.", this);
                 }
             }
             else

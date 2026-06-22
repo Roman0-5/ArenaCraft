@@ -437,8 +437,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: aa315fd2770fc4371966c5dc70261f89, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ArenaCraft.MainMenuController
-  m_GameSceneName: SampleScene
   m_SettingsMenu: {fileID: 206329065}
+  menuMusic: {fileID: 8300000, guid: d1e00291c02f28d4e983ccaf888e3b62, type: 3}
+  musicVolume: 0.3
 --- !u!114 &1516505713
 MonoBehaviour:
   m_ObjectHideFlags: 0

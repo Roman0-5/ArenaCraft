@@ -29,6 +29,7 @@ namespace ArenaCraft
         private int currentHP;
         private bool isDead;
         private ShieldBlock shieldBlock;
+        private CombatAudio combatAudio;
         #endregion
 
         public int MaxHP => this.maxHP;
@@ -54,6 +55,7 @@ namespace ArenaCraft
         private void Awake()
         {
             this.shieldBlock = GetComponent<ShieldBlock>();
+            this.combatAudio = GetComponent<CombatAudio>();
             this.RecalculateMaxHP(true);
         }
 
@@ -103,6 +105,8 @@ namespace ArenaCraft
         {
             if (this.isDead) return;
             this.isDead = true;
+
+            if (this.combatAudio != null) this.combatAudio.PlayDeath();
 
             if (this.disableControlsOnDeath)
             {

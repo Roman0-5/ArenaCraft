@@ -2,41 +2,48 @@ using UnityEngine;
 
 namespace ArenaCraft
 {
-    /// <summary>
-    /// Plays combat SFX (swing, hit) via an AudioSource. Triggered by <see cref="MeleeAttack"/>
-    /// and <see cref="AttackHitbox"/> (GDD FSR3).
-    /// </summary>
     [RequireComponent(typeof(AudioSource))]
     public class CombatAudio : MonoBehaviour
     {
-        #region Public Fields
-        [Tooltip("Played when a swing starts.")]
+        [Header("Attack")]
         public AudioClip swingClip;
+        [Range(0f, 1f)] public float swingVolume = 0.7f;
 
-        [Tooltip("Played when a swing connects with an opponent.")]
         public AudioClip hitClip;
+        [Range(0f, 1f)] public float hitVolume = 1f;
 
-        [Range(0f, 1f)]
-        public float volume = 1f;
-        #endregion
+        [Header("Movement")]
+        public AudioClip dashClip;
+        [Range(0f, 1f)] public float dashVolume = 0.8f;
 
-        #region Private Fields
+        [Header("Shield")]
+        public AudioClip blockClip;
+        [Range(0f, 1f)] public float blockVolume = 1f;
+
+        public AudioClip shieldBreakClip;
+        [Range(0f, 1f)] public float shieldBreakVolume = 1f;
+
+        [Header("Death")]
+        public AudioClip deathClip;
+        [Range(0f, 1f)] public float deathVolume = 1f;
+
         private AudioSource source;
-        #endregion
 
         private void Awake()
         {
             this.source = GetComponent<AudioSource>();
         }
 
-        public void PlaySwing()
-        {
-            if (this.swingClip != null) this.source.PlayOneShot(this.swingClip, this.volume);
-        }
+        public void PlaySwing()       => Play(this.swingClip,       this.swingVolume);
+        public void PlayHit()         => Play(this.hitClip,         this.hitVolume);
+        public void PlayDash()        => Play(this.dashClip,        this.dashVolume);
+        public void PlayBlock()       => Play(this.blockClip,       this.blockVolume);
+        public void PlayShieldBreak() => Play(this.shieldBreakClip, this.shieldBreakVolume);
+        public void PlayDeath()       => Play(this.deathClip,       this.deathVolume);
 
-        public void PlayHit()
+        private void Play(AudioClip clip, float volume)
         {
-            if (this.hitClip != null) this.source.PlayOneShot(this.hitClip, this.volume);
+            if (clip != null) this.source.PlayOneShot(clip, volume);
         }
     }
 }

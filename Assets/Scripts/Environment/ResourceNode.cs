@@ -34,6 +34,7 @@ namespace ArenaCraft
         public GameObject visuals;
         public ParticleSystem harvestEffect;
         public AudioClip hitSound;
+        [Range(0f, 3f)] public float hitSoundVolume = 2.5f;
 
         private int m_CurrentHealth;
         private bool m_IsDestroyed;
@@ -361,9 +362,7 @@ namespace ArenaCraft
             this.OnHarvested?.Invoke(this, harvester, awarded);
 
             if (this.hitSound != null && this.m_AudioSource != null)
-            {
-                this.m_AudioSource.PlayOneShot(this.hitSound);
-            }
+                this.m_AudioSource.PlayOneShot(this.hitSound, this.hitSoundVolume);
 
             if (this.harvestEffect != null)
             {

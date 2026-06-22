@@ -7,6 +7,11 @@ namespace ArenaCraft
     {
         [SerializeField] private SettingsUIController m_SettingsMenu;
 
+        [Header("Audio")]
+        public AudioClip menuMusic;
+        [Range(0f, 1f)] public float musicVolume = 0.4f;
+
+        private AudioSource m_AudioSource;
         private Button m_StartButton;
         private Button m_SettingsButton;
         private Button m_ClassicButton;
@@ -14,6 +19,20 @@ namespace ArenaCraft
         private Button m_SharedButton;
         private Button m_SplitButton;
         private Label m_SelectionSummary;
+
+        private void Awake()
+        {
+            if (this.menuMusic != null)
+            {
+                this.m_AudioSource = gameObject.AddComponent<AudioSource>();
+                this.m_AudioSource.clip = this.menuMusic;
+                this.m_AudioSource.loop = true;
+                this.m_AudioSource.spatialBlend = 0f;
+                this.m_AudioSource.volume = this.musicVolume;
+                this.m_AudioSource.playOnAwake = false;
+                this.m_AudioSource.Play();
+            }
+        }
 
         private void OnEnable()
         {

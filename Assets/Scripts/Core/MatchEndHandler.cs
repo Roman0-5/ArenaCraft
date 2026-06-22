@@ -9,6 +9,10 @@ namespace ArenaCraft
         public VisualTreeAsset victoryUxml;
         public PanelSettings panelSettings;
 
+        [Header("Audio")]
+        public AudioClip gameOverClip;
+        [Range(0f, 1f)] public float gameOverVolume = 0.8f;
+
         private bool m_GameEnded;
         private UIDocument m_VictoryDoc;
 
@@ -104,6 +108,9 @@ namespace ArenaCraft
                 Debug.LogError("Victory screen assets are not assigned.", this);
                 return;
             }
+
+            if (this.gameOverClip != null)
+                AudioSource.PlayClipAtPoint(this.gameOverClip, Vector3.zero, this.gameOverVolume);
 
             // Hide HUD
             var hud = UnityEngine.Object.FindAnyObjectByType<HUDController>();

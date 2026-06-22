@@ -25,6 +25,7 @@ namespace ArenaCraft
         private PlayerInputProvider input;
         private Equipment equipment;
         private Animator animator;
+        private CombatAudio combatAudio;
         private int blocksRemaining;
         private int blockingHash;
         #endregion
@@ -42,6 +43,7 @@ namespace ArenaCraft
             this.input = GetComponent<PlayerInputProvider>();
             this.equipment = GetComponent<Equipment>();
             this.animator = GetComponentInChildren<Animator>();
+            this.combatAudio = GetComponent<CombatAudio>();
             this.blocksRemaining = this.maxBlocks;
             this.blockingHash = Animator.StringToHash(this.blockingParameter);
         }
@@ -64,6 +66,7 @@ namespace ArenaCraft
         {
             if (!this.IsBlocking) return false;
 
+            if (this.combatAudio != null) this.combatAudio.PlayBlock();
             this.blocksRemaining--;
             if (this.blocksRemaining <= 0) this.BreakShield();
             return true;
@@ -81,6 +84,7 @@ namespace ArenaCraft
         private void BreakShield()
         {
             this.hasShield = false;
+            if (this.combatAudio != null) this.combatAudio.PlayShieldBreak();
             this.ApplyShieldVisible();
         }
 

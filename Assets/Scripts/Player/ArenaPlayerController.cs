@@ -42,6 +42,7 @@ namespace ArenaCraft
         #region Private Fields
         private Rigidbody rb;
         private PlayerInputProvider input;
+        private CombatAudio combatAudio;
         private Vector2 moveInput;
         private int speedHash;
         private bool isDashing;
@@ -72,6 +73,7 @@ namespace ArenaCraft
         {
             this.rb = GetComponent<Rigidbody>();
             this.input = GetComponent<PlayerInputProvider>();
+            this.combatAudio = GetComponent<CombatAudio>();
 
             // Lock vertical position (gameplay is on the X/Z plane) and freeze tilt so collisions
             // can't pop the body up or tip it over. Y rotation stays free for facing via MoveRotation;
@@ -101,6 +103,7 @@ namespace ArenaCraft
             this.isDashing = true;
             this.dashEndTime = Time.time + this.dashDuration;
             this.lastDashTime = Time.time;
+            if (this.combatAudio != null) this.combatAudio.PlayDash();
         }
 
         private void FixedUpdate()

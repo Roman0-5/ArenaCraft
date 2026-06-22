@@ -5463,8 +5463,17 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ArenaCraft.CombatAudio
   swingClip: {fileID: 8300000, guid: 09a288a2a6394f241a6f8cb0afa2a2bf, type: 3}
+  swingVolume: 0.7
   hitClip: {fileID: 8300000, guid: f8ac93e1a8086c3489e6e613210e612d, type: 3}
-  volume: 1
+  hitVolume: 1
+  dashClip: {fileID: 8300000, guid: 743ccf2b42a7e78438a376ba60508911, type: 3}
+  dashVolume: 0.8
+  blockClip: {fileID: 8300000, guid: 5d83b3d72a55ec34f983a8a54b04a3a3, type: 3}
+  blockVolume: 1
+  shieldBreakClip: {fileID: 8300000, guid: 2b4e247e52169d441b0d7aa2f4037dae, type: 3}
+  shieldBreakVolume: 1
+  deathClip: {fileID: 8300000, guid: 32d3b375558f5494abbb00adabf10c06, type: 3}
+  deathVolume: 1
 --- !u!82 &17423183
 AudioSource:
   m_ObjectHideFlags: 0
@@ -11305,6 +11314,7 @@ MonoBehaviour:
   visuals: {fileID: 1683991969}
   harvestEffect: {fileID: 45661685}
   hitSound: {fileID: 8300000, guid: 6150176ff399143e4bd8fbdca04ca738, type: 3}
+  hitSoundVolume: 1.5
 --- !u!1001 &83923871
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -11760,6 +11770,7 @@ MonoBehaviour:
   visuals: {fileID: 989153371}
   harvestEffect: {fileID: 753129215}
   hitSound: {fileID: 8300000, guid: 8673e4656dad747a4b8f56ee1ae66190, type: 3}
+  hitSoundVolume: 1.5
 --- !u!1001 &137004203
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -23477,6 +23488,7 @@ MonoBehaviour:
   visuals: {fileID: 1146829927}
   harvestEffect: {fileID: 300631716}
   hitSound: {fileID: 8300000, guid: 8673e4656dad747a4b8f56ee1ae66190, type: 3}
+  hitSoundVolume: 1.5
 --- !u!1001 &262750029
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -23832,6 +23844,7 @@ MonoBehaviour:
   visuals: {fileID: 326150358}
   harvestEffect: {fileID: 1196985533}
   hitSound: {fileID: 8300000, guid: 8673e4656dad747a4b8f56ee1ae66190, type: 3}
+  hitSoundVolume: 1.5
 --- !u!1001 &286988556
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -29835,6 +29848,7 @@ MonoBehaviour:
   visuals: {fileID: 2009907532}
   harvestEffect: {fileID: 1663234951}
   hitSound: {fileID: 8300000, guid: 1e04ed236d35045299db078761e67f88, type: 3}
+  hitSoundVolume: 1.5
 --- !u!1001 &334426447
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -30397,8 +30411,17 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ArenaCraft.CombatAudio
   swingClip: {fileID: 8300000, guid: 09a288a2a6394f241a6f8cb0afa2a2bf, type: 3}
+  swingVolume: 0.7
   hitClip: {fileID: 8300000, guid: f8ac93e1a8086c3489e6e613210e612d, type: 3}
-  volume: 1
+  hitVolume: 1
+  dashClip: {fileID: 8300000, guid: 743ccf2b42a7e78438a376ba60508911, type: 3}
+  dashVolume: 0.8
+  blockClip: {fileID: 8300000, guid: 5d83b3d72a55ec34f983a8a54b04a3a3, type: 3}
+  blockVolume: 1
+  shieldBreakClip: {fileID: 8300000, guid: 2b4e247e52169d441b0d7aa2f4037dae, type: 3}
+  shieldBreakVolume: 1
+  deathClip: {fileID: 8300000, guid: 32d3b375558f5494abbb00adabf10c06, type: 3}
+  deathVolume: 1
 --- !u!82 &376035541
 AudioSource:
   m_ObjectHideFlags: 0
@@ -36897,6 +36920,7 @@ MonoBehaviour:
   visuals: {fileID: 551031459}
   harvestEffect: {fileID: 1566443673}
   hitSound: {fileID: 8300000, guid: 1e04ed236d35045299db078761e67f88, type: 3}
+  hitSoundVolume: 1.5
 --- !u!1 &464562723
 GameObject:
   m_ObjectHideFlags: 0
@@ -37264,6 +37288,7 @@ MonoBehaviour:
   visuals: {fileID: 464984377}
   harvestEffect: {fileID: 2016403562}
   hitSound: {fileID: 8300000, guid: 8673e4656dad747a4b8f56ee1ae66190, type: 3}
+  hitSoundVolume: 1.5
 --- !u!1001 &486732234
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -42913,6 +42938,7 @@ MonoBehaviour:
   visuals: {fileID: 332247506}
   harvestEffect: {fileID: 1444033462}
   hitSound: {fileID: 8300000, guid: 6150176ff399143e4bd8fbdca04ca738, type: 3}
+  hitSoundVolume: 1.5
 --- !u!1 &551031459
 GameObject:
   m_ObjectHideFlags: 0
@@ -48615,7 +48641,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::ArenaCraft.ShopController
   basicSword: {fileID: 11400000, guid: a7ea1000ab0000000000000000000b02, type: 2}
   advancedSword: {fileID: 11400000, guid: a7ea1000ab0000000000000000000a03, type: 2}
-  buySound: {fileID: 8300000, guid: 446a98dd0bfef4d9290ebbb5fc955a97, type: 3}
+  buySound: {fileID: 8300000, guid: 7ecd1250b8b72f74cbe5fe42b59d3cf6, type: 3}
 --- !u!114 &595221071
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -48795,6 +48821,7 @@ MonoBehaviour:
   visuals: {fileID: 0}
   harvestEffect: {fileID: 0}
   hitSound: {fileID: 0}
+  hitSoundVolume: 1.5
 --- !u!1 &631375056
 GameObject:
   m_ObjectHideFlags: 0
@@ -48875,6 +48902,7 @@ MonoBehaviour:
   visuals: {fileID: 363041446}
   harvestEffect: {fileID: 1079909866}
   hitSound: {fileID: 8300000, guid: 8673e4656dad747a4b8f56ee1ae66190, type: 3}
+  hitSoundVolume: 1.5
 --- !u!1 &646200073
 GameObject:
   m_ObjectHideFlags: 0
@@ -48989,6 +49017,7 @@ MonoBehaviour:
   visuals: {fileID: 570739748}
   harvestEffect: {fileID: 1934542610}
   hitSound: {fileID: 8300000, guid: 6150176ff399143e4bd8fbdca04ca738, type: 3}
+  hitSoundVolume: 1.5
 --- !u!1001 &648283058
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -49888,6 +49917,7 @@ MonoBehaviour:
   visuals: {fileID: 941998121}
   harvestEffect: {fileID: 1821366332}
   hitSound: {fileID: 8300000, guid: 8673e4656dad747a4b8f56ee1ae66190, type: 3}
+  hitSoundVolume: 1.5
 --- !u!1 &727857911
 GameObject:
   m_ObjectHideFlags: 0
@@ -60503,6 +60533,7 @@ MonoBehaviour:
   visuals: {fileID: 918307019}
   harvestEffect: {fileID: 1907110948}
   hitSound: {fileID: 8300000, guid: 6150176ff399143e4bd8fbdca04ca738, type: 3}
+  hitSoundVolume: 1.5
 --- !u!1 &814342679
 GameObject:
   m_ObjectHideFlags: 0
@@ -60581,6 +60612,7 @@ MonoBehaviour:
   visuals: {fileID: 709531156}
   harvestEffect: {fileID: 727857914}
   hitSound: {fileID: 8300000, guid: 6150176ff399143e4bd8fbdca04ca738, type: 3}
+  hitSoundVolume: 1.5
 --- !u!1001 &816573403
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -61077,6 +61109,7 @@ MonoBehaviour:
   visuals: {fileID: 1275432164}
   harvestEffect: {fileID: 198027656}
   hitSound: {fileID: 8300000, guid: 6150176ff399143e4bd8fbdca04ca738, type: 3}
+  hitSoundVolume: 1.5
 --- !u!1001 &848951066
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -61299,6 +61332,7 @@ MonoBehaviour:
   visuals: {fileID: 491082779}
   harvestEffect: {fileID: 1121283436}
   hitSound: {fileID: 8300000, guid: 1e04ed236d35045299db078761e67f88, type: 3}
+  hitSoundVolume: 1.5
 --- !u!1001 &864877748
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -67482,6 +67516,7 @@ MonoBehaviour:
   visuals: {fileID: 0}
   harvestEffect: {fileID: 0}
   hitSound: {fileID: 0}
+  hitSoundVolume: 1.5
 --- !u!1 &976574965
 GameObject:
   m_ObjectHideFlags: 0
@@ -78548,6 +78583,7 @@ MonoBehaviour:
   visuals: {fileID: 202515060}
   harvestEffect: {fileID: 1345985658}
   hitSound: {fileID: 8300000, guid: 1e04ed236d35045299db078761e67f88, type: 3}
+  hitSoundVolume: 1.5
 --- !u!1001 &1087985516
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -83766,6 +83802,7 @@ MonoBehaviour:
   visuals: {fileID: 1836832937}
   harvestEffect: {fileID: 1723422318}
   hitSound: {fileID: 8300000, guid: 8673e4656dad747a4b8f56ee1ae66190, type: 3}
+  hitSoundVolume: 1.5
 --- !u!1 &1117528666
 GameObject:
   m_ObjectHideFlags: 0
@@ -83916,6 +83953,7 @@ MonoBehaviour:
   visuals: {fileID: 833095153}
   harvestEffect: {fileID: 1379155472}
   hitSound: {fileID: 8300000, guid: 8673e4656dad747a4b8f56ee1ae66190, type: 3}
+  hitSoundVolume: 1.5
 --- !u!1 &1121283433
 GameObject:
   m_ObjectHideFlags: 0
@@ -94864,6 +94902,7 @@ MonoBehaviour:
   visuals: {fileID: 1832341144}
   harvestEffect: {fileID: 938322406}
   hitSound: {fileID: 8300000, guid: 1e04ed236d35045299db078761e67f88, type: 3}
+  hitSoundVolume: 1.5
 --- !u!1 &1248283274
 GameObject:
   m_ObjectHideFlags: 0
@@ -100741,6 +100780,7 @@ MonoBehaviour:
   visuals: {fileID: 1943592522}
   harvestEffect: {fileID: 1412821823}
   hitSound: {fileID: 8300000, guid: 1e04ed236d35045299db078761e67f88, type: 3}
+  hitSoundVolume: 1.5
 --- !u!1 &1323956239
 GameObject:
   m_ObjectHideFlags: 0
@@ -105897,6 +105937,7 @@ MonoBehaviour:
   visuals: {fileID: 0}
   harvestEffect: {fileID: 0}
   hitSound: {fileID: 0}
+  hitSoundVolume: 1.5
 --- !u!65 &1338074201
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -106171,6 +106212,7 @@ MonoBehaviour:
   visuals: {fileID: 1268398178}
   harvestEffect: {fileID: 1323956242}
   hitSound: {fileID: 8300000, guid: 6150176ff399143e4bd8fbdca04ca738, type: 3}
+  hitSoundVolume: 1.5
 --- !u!1 &1343499467 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 919132149155446097, guid: c80cde09c2f58844bacf5ac2bf60dee9, type: 3}
@@ -111549,6 +111591,7 @@ MonoBehaviour:
   visuals: {fileID: 0}
   harvestEffect: {fileID: 0}
   hitSound: {fileID: 0}
+  hitSoundVolume: 1.5
 --- !u!1 &1379155469
 GameObject:
   m_ObjectHideFlags: 0
@@ -117065,6 +117108,7 @@ MonoBehaviour:
   visuals: {fileID: 655874930}
   harvestEffect: {fileID: 1297127373}
   hitSound: {fileID: 8300000, guid: 1e04ed236d35045299db078761e67f88, type: 3}
+  hitSoundVolume: 1.5
 --- !u!1 &1412821820
 GameObject:
   m_ObjectHideFlags: 0
@@ -122235,6 +122279,7 @@ MonoBehaviour:
   visuals: {fileID: 2008966861}
   harvestEffect: {fileID: 518651487}
   hitSound: {fileID: 8300000, guid: 6150176ff399143e4bd8fbdca04ca738, type: 3}
+  hitSoundVolume: 1.5
 --- !u!1001 &1440025057
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -127502,6 +127547,7 @@ MonoBehaviour:
   visuals: {fileID: 0}
   harvestEffect: {fileID: 0}
   hitSound: {fileID: 0}
+  hitSoundVolume: 1.5
 --- !u!1001 &1482930256
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -127712,6 +127758,7 @@ MonoBehaviour:
   visuals: {fileID: 0}
   harvestEffect: {fileID: 0}
   hitSound: {fileID: 0}
+  hitSoundVolume: 1.5
 --- !u!65 &1497042524
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -127955,6 +128002,7 @@ MonoBehaviour:
   visuals: {fileID: 246920038}
   harvestEffect: {fileID: 424380964}
   hitSound: {fileID: 8300000, guid: 6150176ff399143e4bd8fbdca04ca738, type: 3}
+  hitSoundVolume: 1.5
 --- !u!1001 &1517898377
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -134484,6 +134532,7 @@ MonoBehaviour:
   visuals: {fileID: 976574965}
   harvestEffect: {fileID: 1067223887}
   hitSound: {fileID: 8300000, guid: 8673e4656dad747a4b8f56ee1ae66190, type: 3}
+  hitSoundVolume: 1.5
 --- !u!1001 &1636781282
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -134805,6 +134854,7 @@ MonoBehaviour:
   visuals: {fileID: 987359803}
   harvestEffect: {fileID: 227200102}
   hitSound: {fileID: 8300000, guid: 8673e4656dad747a4b8f56ee1ae66190, type: 3}
+  hitSoundVolume: 1.5
 --- !u!1001 &1653360478
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -140228,6 +140278,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::ArenaCraft.GamePhaseManager
   m_ResourcePhaseTime: 180
   m_ShoppingPhaseTime: 60
+  m_BattlePhaseTime: 180
   m_SpawnPointP1: {fileID: 378281870}
   m_SpawnPointP2: {fileID: 1563163039}
   m_ResourceBoundsCollider: {fileID: 0}
@@ -140236,6 +140287,7 @@ MonoBehaviour:
   m_ShopBoundsCenter: {x: 0, y: 18}
   m_ShopBoundsSize: {x: 12, y: 12}
   m_BattleBoundsPadding: 18
+  m_MatchEndHandler: {fileID: 1695655218}
   phaseStartSound: {fileID: 0}
 --- !u!4 &1695655217
 Transform:
@@ -140266,6 +140318,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::ArenaCraft.MatchEndHandler
   victoryUxml: {fileID: 9197481963319205126, guid: 996e1bd0a2115402dbaa0f30dca14d8e, type: 3}
   panelSettings: {fileID: 11400000, guid: d59a1a92bec664537a662c438195a7fe, type: 2}
+  gameOverClip: {fileID: 8300000, guid: 49c84ca8bd2503f4a9095d0e2a9b9a69, type: 3}
+  gameOverVolume: 0.8
 --- !u!1 &1706768665 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 919132149155446097, guid: ef0ac6ba221fc8d4c9a218702e7255ba, type: 3}
@@ -140500,6 +140554,7 @@ MonoBehaviour:
   visuals: {fileID: 413764254}
   harvestEffect: {fileID: 572963250}
   hitSound: {fileID: 8300000, guid: 6150176ff399143e4bd8fbdca04ca738, type: 3}
+  hitSoundVolume: 1.5
 --- !u!1001 &1714260481
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -140746,6 +140801,7 @@ MonoBehaviour:
   visuals: {fileID: 965575041}
   harvestEffect: {fileID: 1090971146}
   hitSound: {fileID: 8300000, guid: 1e04ed236d35045299db078761e67f88, type: 3}
+  hitSoundVolume: 1.5
 --- !u!1 &1723422315
 GameObject:
   m_ObjectHideFlags: 0
@@ -146874,6 +146930,7 @@ MonoBehaviour:
   visuals: {fileID: 0}
   harvestEffect: {fileID: 0}
   hitSound: {fileID: 0}
+  hitSoundVolume: 1.5
 --- !u!1001 &1817142816
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -152649,6 +152706,7 @@ MonoBehaviour:
   visuals: {fileID: 0}
   harvestEffect: {fileID: 0}
   hitSound: {fileID: 0}
+  hitSoundVolume: 1.5
 --- !u!1001 &1850129996
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -152791,6 +152849,56 @@ MonoBehaviour:
   visuals: {fileID: 796009240}
   harvestEffect: {fileID: 1948690595}
   hitSound: {fileID: 8300000, guid: 8673e4656dad747a4b8f56ee1ae66190, type: 3}
+  hitSoundVolume: 1.5
+--- !u!1 &1858690023
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1858690025}
+  - component: {fileID: 1858690024}
+  m_Layer: 0
+  m_Name: Ambience
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1858690024
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1858690023}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2b3088edfa2d5764ab787074618c1ff8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ArenaCraft.AmbienceController
+  resourceClip: {fileID: 8300000, guid: c1a062bf36e6fdc4fb8600a23f3eb024, type: 3}
+  shopClip: {fileID: 8300000, guid: 6d015156af29eb54ebf8123c6d8c3e59, type: 3}
+  battleClip: {fileID: 8300000, guid: 0a96d88fd56338a439e6156d0f3a7b95, type: 3}
+  volume: 0.25
+  crossfadeDuration: 1.5
+--- !u!4 &1858690025
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1858690023}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &1864600844
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -153209,6 +153317,7 @@ MonoBehaviour:
   visuals: {fileID: 0}
   harvestEffect: {fileID: 0}
   hitSound: {fileID: 0}
+  hitSoundVolume: 1.5
 --- !u!65 &1903742160
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -174726,6 +174835,7 @@ MonoBehaviour:
   visuals: {fileID: 0}
   harvestEffect: {fileID: 0}
   hitSound: {fileID: 0}
+  hitSoundVolume: 1.5
 --- !u!65 &2028875795
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -175336,6 +175446,7 @@ MonoBehaviour:
   visuals: {fileID: 0}
   harvestEffect: {fileID: 0}
   hitSound: {fileID: 0}
+  hitSoundVolume: 1.5
 --- !u!1001 &2101548421
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -176122,6 +176233,7 @@ MonoBehaviour:
   visuals: {fileID: 361421939}
   harvestEffect: {fileID: 16600387}
   hitSound: {fileID: 8300000, guid: 8673e4656dad747a4b8f56ee1ae66190, type: 3}
+  hitSoundVolume: 1.5
 --- !u!1 &2139798106
 GameObject:
   m_ObjectHideFlags: 0
@@ -176448,3 +176560,4 @@ SceneRoots:
   - {fileID: 2017453627}
   - {fileID: 302773827}
   - {fileID: 1090761252}
+  - {fileID: 1858690025}
