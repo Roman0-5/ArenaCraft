@@ -65,6 +65,8 @@ namespace ArenaCraft
         public float VisualBottomHeight =>
             TryGetVisualWorldBounds(out Bounds bounds) ? bounds.min.y : transform.position.y;
 
+        public static event Action<ResourceNode, PlayerInventory, int> OnAnyHarvested;
+
         public event Action<ResourceNode, PlayerInventory, int> OnHarvested;
         public event Action<ResourceNode> OnDepleted;
         public event Action<ResourceNode> OnRespawned;
@@ -360,6 +362,7 @@ namespace ArenaCraft
 
             this.m_CurrentHealth -= healthDamage;
             this.OnHarvested?.Invoke(this, harvester, awarded);
+            OnAnyHarvested?.Invoke(this, harvester, awarded);
 
             if (this.hitSound != null && this.m_AudioSource != null)
                 this.m_AudioSource.PlayOneShot(this.hitSound, this.hitSoundVolume);

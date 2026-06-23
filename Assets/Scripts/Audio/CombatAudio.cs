@@ -10,7 +10,7 @@ namespace ArenaCraft
         [Range(0f, 1f)] public float swingVolume = 0.7f;
 
         public AudioClip hitClip;
-        [Range(0f, 1f)] public float hitVolume = 1f;
+        [Range(0f, 2f)] public float hitVolume = 1.5f;
 
         [Header("Movement")]
         public AudioClip dashClip;
@@ -18,7 +18,7 @@ namespace ArenaCraft
 
         [Header("Shield")]
         public AudioClip blockClip;
-        [Range(0f, 1f)] public float blockVolume = 1f;
+        [Range(0f, 1f)] public float blockVolume = 0.4f;
 
         public AudioClip shieldBreakClip;
         [Range(0f, 1f)] public float shieldBreakVolume = 1f;

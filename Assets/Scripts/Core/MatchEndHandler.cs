@@ -4,6 +4,7 @@ using System.Collections.Generic;
 
 namespace ArenaCraft
 {
+    [RequireComponent(typeof(AudioSource))]
     public class MatchEndHandler : MonoBehaviour
     {
         public VisualTreeAsset victoryUxml;
@@ -12,13 +13,20 @@ namespace ArenaCraft
         [Header("Audio")]
         public AudioClip gameOverClip;
         [Range(0f, 1f)] public float gameOverVolume = 0.8f;
+        [SerializeField] private AmbienceController m_Ambience;
 
+        private AudioSource m_AudioSource;
         private bool m_GameEnded;
         private UIDocument m_VictoryDoc;
 
         private void Awake()
         {
             Health.OnAnyDied += OnPlayerDied;
+
+            this.m_AudioSource = GetComponent<AudioSource>();
+            this.m_AudioSource.spatialBlend = 0f;
+            this.m_AudioSource.playOnAwake = false;
+            this.m_AudioSource.loop = false;
         }
 
         private void Update()
@@ -109,8 +117,9 @@ namespace ArenaCraft
                 return;
             }
 
+            if (this.m_Ambience != null) this.m_Ambience.FadeOut();
             if (this.gameOverClip != null)
-                AudioSource.PlayClipAtPoint(this.gameOverClip, Vector3.zero, this.gameOverVolume);
+                this.m_AudioSource.PlayOneShot(this.gameOverClip, this.gameOverVolume);
 
             // Hide HUD
             var hud = UnityEngine.Object.FindAnyObjectByType<HUDController>();
