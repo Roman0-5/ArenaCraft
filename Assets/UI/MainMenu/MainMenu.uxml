@@ -24,6 +24,7 @@
             <ui:Label name="selection-summary" text="CLASSIC | SHARED SCREEN" class="selection-summary" />
             <ui:Button name="start-button" text="ENTER THE ARENA" class="menu-button" />
             <ui:Button name="settings-button" text="SETTINGS" class="menu-button settings-btn" />
+            <ui:Button name="quit-button" text="QUIT" class="menu-button quit-btn" />
         </ui:VisualElement>
     </ui:VisualElement>
 </ui:UXML>

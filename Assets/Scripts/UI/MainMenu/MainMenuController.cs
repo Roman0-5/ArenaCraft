@@ -14,6 +14,7 @@ namespace ArenaCraft
         private AudioSource m_AudioSource;
         private Button m_StartButton;
         private Button m_SettingsButton;
+        private Button m_QuitButton;
         private Button m_ClassicButton;
         private Button m_QuickButton;
         private Button m_SharedButton;
@@ -49,9 +50,11 @@ namespace ArenaCraft
 
             this.m_SettingsButton = root.Q<Button>("settings-button");
             if (this.m_SettingsButton != null)
-            {
                 this.m_SettingsButton.clicked += this.OnSettingsClicked;
-            }
+
+            this.m_QuitButton = root.Q<Button>("quit-button");
+            if (this.m_QuitButton != null)
+                this.m_QuitButton.clicked += this.OnQuitClicked;
 
             this.m_ClassicButton = root.Q<Button>("mode-classic-button");
             this.m_QuickButton = root.Q<Button>("mode-quick-button");
@@ -73,6 +76,9 @@ namespace ArenaCraft
 
             if (this.m_SettingsButton != null)
                 this.m_SettingsButton.clicked -= this.OnSettingsClicked;
+
+            if (this.m_QuitButton != null)
+                this.m_QuitButton.clicked -= this.OnQuitClicked;
         }
 
         private void OnStartClicked()
@@ -102,6 +108,15 @@ namespace ArenaCraft
             this.m_SplitButton?.EnableInClassList("choice-button--active", split);
             if (this.m_SelectionSummary != null)
                 this.m_SelectionSummary.text = $"{(rules == MatchRuleSet.GddClassic ? "CLASSIC" : "QUICK MATCH")}  |  {(split ? "SPLIT SCREEN" : "SHARED SCREEN")}";
+        }
+
+        private void OnQuitClicked()
+        {
+#if UNITY_EDITOR
+            UnityEditor.EditorApplication.isPlaying = false;
+#else
+            Application.Quit();
+#endif
         }
 
         private void OnSettingsClicked()
